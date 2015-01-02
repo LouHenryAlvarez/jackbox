@@ -23,16 +23,11 @@ Gem::Specification.new do |spec|
 
 	spec.add_development_dependency 'rspec', '~> 3.0.0', '>= 3.0'
 	
-	if RUBY_VERSION < '2.0.0'
 		spec.add_runtime_dependency "bundler", "~> 1.6", '>= 1.6'
 		spec.add_runtime_dependency 'thor', '~> 0.18.1', '>= 0.18'
-		spec.add_runtime_dependency "debugger", '~> 1.6.8', '>= 1.6'
-	else
-		spec.add_runtime_dependency "bundler", "~> 1.7", '>= 1.6'
-		spec.add_runtime_dependency 'thor', '~>0.19', '>= 0.19'
-		spec.add_runtime_dependency 'byebug', '>= 2.7', '< 4.0'
-	end
+		# spec.add_runtime_dependency "debugger", '~> 1.6.8', '>= 1.6'
+		# spec.add_runtime_dependency 'byebug', '>= 2.7', '< 4.0'
 	
-	# spec.add_runtime_dependency 'ffi', '>= 1.7.0'
+	spec.add_runtime_dependency 'ffi', '~> 1.7', '>=1.7.0'
 
 end
