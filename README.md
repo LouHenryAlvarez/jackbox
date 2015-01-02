@@ -8,7 +8,7 @@ Jackbox
 
 Jackbox is a set of programming tools which enhance the Ruby language and/or provide additional software constructs.  
 
-The main library function at this time centers around the concept of code injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a type of closures which can also serve as modules.  With them it is possible to solve several general problems in the area of OOP according to the GOF standard.  For example, they solve traditional Ruby problems in the Decorator Pattern and Strategy Pattern. If the GOF standard is not in your work perhaps it's best to look at Jackbox's ability to inject your methods' surrounding context into a target using a type of closures that have all the properties of modules, but that also make it  possible to control the presence of code within targets with a mechanism involving injector directives.  This makes things like conditional code injection and withdrawal trivial matter.  And, there is more coming soon.
+The main library function at this time centers around the concept of code injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a type of closures which can also serve as modules.  With them it is possible to solve several general problems in the area of OOP according to the GOF standard and to harness some additional properties behind the idea of mixins.   For example, they solve traditional Ruby problems in the Decorator Pattern and Strategy Pattern. There are several examples of this in the specs that accompany the product.  If the GOF standard is not in your work perhaps you can consider Jackbox's ability to inject your methods' surrounding context into an indiscriminate target, but then also make it  possible to control the presence of your code in that target with a mechanism involving injector directives.  This makes things like conditional code injection, presence, and withdrawal a trivial matter and can be applied to presentation layers, security frameworks, etc.
 
 Basic Methods
 --------------------------
@@ -180,12 +180,14 @@ Injectors are the main tool in Jackbox at the time of this writing. To illustrat
 
 
     # later on...
+    class One
     
-    inject my_injector              # apply the injector
+      inject my_injector              # apply the injector
   
+    end
     # or...  
   
-    enrich my_injector
+    widget.enrich my_injector
 
     puts bar  
     #=> a_bar
@@ -380,6 +382,7 @@ Called with no arguments returns a list of injector symbols.  A call with a list
     
     # later on...
     Target.injectors.each{ |ij| Target.eject ij }  
+
 
 ### Other Capabilities of Injectors
 

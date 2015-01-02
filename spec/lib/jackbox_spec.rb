@@ -240,6 +240,7 @@ describe Jackbox, 'jackbox library', :library do
 			Object.new.inspect
 			
 		end
+		
 	end
 
 

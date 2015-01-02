@@ -5,7 +5,7 @@ require "spec_helper"
 	:nodoc:all
 =end
 
-# include Tools
+include Injectors
 
 describe 'what Prefs does' do
 
@@ -195,6 +195,16 @@ describe 'what Prefs does' do
 		One.gaga.should == 3456
 		
 		File.should exist('spec/some_path/prefs')
+	end
+	
+	the 'Prefs module also works with Injectors' do
+		
+		injector :prefs_tester do
+			extend Prefs
+			pref :some_pref => 'value'
+		end
+		
+		prefs_tester.some_pref.should == 'value'
 	end
 
 end

@@ -77,6 +77,7 @@ describe Injectors, :injectors do
 		
 		end		
 
+
 		describe 'Another main difference is that Injectors can be redefined using a block.
 		This toys with the ideas of modules as closures.' do
 
@@ -140,6 +141,48 @@ describe Injectors, :injectors do
 		
 	end
 
+
+	describe 'method definition' do
+		the 'methods of the injector closure can be define using the def keyword' do
+			
+			injector :MethodDefinitions
+			
+			MethodDefinitions() do
+				
+				def some_crazy_method
+					'I am %#&*@^%_crazy enough'
+				end
+				
+			end
+			o = Object.new.enrich MethodDefinitions()
+			o.some_crazy_method.should ==  'I am %#&*@^%_crazy enough'
+		end
+		
+		the 'methods can be defined using the define_method method proc style' do
+			
+			MethodDefinitions do
+				define_method :more_crazynex do |x, y|
+					x * y * x * y
+				end
+			end
+			enrich MethodDefinitions()
+			more_crazynex( 3, 4).should == 144
+			
+		end
+		
+		the 'methods can be defined using the define_method lambda style' do
+			
+			MethodDefinitions do
+				define_method :gone_bonkers, lambda { |x,y,z| (x * y * z).split(':').join('#@')}
+			end
+			enrich MethodDefinitions()
+			gone_bonkers('errrr:rrrr', 2, 3).should == 'errrr#@rrrrerrrr#@rrrrerrrr#@rrrrerrrr#@rrrrerrrr#@rrrrerrrr#@rrrr'
+			
+		end
+		
+	end
+
+	
 	describe 'the receiver of the injectors' do
 
 		it 'can have code dynamically injected into an object receiver' do
@@ -236,6 +279,7 @@ describe Injectors, :injectors do
 		end
 	end
 		
+
 	describe 'injectors can all be dynamically erased from context. In various ways:' do
 
 		describe 'An injector individually ejected to eliminate its function. All subsequent
@@ -671,9 +715,21 @@ describe Injectors, :injectors do
 				cup = Coffee.new.enrich(milk).enrich(sprinkles)
 				cup.should be_instance_of(Coffee)
 				cup.cost.should == 1.95
+				
+				user_input = 'extra red sprinkles'
+				sprinkles do
+					define_method :appearance do
+						user_input
+					end
+				end
+				
+				cup.enrich(sprinkles)
+				cup.appearance.should == 'extra red sprinkles'
+				cup.cost.should == 2.10
 			end
 
 			this 'can be applied multiple times to the same receiver:' do
+				
 				class Coffee
 					def cost
 						1.50
@@ -689,10 +745,37 @@ describe Injectors, :injectors do
 						super() + 0.15
 					end
 				end
+				
 				cup = Coffee.new.enrich(milk).enrich(sprinkles).enrich(sprinkles)
 				cup.injectors.should == [:milk, :sprinkles, :sprinkles]
 				cup.cost.should == 2.10
 				cup.should be_instance_of(Coffee)
+				
+				user_input = 'extra red sprinkles'
+				sprinkles do
+					appearance = user_input
+					define_method :appearance do
+						appearance
+					end
+				end
+				
+				cup.enrich(sprinkles)
+				cup.appearance.should == 'extra red sprinkles'
+				cup.cost.should == 2.25
+				
+				user_input = 'cold milk'
+				milk do
+					temp = user_input.split.first
+					define_method :temp do 
+						temp
+					end
+				end
+				
+				cup.enrich milk
+				cup.temp.should == 'cold'
+				cup.cost.should == 2.55
+				cup.appearance.should == 'extra red sprinkles'
+
 			end
 		end
 		
