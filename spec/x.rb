@@ -98,22 +98,23 @@ end
 # stuff needed by all tests
 require 'jackbox'
 require 'jackbox/examples/dir'
-# DX
+DX
 
+# extend DX
 
 describe 'ruby system independence' do
 	# System Independence is accomplished by loading modules based on platform
-	# describe 'ruby version independence' do
-	# 
-	# 	it 'works according to ruby version' do
-	# 		if RUBY_VERSION < '2.0.0'
-	# 			$".grep(/debugger/).should_not be_empty
-	# 		else
-	# 			$".grep(/byebug/).should_not be_empty
-	# 		end
-	# 	end
-	# 
-	# end
+	describe 'ruby version independence' do
+	
+		it 'works according to ruby version' do
+			if RUBY_VERSION < '2.0.0'
+				$".grep(/debugger/).should_not be_empty
+			else
+				$".grep(/byebug/).should_not be_empty
+			end
+		end
+	
+	end
 	describe 'os independence', 'provided for by ruby itself' do
 		
 		case

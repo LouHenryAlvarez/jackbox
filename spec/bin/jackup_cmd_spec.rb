@@ -41,7 +41,9 @@ describe 'jackup command', :command do
   context 'if the project dir is empty' do
   		context 'if jackup --no-gem --no-bundle command is issued', :empty_dir do
   			# command issued
-      before(:all) { system 'jackup --no-gem --no-bundle' }
+      before(:all) { 
+	p "----------------------#{Dir.pwd}------------------------------------------"
+	system 'jackup --no-gem --no-bundle' }
   			####
   			assure 'a simple structure'
   			it_behaves_like 'a tooled project'

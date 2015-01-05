@@ -879,50 +879,58 @@ describe Injectors, :injectors do
 			end
 		end
 		
-		require 'jackbox/examples/dx'
-		describe DX, 'the debugger extras makes use of another capability of injectors to just completely
-		collapse leaving the method calls inplace but ejecting the actual funtion out of them' do
-			
-			describe 'ability to break into debugger' do
-				# after(:all) { load "../../lib/tools/dx.rb"}
-				it 'has a method to break into debugger mode' do
-					DX.should_receive :debug
-					DX.debug
-				end
-				it 'can break into the debugger on exception' do
-					DX.should_receive :debug
-					DX.seize TypeError
-					expect{String.new 3}.to raise_error
-				end
-				the 'call to #collapse leaves the methods inplace but silent.  There are no
-				NoMethodError exceptions raised the programm proceeds but the DX function has been removed.  
-				See the #rebuild method' do
-					DX.logger :collapse
-					DX.splatter :collapse
-				
-					DX.debug  # nothing happens
-					DX.seize Exception # nothing happens
-					DX.assert_loaded.should == nil
-					DX.log("boo").should == nil
-					DX.syslog("baa").should == nil
-				end
-			end
-		end
+		########################################################################################
+		# If you want to run these examples: you must have a debugger for your version of Ruby
+		#              ** You must uncomment the DX line in spec_helper **
+		# #####################################################################################
+		
+		# require 'jackbox/examples/dx'
+		# describe DX, 'the debugger extras makes use of another capability of injectors to just completely
+		# collapse leaving the method calls inplace but ejecting the actual funtion out of them' do
+		# 	
+		# 	describe 'ability to break into debugger' do
+		# 		# after(:all) { load "../../lib/tools/dx.rb"}
+		# 		it 'has a method to break into debugger mode' do
+		# 			DX.should_receive :debug
+		# 			DX.debug
+		# 		end
+		# 		it 'can break into the debugger on exception' do
+		# 			DX.should_receive :debug
+		# 			DX.seize TypeError
+		# 			expect{String.new 3}.to raise_error
+		# 		end
+		# 		the 'call to #collapse leaves the methods inplace but silent.  There are no
+		# 		NoMethodError exceptions raised the programm proceeds but the DX function has been removed.  
+		# 		See the #rebuild method' do
+		# 			DX.logger :collapse
+		# 			DX.splatter :collapse
+		# 		
+		# 			DX.debug  # nothing happens
+		# 			DX.seize Exception # nothing happens
+		# 			DX.assert_loaded.should == nil
+		# 			DX.log("boo").should == nil
+		# 			DX.syslog("baa").should == nil
+		# 		end
+		# 	end
+		# end
 	end
 	
 	describe 'subsequent redefinitions of methods constitute another version of the injector.  Injector 
 	versioning is the term used to identify a feature in the code that produces an artifact of injection
-	which contains a certain set of methods with their associated outputs and represents a snapshot of that 
-	injector up until the point it gets assigned to an object.  From, that point on the object contains only those
-	methods from that injector, and any subsequent overrides to those methods are only members of the continuation 
-	of the injector and do not become part of the last object of injection.  The new versions of methods only
-	become part of newer injections into the same or other targets' do
+	which contains a certain set of methods and their associated outputs and represents a snapshot of that 
+	injector up until the point it gets applied to an object.  From, that point on the object contains only that
+	version of methods from that injector, and any subsequent overrides to those methods are only members of 
+	the "continuation" of the injector and do not become part of the object of injection unless reinjection occurs.  
+	Newer versions of methods only become part of newer injections into the same or other targets' do
 		
 		describe 'injector modifications after the injection into object' do
-			the 'objects target of the injection might receive older versions of some methods while also receiving 
-			additional methods which may contain references to the newer version of the same older methods
-			present in the target.  This should keep everyting working.  I think!!!' do
+			
+			the 'objects target of the injection retain a reference to previous versions of some methods while also receiving 
+			additional methods which may contain references to the newer version of the same previous methods present in the target.  
+			This ensures to keep everyting working correctly.  I think!!!' do
+			
 				injector :my_injector do
+					
 					def bar
 						:a_bar
 					end
@@ -942,15 +950,20 @@ describe Injectors, :injectors do
 					end
 				end
 
-				bar.should == :a_bar
-				expect{some_other_function}.to_not raise_error
+				bar.should == :a_bar																	# older bar bar
+				expect{some_other_function}.to_not raise_error				# newer function present
+				
+				enrich my_injector																		# re-injection
+				bar.should == :some_larger_bar												# new version available
 			end
 
 			
 			describe 'injector versioning and its effects on the components modified' do
+				
 				the 'inclusion uses a snapshot of the injector`s existing methods up to that point, using that version of those
 				methods.  Any overrides to those methods in subsequent injector blocks do not take effect in this target, although
 				any new methods added to the injector do become available in the target only internally using the newer method overrides' do
+					
 					injector :functionality do
 						def basic arg
 							arg * 2
@@ -974,11 +987,74 @@ describe Injectors, :injectors do
 					# DX.debug
 					o.basic(1).should == 2 # would be 3 using normal modules and include/extend
 					o.other.should == 11
+					
 				end
+				
 			end
+			
 		end
 
 	end
-		
+	
+	
+	describe 'a shimmer of orthogonality with injectors' do
+
+		the 'following does not raise any errors' do
+
+			expect{
+				include Injectors
+
+				injector :tester
+
+				
+				tester do
+					extend self																									# extend self
+
+					def order weight
+						lets manus =->(){"manus for #{weight}"}
+						manus[]
+					end
+				end
+				puts tester.order 50																					# call method extended to self
+
+				tester.order(50).should == 'manus for 50'
+				
+				tester do
+					decorate :order do |num|																		# decorate the same method
+						self.to_s + super(num)
+					end	
+				end
+				
+				puts tester.order 50																					# call decorated method extended to self 
+				
+				tester.order(50).should =~ /^<Injector.+?manus for 50/
+				
+				with tester do 																								# with self(tester)
+					puts order 30																								# execute method
+					def receive weight																					# define singleton method
+						"received #{weight}"
+					end
+				end
+				puts tester.receive 45																				# call singleton method
+
+				tester.receive(90).should == 'received 90'
+
+				tester do
+					def more_tests arg																					# define instance method which depends on singleton method
+						receive 23                           												#call singleton method
+						"tested more #{arg}"
+					end
+				end
+				puts tester.more_tests 'oohoo'																# call instance method extended to self
+				
+				tester.should_receive(:receive).with(23)
+				tester.more_tests('of the api').should == 'tested more of the api'
+				
+			}.to_not raise_error
+
+		end
+	end
+	
 end 
+
 

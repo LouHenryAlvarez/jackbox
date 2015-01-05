@@ -6,7 +6,7 @@ Copyright © 2014 LHA. All rights reserved.
 Jackbox
 =======
 
-Jackbox is a set of programming tools which enhance the Ruby language and/or provide additional software constructs.  
+Jackbox is a set of programming tools which enhance the Ruby language and provide additional software constructs.  
 
 The main library function at this time centers around the concept of code injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a type of closures which can also serve as modules.  With them it is possible to solve several general problems in the area of OOP according to the GOF standard and to harness some additional properties behind the idea of mixins.   For example, they solve traditional Ruby problems in the Decorator Pattern and Strategy Pattern. There are several examples of this in the specs that accompany the product.  If the GOF standard is not in your work perhaps you can consider Jackbox's ability to inject your methods' surrounding context into an indiscriminate target, but then also make it  possible to control the presence of your code in that target with a mechanism involving injector directives.  This makes things like conditional code injection, presence, and withdrawal a trivial matter and can be applied to presentation layers, security frameworks, etc.
 
@@ -33,7 +33,7 @@ At the class level during definition:
     # the same class
   	class One
   		decorate :foo do
-  			super() + 'decoration '
+  			super() + 'decoration '       # super available within decoration
   		end
   	end
 	
@@ -47,7 +47,7 @@ At the object level during execution:
     one = One.new
 
     one.decorate :foo do |arg|
-    	super() + arg
+    	super() + arg                   # again the use of super is possible
     end
 
     one.foo('after')
@@ -64,6 +64,80 @@ It also works like so:
     Object.new.inspect
     #=> #<Object:0x00000101787e20> is your object
 	
+
+#### #with(obj, &blk)
+There is also a new version of the :with construct.  There is of course some controversy surrounding the applicability of this  construct in Ruby, but we submit to you this new version.  Here is the sample usage code:
+
+  	class One
+  		def foo(arg)
+  			'in One ' + arg
+  		end
+  	end
+
+  	class Two
+  		def faa(arg)
+  			'and in Two ' + arg
+  		end
+  		def meth
+  			with One.new do
+  				return foo faa 'with something'   # context of One and Two available simultaneously!!!
+  			end
+  		end
+  	end
+
+  	Two.new.meth
+  	#=> 'in One and in Two with something'
+
+
+Use it with #decorate on singleton classes like this:
+
+    class Dir
+
+    	with singleton_class do
+    		decorate :entries do |name='.', opts=nil| #:doc:
+    			super name, opts
+    		end
+    		decorate :new do |name, &code| #:doc:
+    			FileUtils.mkpath name unless exists?(name)
+    			return Dir.open(name, &code) if code
+    			Dir.open name
+    		end
+    	end
+
+    end
+
+Or its use in the following method:
+
+    def add_line(spec)
+    	open spec[:to], 'r+' do |file|
+    		lines = file.readlines
+    		file.rewind
+
+    		index = 0
+    		# look for the first 'require' line in file				
+    		lines.each_with_index { |line, i| 
+    			if line.match(/^require/).nil?
+    				break if index != i
+    				index = i + 1
+    				next
+    			else
+    				index = i
+    			end 
+    		}
+    		# insert our line after check to see not already there
+    		with lines do
+    			format = spec[:format] || required
+    			unless join.match(Regexp.new(format.join('|')))
+    				insert(
+    					index && index + 1 || 0, format.last
+    					) 
+    			end
+    		end
+
+    		file.write lines.join
+    	end
+    end
+
 
 #### #lets(sym=nil, &blk)
 This is simple syntax sugar.  It allows the creation of local or global procs using a more function-like syntax.  It adds readability to some constructs.  Here are some examples:
@@ -102,64 +176,6 @@ Allows even local blocks:
       # a longer evaluation ...
       
     }.call if true
-
-#### #with(obj, &blk)
-There is also a new version of the :with construct.  There is of course some controversy surrounding the applicability of this  construct in Ruby, but we submit to you this new version.  Here is the sample usage code:
-
-    # with includes the calling context
-    
-  	class One
-  		def foo(arg)
-  			'in One ' + arg
-  		end
-  	end
-	
-  	class Two
-  		def faa(arg)
-  			'and in Two ' + arg
-  		end
-  		def meth
-  			with One.new do
-  				return foo faa 'with something'   # context of One and Two available simultaneously!!!
-  			end
-  		end
-  	end
-	
-  	Two.new.meth
-  	#=> 'in One and in Two with something'
-  	
-
-Or its use in the following method:
-
-    def add_line(spec)
-    	open spec[:to], 'r+' do |file|
-    		lines = file.readlines
-    		file.rewind
-
-    		index = 0
-    		# look for the first 'require' line in file				
-    		lines.each_with_index { |line, i| 
-    			if line.match(/^require/).nil?
-    				break if index != i
-    				index = i + 1
-    				next
-    			else
-    				index = i
-    			end 
-    		}
-    		# insert our line after check to see not already there
-    		with lines do
-    			format = spec[:format] || required
-    			unless join.match(Regexp.new(format.join('|')))
-    				insert(
-    					index && index + 1 || 0, format.last
-    					) 
-    			end
-    		end
-
-    		file.write lines.join
-    	end
-    end
 
 
 Injectors

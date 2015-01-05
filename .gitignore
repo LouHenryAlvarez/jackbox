@@ -2,7 +2,6 @@
 .bundle
 .config
 .yardoc
-_yardoc
 Gemfile.lock
 InstalledFiles
 coverage
@@ -14,11 +13,11 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
-mkmf.log
-x.rb
-y
-*.o
+r
+spec/s.rb
 *.a
 *.gem
+*.log
+*.o
 *.rbc
 *.xmind

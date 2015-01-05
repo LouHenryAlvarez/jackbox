@@ -29,13 +29,13 @@ describe 'what Prefs does' do
 
 	it 'should work the same on inclusion' do
 		lambda {
-			module Mester
+			module Fester
 				include Prefs
-			
+				
 				pref :location => :file_system
 			end
 			}.should_not raise_error()
-		Mester.location.should == :file_system
+		Fester.location.should == :file_system
 	end
 
 	it 'allows resetting prefs to their original/default values' do
