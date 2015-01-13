@@ -78,7 +78,7 @@ There is also a new version of the :with construct.  There is of course some con
       end
       def meth
         with One.new do
-          return foo faa 'with something'                       # context of One and Two available simultaneously!!!
+          return foo faa 'with something'                 # context of One and Two available simultaneously!!!
         end
       end
     end
@@ -311,7 +311,7 @@ When re-injection occurs, and only then does the new version of the #bar method 
 
     #_________________
     # re-injection
-    enrich my_injector                                    # re-injection: re-apply --snampshot on any object instance
+    enrich my_injector                                    # re-injection: re-apply --snapshot on any object instance
 
     bar.should == :some_larger_bar                        # bar.2 now available
     expect{some_other_function}.to_not raise_error        # some_other_function.1 is also present
