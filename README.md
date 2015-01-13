@@ -349,7 +349,7 @@ Here is an example with classes:
                                                                       # two different injector versions
     One.new.meth(3).should == 27                          # meth.1
 
-Re-injection on classes is a little bit trickier.  Why? Because class injection is static --we don't necessarily want to be redefining a class. To re-inject a class we must use the Strategy Pattern or use a private update.  See the rspec files for more on this.  
+Re-injection on classes is a little bit trickier.  Why? Because class injection is more pervasive --we don't necessarily want to be redefining a class. To re-inject a class we must use the Strategy Pattern or use a private update.  See the rspec files for more on this.  
 
 Right now, we want to give some treatment to injector local binding.  That is, the binding of an injectors' methods is local to the prolongation/version of the injector in which they are located before the versioning occurs.  Here, is the code:
 
