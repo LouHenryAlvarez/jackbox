@@ -331,46 +331,122 @@ describe 'multiple injector composition and decomposition' do
 		
 	end
 	
-	it 'should' do
+	describe "#included/#extended" do
+
+		it 'should' do
 		
-		$stdout.should_receive(:puts).with('++++++++--------------++++++++++').twice()
-		class InclusionTester
-			injector :Summergeable do
-			
-				def foo
+			$stdout.should_receive(:puts).with('++++++++--------------++++++++++').twice()
+
+			SS = injector :StarShipFunction do
+		
+				def phaser
 				end
-			
-				def bar
+		
+				def neutron_torpedoes
 				end
-			
+		
 				def self.included host
 					puts '++++++++--------------++++++++++'
-					
-					# ActiveRecord:
-					# 		scope :archived, -> { where(archived: true) }
-					# 		scope :unarchived, -> { where(archived: false) }
-					# 
-					# ActiveController: 
-					# 		before_filter :require_authentication
-					# 
+					host.class_eval { 
+						def warp_speed
+						end
+					}
+				end
+			
+				def self.extended host
+					puts '++++++++--------------++++++++++'
+					host.instance_eval {  
+						def link_to_ships
+						
+						end
+					}
+				
 				end
 			end
+		
+			class Airplane
+				inject SS
+			end
+			expect{
 			
-			inject Summergeable()
-		end
+				Airplane.new.warp_speed
 		
-		class SecondIncluder
-			inject InclusionTester.Summergeable()
-		end
+			}.to_not raise_error
 		
+		
+			class Building
+				extend SS
+			end
+			expect{
+			
+				Building.link_to_ships
+			
+			}.to_not raise_error
+		
+		end
+	
+		this 'is another example' do
+			
+			class Aclass
+				def meth arg
+					p arg
+				end
+			end
+			Emitter = injector :emitter do
+				def self.extended host
+					host.class_eval {
+						class << self
+							private :new
+							def emitt
+								new
+							end
+						end
+					}
+				end
+			end
+			class Aclass
+				extend Emitter
+			end
+			Aclass.emitt.should be_instance_of(Aclass)
+			
+
+			emitter do
+				def self.extended host
+					host.class_eval {
+						class << self
+							private :new
+							def emitt
+								with new do
+									def meth arg
+										p arg or arg
+									end
+								end
+							end
+						end
+					}
+				end
+			end
+			class Bclass
+				extend Emitter
+			end
+			Bclass.emitt.should be_instance_of(Bclass)
+			expect{
+				
+				Bclass.emitt.meth('boo').should == 'boo'
+				
+			}.to_not raise_error
+
+			
+			# whatsmore 
+			Aclass.emitt.should be_instance_of(Aclass)
+			expect{
+				
+				Aclass.emitt.meth('baa')
+				
+			}.to_not raise_error
+			
+		end
 	end
 	
-	describe 'the Rails/Sinatra use'do
-	
-		this 'is rails use' do
-			
-		end
-		
-	end
 end		
 

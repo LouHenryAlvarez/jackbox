@@ -124,7 +124,7 @@ module Jackbox
 				attr_accessor :tracer
 		
 				def included(klass)
-					raise TypeError, 'DX not allowed in: Object'  if klass == Object
+					# raise TypeError, 'DX not allowed in: Object'  if klass == Object
 				  set_trace_func proc { |event, file, line, id, binding, classname|
 						DX.tracer.resume(binding) if event == 'call' and id.in?(klass.instance_methods) rescue nil
 				  }

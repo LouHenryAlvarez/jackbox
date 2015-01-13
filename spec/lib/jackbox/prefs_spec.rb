@@ -70,6 +70,7 @@ describe 'what Prefs does' do
 			Application.data_path = "#{ENV['HOME']}/tmp/foo"
 		}
 		Process.waitall
+		
 		# After the previous invocation
 		class Application
 			include Prefs
@@ -114,10 +115,10 @@ describe 'what Prefs does' do
 			include Tester
 		end
 		lambda{Descendant.pref1}.should raise_error
-		module Child
+		module Offspring
 			extend Tester
 		end
-		lambda{Child.pref1}.should raise_error
+		lambda{Offspring.pref1}.should raise_error
 		class D
 			include Tester
 			extend Tester

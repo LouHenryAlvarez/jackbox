@@ -1,3 +1,249 @@
 #!/usr/bin/env ruby 
-# RubyEncoder v2.0
-_d = _d0 = File.expand_path(File.dirname(__FILE__)); while 1 do _f = _d + '/rgloader/loader.rb'; break if File.exist?(_f); _d1 = File.dirname(_d); if _d1 == _d then raise "Ruby script '"+__FILE__+"' is protected by RubyEncoder and requires a RubyEncoder loader to be installed. Please visit the http://www.rubyencoder.com/loaders/ RubyEncoder web site to download the required loader and unpack it into '"+_d0+"/rgloader/' directory in order to run this protected file."; exit; else _d = _d1; end; end; require _f; RGLoader_load('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');
+# encoding: utf-8
+#
+# author: LHA
+# 
+######
+require 'thor'
+require 'jackbox'
+require_relative '../lib/jackbox/examples/dir'
+
+include Injectors
+#
+# Tests to determine foder structuree
+#
+injector :structure_tests do
+	def simple?
+		!gem? && !Dir.ls('**/*.rb').empty?
+	end
+
+	def bundle?
+		File.exists?('Gemfile') #&& File.exists?('Rakefile')
+	end
+end
+Dir.singleton_class.inject structure_tests
+
+
+#
+# This class adds the jackbox support to a project
+# 
+class Jackup < Thor
+	
+	desc 'stage', 'Stage jackbox support to project files'
+	long_desc <<-HELP
+\x5--  
+Stage jackbox support to project files:
+\x5Use with argument: jackup stage [name] to create a new staged project. Use --no-[option] prefix to exclude features/files. 
+\x5--  
+	HELP
+	method_option :bundle, :default => true, :desc => 'Use Bundler'
+	method_option :gem, :default => true, :desc => 'Gem Project'
+	# method_option :testing, :default => true, :desc => 'Testing Framework'
+	method_option :git, :default => true, :desc => 'Use git source control'
+	def stage target=Dir.pwd
+
+		decorate :no_bundle do
+			options[:bundle].in? [false, nil] 
+		end
+
+		decorate :no_gem do
+			options[:gem].in? [false, nil]
+		end
+		
+		# decorate :no_testing do
+		# 	options[:testing].in? [false, nil]
+		# end
+		
+		decorate :no_git do
+			options[:git].in? [false, nil]
+		end
+		
+		unless Dir.exists? target
+			FileUtils.mkpath target
+		end
+		Dir.chdir target
+		self.bundler_gem = File.basename(target)
+
+		case
+		when (no_gem and no_bundle)
+			add_basics if Dir.empty?
+		when no_gem
+			case
+			when Dir.empty?
+				add_basics and add_bundle
+			else
+				add_basics
+				add_bundle unless Dir.bundle?
+			end
+		
+		when no_bundle
+			case
+			when Dir.empty?
+				no_bundle_gem
+			when Dir.simple?
+				if Dir.bundle?
+					bundle_gem
+				else
+					no_bundle_gem
+				end
+			end
+		else
+			case
+			when Dir.empty?
+				bundle_gem
+			else
+				no_bundle_gem unless Dir.gem? 
+				add_bundle unless Dir.bundle?
+			end
+		end
+		add_rakefile unless rakefile
+		add_git unless Dir.exists?('.git') or no_git
+		
+		if Dir.bundle?
+			add_line to: gemfile, format: bundler
+		end
+		add_line to: topfile if topfile
+		add_line to: rakefile, format: rake
+		add_line to: rakefile, format: bundle_rake if Dir.gem?
+	end
+	default_task :stage
+	
+	
+	no_commands {
+		
+		# file specifiers
+		def gemfile
+			'Gemfile' if File.exists?('Gemfile')
+		end
+		def rakefile
+			'Rakefile' if File.exists?('Rakefile')
+		end
+		def topfile
+			(
+	      [] << 
+	      	File.join('lib', File.basename(Dir.pwd)+'.rb') << 
+	      	Dir['**/*.rb'].group_by {|g| g.scan('/').size}.values.sort <<
+	      	File.basename(Dir.pwd) <<
+	      	File.join('bin', File.basename(Dir.pwd))
+			)
+			.flatten.select { |file| File.exists?(file) and file }.first
+		end		
+		
+		# format specifiers
+		def bundler
+			["\ngem 'rspec'\ngem 'jackbox'\n\n", "\ngem \"rspec\"\ngem \"jackbox\"\n\n"]
+		end
+		def required
+			["\nrequire 'jackbox'\n", "\nrequire \"jackbox\"\n"]
+		end
+		def rake
+			["\nrequire 'jackbox/rake'\n", "\nrequire \"jackbox/rake\"\n"]
+		end
+		def bundle_rake
+			["require 'bundler/gem_tasks'\n", "require \"bundler/gem_tasks\"\n"]
+		end
+		
+		# helpers
+		def rfolder
+			# "#{ENV['HOME']}/tmp/jackup/#{(0..10).map { |c| ('a'..'z').to_a.sample }.join}"
+			"#{ENV['HOME']}/tmp/jackup/#{(0...10).map { ('a'..'z').to_a[rand(26)] }.join}"
+		end
+
+		def bundler_gem= basename
+			tdir = rfolder()
+			@bundler_gem = File.join(tdir, basename)
+			Dir.new(tdir) do
+				current = Dir.pwd
+				Dir.chdir tdir
+				system "bundle gem #{basename}", :out => "#{ENV['HOME']}/tmp/nul", :err => :out
+				Dir.chdir current
+			end
+		end
+		
+		def bundler_gem
+			@bundler_gem
+		end
+
+		# actions
+		def bundle_gem
+			# move gemfile to target unless target gemfile
+			FileUtils.cp "#{bundler_gem}/Gemfile", '.' unless File.exists?("Gemfile")
+			no_bundle_gem
+		end
+		
+		def no_bundle_gem
+			basename = File.basename(self.bundler_gem)
+			# move gemspec to target unless target gemspec
+			FileUtils.cp "#{bundler_gem}/#{basename}.gemspec", '.' unless File.exists?("#{basename}.gemspec")
+			add_basics
+		end
+
+		def add_basics
+			basename = File.basename(self.bundler_gem)
+			# make lib unless lib
+			Dir.new("lib") unless Dir.exists?("lib")
+			# write lib/target.rb unless lib/target.rb
+			FileUtils.cp "#{bundler_gem}/lib/#{basename}.rb", "lib/#{basename}.rb" unless File.exists?("lib/#{basename}.rb")
+			# make lib/target unless lib/target
+			Dir.new("lib/#{basename}") unless Dir.exists?("lib/#{basename}")
+			# write lib/target/version.rb unless lib/target/version.rb
+			FileUtils.cp "#{bundler_gem}/lib/#{basename}/version.rb", "lib/#{basename}/version.rb" unless File.exists?("lib/#{basename}/version.rb")
+			# make bin and write bin/target if --bin unless bin or bin/target
+
+			# make test dir and wrtie test_helper
+			framework = `gem list`.match(/rspec/).nil? ? 'test' : 'spec'
+			Dir.new(framework) and open "#{framework}/#{framework}_helper.rb", 'w+' do |file|
+				file.puts "\n# Insert your #{framework} helpers here"
+			end unless Dir.exists?('spec') or Dir.exists?('test') #or no_testing
+			framework
+		end
+
+		def add_bundle	
+			FileUtils.cp "#{bundler_gem}/Gemfile", '.'
+		end
+		
+		def add_rakefile
+			FileUtils.touch 'Rakefile'
+		end
+		
+		def add_git
+			# move git directory if git unless existing
+			FileUtils.cp_r "#{bundler_gem}/.git/.", '.git' if `git`.match('usage: git') unless Dir.exists?('.git') #or no_git
+		end
+		
+		def add_line(spec)
+			open spec[:to], 'r+' do |file|
+				lines = file.readlines
+				file.rewind
+
+				index = 0
+				# look for the first 'require' line in file				
+				lines.each_with_index { |line, i| 
+					if line.match(/^require/).nil?
+						break if index != i
+						index = i + 1
+						next
+					else
+						index = i
+					end 
+				}
+				# insert our line after check to see not already there
+				with lines do
+					format = spec[:format] || required
+					unless join.match(Regexp.new(format.join('|')))
+						insert(
+							index && index + 1 || 0, format.last
+							) 
+					end
+				end
+
+				file.write lines.join
+			end
+		end
+		
+	}				
+
+end
+
+Jackup.start(ARGV) #if $0 == __FILE__
+

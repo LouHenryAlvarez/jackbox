@@ -5,93 +5,13 @@ require 'spec_helper'
 	:nodoc:all:
 =end
 
+include Injectors
 
 #####
 # 
 # We spec the jackbox library part of this gem
 # 
 describe Jackbox, 'jackbox library', :library do
-
-
-	#####
-	# in?
-	describe "#in?" do
-		it 'tests membership' do
-			a = [1,2,3]
-			1.in?(a).should be
-			
-			b = (3..6)
-			4.in?(b).should be
-			
-			require 'set'
-			s = Set[4,6,8]
-			6.in?(s).should be
-			
-		end
-		
-	end
-	
-	
-	
-	#####
-	# to_filepath
-	describe "#to_filepath" do
-		it 'turns a namespace to a filepath' do
-			module Foo
-				module Bar
-					class One
-					end
-				end
-			end
-			Foo::Bar::One.to_filepath.should == 'Foo/Bar/One'
-		end
-	end
-	
-	
-	
-	#####
-	# #singleton_class
-	describe "#singleton_class" do
-		it 'returns the singleton_class of an object' do
-			singleton = class SingletonProber; class << self; self; end; end
-			SingletonProber.singleton_class.should == singleton
-		end
-		
-		the 'singleton class has a reference to its root class' do
-			SingletonProber.singleton_class.root().should == SingletonProber
-		end
-	end
-	
-	
-	
-	#####
-	# #singleton_class?
-	describe "#singleton_class?" do
-		it 'should say when class is singleton_class' do
-			singleton = class SingletonProber; class << self; self; end; end
-			singleton.singleton_class?.should == true
-		end
-		
-		it 'should say when class is not singleton_class' do
-			SingletonProber.singleton_class?.should == false
-		end
-	end
-	
-	
-	#####
-	# Regular module syntax candifiers
-	
-	describe 'Module#const_values' do
-		module ConstValuesTester
-			A = 123
-			B = 'abc'
-			C = [A, B]
-		end
-		it 'returns an array of all the constant values' do
-			ConstValuesTester.values.should be_instance_of(Array)
-			ConstValuesTester.values.should == [123, 'abc', [123, 'abc']]
-		end
-	end
 
 
 	#####
@@ -240,6 +160,63 @@ describe Jackbox, 'jackbox library', :library do
 			Object.new.inspect
 			
 		end
+
+		it 'does not work on plain modules' do
+			
+			module Am
+				def off
+					'off'
+				end
+			end
+			
+			class B
+				include Am
+			end
+			
+			B.new.off.should == 'off'
+			
+			module Am
+				decorate :off do
+					super() + 'on'
+				end
+			end
+			
+			expect {
+				
+				B.new.off.should == 'offon'			#fails!!
+				
+			}.to raise_error
+			
+		end
+		
+		it 'does not work on plain injectors either' do
+			
+			Aj = injector :aj do
+				def off
+					'off'
+				end
+			end
+			
+			class Bj
+				include Aj
+			end
+			
+			Bj.new.off.should == 'off'
+			
+			aj do
+				decorate :off do
+					super() + 'on'
+				end
+			end
+			Bj.inject Aj
+			
+			expect {
+				
+				Bj.new.off.should == 'offon'			#fails!!
+				
+			}.to raise_error
+			
+		end
 		
 	end
 
@@ -287,7 +264,7 @@ describe Jackbox, 'jackbox library', :library do
 				instance_eval {
 					lets(:foo){ 'foo bar'}
 				}
-			}.to raise_error(Jackbox::Error)
+			}.to raise_error(Jackbox::UserError)
 			
 		end
 		
@@ -439,4 +416,82 @@ describe Jackbox, 'jackbox library', :library do
 		
 	end
 	
+
+	#####
+	# in?
+	describe "#in?" do
+		it 'tests membership' do
+			a = [1,2,3]
+			1.in?(a).should be
+			
+			b = (3..6)
+			4.in?(b).should be
+			
+			require 'set'
+			s = Set[4,6,8]
+			6.in?(s).should be
+			
+		end
+	end
+	
+	
+	#####
+	# to_filepath
+	describe "#to_filepath" do
+		it 'turns a namespace to a filepath' do
+			module Foo
+				module Bar
+					class One
+					end
+				end
+			end
+			Foo::Bar::One.to_filepath.should == 'Foo/Bar/One'
+		end
+	end
+	
+	
+	if RUBY_VERSION < '2.0.0'
+	#####
+	# #singleton_class
+	describe "#singleton_class" do
+		it 'returns the singleton_class of an object' do
+			singleton = class SingletonProber; class << self; self; end; end
+			SingletonProber.singleton_class.should == singleton
+		end
+		
+		the 'singleton class has a reference to its root class' do
+			SingletonProber.singleton_class.root().should == SingletonProber
+		end
+	end
+	
+	
+	#####
+	# #singleton_class?
+	describe "#singleton_class?" do
+		it 'should say when class is singleton_class' do
+			singleton = class SingletonProber; class << self; self; end; end
+			singleton.singleton_class?.should == true
+		end
+		
+		it 'should say when class is not singleton_class' do
+			SingletonProber.singleton_class?.should == false
+		end
+	end
+	end
+	
+	#####
+	# Regular module syntax candifiers
+	describe 'Module#const_values' do
+		module ConstValuesTester
+			A = 123
+			B = 'abc'
+			C = [A, B]
+		end
+		it 'returns an array of all the constant values' do
+			ConstValuesTester.values.should be_instance_of(Array)
+			ConstValuesTester.values.should == [123, 'abc', [123, 'abc']]
+		end
+	end
+
+
 end #library spec
