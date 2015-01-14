@@ -1,4 +1,5 @@
 <!---
+<!---
 # @author Lou Henry Alvarez
 -->
 Copyright © 2014 LHA. All rights reserved.
@@ -387,7 +388,7 @@ Right now, we want to give some treatment to injector local binding.  That is, t
     o.compound.should == 11                             # compound.1 --local binding to basic.2 NOT basic.1
                                                         #####################################################
                                                           
-There is one more interesting property however. The use of #define_method to re-define methods in any prolongation updates the entire injector and all its versions.  This preserves one of the fundamental tenets of injectors: being able to take some local context and through the injector ship it to some indiscriminate place. Here is an example:
+There is one more interesting property however. The use of #define\_method to re-define methods in any prolongation updates the entire injector and all its versions.  This preserves one of the fundamental tenets of injectors: being able to take some local context, enclose it and through the injector introduce it to some indiscriminate place. Here is an example of #define\_method' difference:
 
     SomeFacet = facet :some_facet do
     	def foo_bar
