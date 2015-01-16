@@ -37,12 +37,12 @@
 
 <p>Jackbox is a set of programming tools which enhance the Ruby language and provide additional software constructs.  </p>
 
-<p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of closures which can also serve as modules.  But, most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture your methods' surrounding context and introduce it into an indiscriminate target.  They make it possible to solve several general problems in the areas of OOP and GOF standard and traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns.  They instrument your ability to control the presence of injector code in targets with mechanisms involving ejection and injector directives.  This can be applied to presentation layers, security frameworks, and others.  Finally, they introduce the concept of injector versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
+<p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as an <strong>extended closure</strong> or a form of closure which can also serve as module.  But, most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture your methods' surrounding context and introduce it into an indiscriminate target.  They make it possible to solve several general problems in the areas of OOP and GOF standard and traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns.  They instrument control over the presence of injector code in targets with mechanisms involving injector ejection and directives.  Finally, they introduce the concept of injector versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
 
 <h2>
 <a id="basic-methods" class="anchor" href="#basic-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Methods</h2>
 
-<p>There are some basic Jackbox methods.  These are their descriptions:</p>
+<p>There are some basic Jackbox methods.  The are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  These are their descriptions:</p>
 
 <h4>
 <a id="decoratesym-blk" class="anchor" href="#decoratesym-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#decorate(:sym, &amp;blk)</h4>
@@ -98,7 +98,7 @@ Object.new.inspect
 <h4>
 <a id="withobj-blk" class="anchor" href="#withobj-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#with(obj, &amp;blk)</h4>
 
-<p>There is also a new version of the :with construct.  There is of course some controversy surrounding the applicability of this  construct in Ruby, but we submit to you this new version.  Here is the sample usage code:</p>
+<p>There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  Here is the sample usage code:</p>
 
 <pre><code>class One
   def foo(arg)
@@ -205,44 +205,55 @@ lets(:faa){ 'some important string' }
 <h2>
 <a id="injectors" class="anchor" href="#injectors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Injectors</h2>
 
-<p>Injectors are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that has properties of both a closure and a module.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors. There are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: </p>
+<p>Injectors are the main tool in Jackbox at the time of this writing --real meat of Jackbox. These again are an extended closure, a form of mix-in that has properties of both a closure and a module.  They are an extended closure if you will.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors. There are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: </p>
 
 <p><strong>Injectors are declared in the following ways:</strong></p>
 
-<pre><code>injector :name  do end
+<pre><code>injector :name
 
 #  or...
 
-Name = injector :name  do end
+Name = injector :name
 
 # or even ...
 
-injector :Name  do end                              # capitalized method
+injector :Name                                      # capitalized method
 </code></pre>
 
 <p>Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the section on injector versioning, and perhaps injector directives. </p>
 
 <pre><code># somewhere in your code
-
 include Injectors
 
-Mine = injector :my_injector do                     # define the injector 
+injector :my_injector                               # define the injector 
+
+my_injector do                     
   def bar                  
     :a_bar
   end
 end
 
 # later on...
-class One
+widget.enrich my_injector
+widget.bar
+
+# or...  
+Mine = my_injector
+class Target
   inject Mine                                       # apply the injector
 end
 
-One.new.bar
+Target.new.bar
 
-# or...  
+module None
+  facet :f
 
-widget.enrich my_injector
-widget.bar
+  class Bone
+    inject None.f
+  end
+end
+
+# etc ...
 </code></pre>
 
 <p><strong>Injectors can have prolongations:</strong></p>
