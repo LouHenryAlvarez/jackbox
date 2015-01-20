@@ -264,10 +264,10 @@ Here is a more interesting example:
 
 For all this to happen Jackbox also introduces some additional ruby constructs, namely the keywords #inject and #enrich.  These can be thought of as simply new corollaries to #include and #extend. If you're working with injectors you need to use them depending on context as some of the functionality of Injectors is related to them.
 
-#### #inject(*j*)
+#### #inject/include(*j*)
 This method is analogous to ruby's #include but its use is reserved for Injectors.  The scope of this method is the same as the scope of #include, and its intended use is for class definitions. Use it to "include" an Injector into a receiving class.
 
-#### #enrich(*j*)
+#### #enrich/extend(*j*)
 This method in turn is analogous to ruby's #extend. The scope of this method is also the same as that of #extend, and its intended use if for object definition.  Use it to extend the receiver of an injector.
 
 ### Injector Versioning
