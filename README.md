@@ -8,11 +8,11 @@ Jackbox
 
 Jackbox is a set of programming tools which enhance the Ruby language and provide additional software constructs.  
 
-The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of closures which can also serve as modules.  But, most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture your methods' surrounding context and introduce it into an indiscriminate target.  They make it possible to solve several general problems in the areas of OOP and GOF standard and traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns.  They instrument your ability to control the presence of injector code in targets with mechanisms involving ejection and injector directives.  This can be applied to presentation layers, security frameworks, and others.  Finally, they introduce the concept of injector versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  
+The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as an **extended closure** or a form of closure which can also serve as module.  But, most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture your methods' surrounding context and introduce it into an indiscriminate target.  They make it possible to solve several general problems in the areas of OOP and GOF standard and traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns.  They instrument control over the presence of injector code in targets with mechanisms involving injector ejection and directives.  Finally, they introduce the concept of injector versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  
 
 Basic Methods
 --------------------------
-There are some basic Jackbox methods.  These are their descriptions:
+There are some basic Jackbox methods.  The are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  These are their descriptions:
 
 #### #decorate(:sym, &blk)
 This method allows for decorations to be placed on a single method, be it an instance or class method without too much fuss. It also makes possible the use of ruby's keyword :super within the body of the decorator.  Use it instead of #alias\_method\_chain.
@@ -33,7 +33,7 @@ At the class level during definition:
     # the same class
     class One
       decorate :foo do
-        super() + 'decoration '                                  # super available within decoration
+        super() + 'decoration '                         # super available within decoration
       end
     end
 
@@ -46,7 +46,7 @@ At the object level during execution:
     one = One.new
 
     one.decorate :foo do |arg|
-      super() + arg                                             # again the use of super is possible
+      super() + arg                                     # again the use of super is possible
     end
 
     one.foo('after')
@@ -64,7 +64,7 @@ It also works like so:
 
 
 #### #with(obj, &blk)
-There is also a new version of the :with construct.  There is of course some controversy surrounding the applicability of this  construct in Ruby, but we submit to you this new version.  Here is the sample usage code:
+There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  Here is the sample usage code:
 
     class One
       def foo(arg)
@@ -78,7 +78,7 @@ There is also a new version of the :with construct.  There is of course some con
       end
       def meth
         with One.new do
-          return foo faa 'with something'                       # context of One and Two available simultaneously!!!
+          return foo faa 'with something'               # context of One and Two available simultaneously!!!
         end
       end
     end
@@ -162,61 +162,59 @@ Can be used to define a special values or pseudo-immutable strings:
     lets(:foo){3+Math::Pi}                              # read as lets set :foo to value
     lets(:faa){ 'some important string' }
     
-Allows even local blocks:
-
-    lets { puts 'blah blah'}.call                       # lets make this call
-    # => blah blah
-    
-    # or even...
-    
-    lets {                                              # lets eval this block on condition
-      
-      # a longer evaluation ...
-      
-    }.call if true
-
 
 Injectors
 ----------
-Injectors are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that has properties of both a closure and a module.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors. There are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: 
+Injectors are the main tool in Jackbox at the time of this writing --real meat of Jackbox. These again are an extended closure, a form of mix-in that has properties of both a closure and a module.  They are an extended closure if you will.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors. There are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: 
 
 **Injectors are declared in the following ways:**
 
 
-    injector :name  do end
+    injector :name
 
     #  or...
 
-    Name = injector :name  do end
+    Name = injector :name
 
     # or even ...
 
-    injector :Name  do end                              # capitalized method
+    injector :Name                                      # capitalized method
 
 
 Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the section on injector versioning, and perhaps injector directives. 
 
     # somewhere in your code
-
     include Injectors
 
-    Mine = injector :my_injector do                     # define the injector 
+    injector :my_injector                               # define the injector 
+    
+    my_injector do                     
       def bar                  
         :a_bar
       end
     end
 
     # later on...
-    class One
+    widget.enrich my_injector
+    widget.bar
+
+    # or...  
+    Mine = my_injector
+    class Target
       inject Mine                                       # apply the injector
     end
     
-    One.new.bar
+    Target.new.bar
 
-    # or...  
+    module None
+      facet :f
 
-    widget.enrich my_injector
-    widget.bar
+      class Bone
+        inject None.f
+      end
+    end
+
+    # etc ...
 
 
 **Injectors can have prolongations:**
@@ -274,7 +272,7 @@ This method in turn is analogous to ruby's #extend. The scope of this method is 
 
 ### Injector Versioning
 
-One of the most valuable properties of injectors is Injector Versioning.  Versioning is the term used to identify a feature in the code that produces an artifact of injection which contains a certain set of methods with their associated outputs and represents a snapshot of that injector up until the point it's applied to an object.  From, that point on the object contains only that version of methods from that injector, and any subsequent overrides to those methods are only members of the "prolongation" of the injector and do not become part of the object of injection unless some form of re-injection occurs. Newer versions of an injector's methods only become part of newer objects or newer injections into existing targets.
+One of the most valuable properties of injectors is Injector Versioning.  Versioning is the term used to identify a feature in the code that produces an artifact of injection which contains a certain set of methods with their associated outputs, and represents a snapshot of that injector up until the point it's applied to an object.  From, that point on the object contains only that version of methods from that injector, and any subsequent overrides to those methods are only members of the "prolongation" of the injector and do not become part of the object of injection unless some form of re-injection occurs. Newer versions of an injector's methods only become part of newer objects or newer injections into existing targets.
 
 **Note: One important thing to remember about versioning is that it refers to re-definitions of methods in newer prolongations of the same injector and the relationship those methods have to the other members of the version and to client code.**
 
@@ -284,37 +282,37 @@ We'll use some examples to illustrate the point.  This is how versioning occurs:
     # injector declaration
     injector :my_injector do 															
       def bar
-        :a_bar                                            # version bar.1
+        :a_bar                                          # version bar.1
       end
       def foo
       	# ...
       end
     end
 
-    enrich my_injector                                    # apply --snapshot:  to any object instance
-    bar.should == :a_bar                                  # pass the test
+    enrich my_injector                                  # apply --snapshot:  to any object instance
+    bar.should == :a_bar                                # pass the test
 
     #__________________
     # injector prolongation
     my_injector do 																			
       def bar
-        :some_larger_bar                                  # version bar.2 ... re-defines bar
+        :some_larger_bar                                # version bar.2 ... re-defines bar
       end
       def some_other_function
       # ...
       end
     end
 
-    bar.should == :a_bar                                  # bar.1 is still the one  
+    bar.should == :a_bar                                # bar.1 is still the one  
 
 When re-injection occurs, and only then does the new version of the #bar method come into play. Here is the code:
 
     #_________________
     # re-injection
-    enrich my_injector                                    # re-injection: re-apply --snampshot on any object instance
+    enrich my_injector                                  # re-injection: re-apply --snapshot on any object instance
 
-    bar.should == :some_larger_bar                        # bar.2 now available
-    expect{some_other_function}.to_not raise_error        # some_other_function.1 is also present
+    bar.should == :some_larger_bar                      # bar.2 now available
+    expect{some_other_function}.to_not raise_error      # some_other_function.1 is also present
 
 
 Here is an example with classes:
@@ -322,72 +320,72 @@ Here is an example with classes:
     #___________________
     # injector declaration:
     Versions = injector :versions do
-      def meth arg                                        # version meth.1
+      def meth arg                                      # version meth.1
         arg ** arg
       end
     end
 
     class One
-      inject Versions                                     # apply --first snapshot
+      inject Versions                                   # apply --first snapshot
     end
 
     #_________________
     # injector prolongation:                              
     versions do
-      def meth arg1, arg2                                 # version meth.2 ... redefines meth.1
+      def meth arg1, arg2                               # version meth.2 ... redefines meth.1
         arg1 * arg2
       end
     end
 
     class Two
-      inject Versions                                     # apply --second snapshot
+      inject Versions                                   # apply --second snapshot
     end
 
 
     # result
-    Two.new.meth(2,4).should == 8                         # meth.2 
+    Two.new.meth(2,4).should == 8                       # meth.2 
                                                                       # two different injector versions
-    One.new.meth(3).should == 27                          # meth.1
+    One.new.meth(3).should == 27                        # meth.1
 
-Re-injection on classes is a little bit trickier.  Why? Because class injection is static --we don't necessarily want to be redefining a class. To re-inject a class we must use the Strategy Pattern or use a private update.  See the rspec files for more on this.  
+Re-injection on classes is a little bit trickier.  Why? Because class injection is more pervasive --we don't necessarily want to be redefining a class at every step. To re-inject a class we must use the Strategy Pattern or use a private update.  See the rspec files for more on this.  
 
-Right now, we want to give some treatment to injector local binding.  That is, the binding of an injectors' methods is local to the prolongation/version of the injector in which they are located before the versioning occurs.  Here, is the code:
+Right now, we want to give some treatment to injector local binding.  That is, the binding of an injectors' methods is local to the prolongation/version in which they are located before the versioning occurs.  Here, is the code:
 
     #_____________________
     # injector declaration
     injector :functionality do
-      def basic arg                                       # version basic.1
+      def basic arg                                     # version basic.1
         arg * 2
       end
     end
 
-    o = Object.new.enrich functionality                   # apply --first snapshot
-    o.basic(1).should == 2                                # basic.1 
+    o = Object.new.enrich functionality                 # apply --first snapshot
+    o.basic(1).should == 2                              # basic.1 
 
 
     #_____________________
     # injector prolongation
     functionality do
-      def basic arg                                       # basic.2 ... basic.1 redefined
+      def basic arg                                     # basic.2 ... basic.1 redefined
         arg * 3
       end
 
-      def compound                                        # compound.1 --binding locally to basic.2 in this prolongation
+      def compound                                      # compound.1 --binding locally to basic.2 in this prolongation
         basic(3) + 2                                      
       end
     end
 
-    p = Object.new.enrich(functionality)                  # apply --second snapshot: like above
-    p.basic(1).should == 3                                # basic.2 
-    p.compound.should == 11                               # compound.1 
+    p = Object.new.enrich(functionality)                # apply --second snapshot: like above
+    p.basic(1).should == 3                              # basic.2 
+    p.compound.should == 11                             # compound.1 
     
-    o.basic(1).should == 2                                # basic.1 --NOT basic.2: like above
+    o.basic(1).should == 2                              # basic.1 --NOT basic.2: like above
 
-                                                          ############################################################
-    o.compound.should == 11                               # compound.1 --internal local binding to basic.2 NOT basic.1
-                                                          ############################################################
+                                                        #####################################################
+    o.compound.should == 11                             # compound.1 --local binding to basic.2 NOT basic.1
+                                                        #####################################################
                                                           
-There is one more interesting property however. The use of #define_method to re-define methods in any prolongation updates the entire injector and all its versions.  This preserves one of the fundamental tenets of injectors: being able to take some local context and through the injector ship it to some indiscriminate place. Here is an example:
+There is one more interesting property however. The use of #define\_method to re-define methods in any prolongation updates the entire injector and all its versions.  This preserves one of the fundamental tenets of injectors: being able to take some local context, enclose it and through the injector introduce it to some indiscriminate place. Here is an example of #define\_method' difference:
 
     SomeFacet = facet :some_facet do
     	def foo_bar
@@ -399,7 +397,7 @@ There is one more interesting property however. The use of #define_method to re-
     	inject SomeFacet
     end
 
-    Client.new.foo_bar.should == 'a foo and a bar'        # expected
+    Client.new.foo_bar.should == 'a foo and a bar'      # expected
 
     some_facet do
     	define_method :foo_bar do
@@ -407,7 +405,7 @@ There is one more interesting property however. The use of #define_method to re-
     	end
     end
 
-    Client.new.foo_bar.should == 'fooooo and barrrrr'     # different
+    Client.new.foo_bar.should == 'fooooo and barrrrr'   # different than above
 
 Injector Versioning together with injector local binding allow you to mutate injectors to fit your particular purpose at hand and keep those local modifications isolated from the rest of your program making your code to naturally evolve with your program.
 
@@ -475,7 +473,7 @@ The composition of multiple injectors into an object can be specified as follows
     # more inflight definitions
     var = 'wheels'
     Landing do
-    	define_method :gear do            # a definintion based on available surrounding context
+    	define_method :gear do                            # a definintion based on available surrounding context
     		var
     	end
     end
@@ -487,7 +485,7 @@ If you need to follow constant lookup, here is the code for that:
 
     Name = injector :sym ....
 
-But, this is the basic idea here.  Again, it's a closure/block that can define function for later use.  Using this approach Jackbox goes on to solve the Decorator Pattern problem for the Ruby language.  
+But, this is the basic idea here.  Using this approach Jackbox goes on to solve the Decorator Pattern problem for the Ruby language.  
 
 
 ### The GOF Decorator Pattern:   
@@ -679,7 +677,7 @@ Here are a couple alternate implementations:
     	end
     end
 
-    cup = Coffee.new.enrich(sweedish)                       # clobbers original strategy for this instance only!!
+    cup = Coffee.new.enrich(sweedish)                   # clobbers original strategy for this instance only!!
     cup.brew
     cup.strategy.should == ('sweedish')
 

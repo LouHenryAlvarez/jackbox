@@ -119,12 +119,12 @@ describe 'what Prefs does' do
 			extend Tester
 		end
 		lambda{Offspring.pref1}.should raise_error
-		class D
+		class Child
 			include Tester
 			extend Tester
 		end
-		lambda{D.pref1}.should raise_error
-		lambda{D.new.pref1}.should raise_error
+		lambda{Child.pref1}.should raise_error
+		lambda{Child.new.pref1}.should raise_error
 	end
 	
 	it 'should allow all of the following' do

@@ -24,6 +24,7 @@ describe Jackbox, 'jackbox library', :library do
 	
 	describe 'Kernel#decorate', 'dynamic specializations of a method' do
 		it 'is available during class definition' do
+
 			class One
 				def foo
 					'foo '
@@ -31,44 +32,58 @@ describe Jackbox, 'jackbox library', :library do
 			end
 			class One
 				decorate :foo do
-					super() + 'decoration '
+					super() + 'decoration'
 				end
 			end
-			One.new.foo.should match_regex(/decoration/)
+			One.new.foo.should == 'foo decoration'
 		
 		end
 		
 		it 'allows decorating the same method multiple times' do
+
 			class T
 				def bar
 					'bar '
 				end
 			end
 			class T
-				decorate :bar do 		# <<--- SHOULD GET CLOBERED **** 
+				decorate :bar do 																# <- GETS CLOBERED 
 					super() + 'none '
 				end
 			end
 			class T
-				# debugger
 				decorate :bar do
 					super() + 'and then some'
 				end
 			end
 			expect{T.new.bar.should == 'bar and then some'}.to_not raise_error 
+
 		end			
 		
 		it 'is available at the object instance level during execution' do
+
+			class One
+				def foo
+					'foo '
+				end
+			end
+			class One
+				decorate :foo do
+					super() + 'decoration'
+				end
+			end
 			one = One.new
 			one.decorate :foo do |arg|
 				super() + arg
 			end
-			one.foo('after').should match_regex('foo decoration after')
+			one.foo(' after').should match_regex('foo decoration after')
 		
 		end
 		
 		it 'allows ruby_c objects and singleton classes to be decorated as well' do
+
 			STDOUT.should_receive(:puts).with("Changing directory...")
+			
 			Dir.singleton_class.instance_eval do
 				decorate :chdir do |*args|
 					puts 'Changing directory...'
@@ -77,24 +92,34 @@ describe Jackbox, 'jackbox library', :library do
 			end
 			Dir.chdir('.').should == 0
 			Dir.singleton_class.instance_eval { undecorate :chdir }
+
 		end
 		
 		it 'raises an error when decorating singleton classes without returning them properly' do
+
 			expect {
+				
 				class File
 					class << self
 						decorate :chown do |*args| end
 					end
-				end}.to raise_error
+				end
+				
+			}.to raise_error
 			expect {
+				
 				class File
-					singleton_class.instance_eval do  # MUST USE :singleton_class 
+					singleton_class.instance_eval do  # MUST USE #singleton_class or #metaclass
 						decorate :chown do |*args| end
 					end
-				end}.to_not raise_error		
+				end
+				
+			}.to_not raise_error		
+				
 		end
 		
 		the 'decoration can be rolled back' do
+			
 			class F
 				def bar
 					'bar '
@@ -111,9 +136,11 @@ describe Jackbox, 'jackbox library', :library do
 				undecorate :bar
 			end
 			F.new.bar.should == 'bar '		 
+			
 		end
 		
-		this 'un-decoration works on singleton_class also' do
+		this 'roll-back works on singleton_class also' do
+			
 			class G
 				class << self
 					def moo
@@ -135,8 +162,20 @@ describe Jackbox, 'jackbox library', :library do
 				end
 			end
 			G.moo.should == 'moooo'
+			
 		end			
 		
+		it 'also works like so' do
+			
+			STDOUT.should_receive(:puts).with(/is your object/)
+			
+			Object.decorate :inspect do
+				puts super() + " is your object"
+			end
+			Object.new.inspect
+			
+		end
+
 		it 'does not work on undefined methods' do
 			
 			class SomeCrappyClass
@@ -151,18 +190,8 @@ describe Jackbox, 'jackbox library', :library do
 			}.to raise_error
 		end
 		
-		it 'also works like so' do
-			
-			STDOUT.should_receive(:puts).with(/is your object/)
-			Object.decorate :inspect do
-				puts super() + " is your object"
-			end
-			Object.new.inspect
-			
-		end
-
-		it 'does not work on plain modules' do
-			
+		it 'is not intended to work on plain modules' do
+		
 			module Am
 				def off
 					'off'
@@ -189,7 +218,7 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
-		it 'does not work on plain injectors either' do
+		it 'is not intended for plain injectors either' do
 			
 			Aj = injector :aj do
 				def off
@@ -218,6 +247,32 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
+		it 'does work on self-extended injectors/modules' do
+			
+			include Injectors
+
+			injector :tester
+
+			tester do
+				extend self																									# extend self
+																																		# Note: you cannot self enrich an injector
+				def order weight
+					lets manus =->(){"manus for #{weight}"}
+					manus[]
+				end
+			end
+			tester.order(50).should == 'manus for 50'											# call method extended to self
+
+
+			tester do
+				decorate :order do |num|																		# decorate the same method
+					self.to_s + super(num)
+				end	
+			end
+			tester.order(50).should =~ /^<Injector.+?manus for 50/ 				# call decorated method extended to self 
+			
+		end
+		
 	end
 
 
@@ -242,9 +297,9 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
-		it 'can evaluate a long block for predicat' do
+		it 'cannot evaluate a long block' do
 
-			$stdout.should_receive(:puts).with('perform a long evaluation for a predicate')
+			# $stdout.should_receive(:puts).with('perform a long evaluation for a predicate')
 			expect {
 				
 				def tester
@@ -254,16 +309,18 @@ describe Jackbox, 'jackbox library', :library do
 				end
 				tester
 				
-			}.to_not raise_error
+			}.to raise_error(Jackbox::UserError)
 			
 		end
-		
+
 		it 'should forbid the following' do
 			# does not work at the instance level
 			expect {
+				
 				instance_eval {
 					lets(:foo){ 'foo bar'}
 				}
+				
 			}.to raise_error(Jackbox::UserError)
 			
 		end
@@ -279,6 +336,7 @@ describe Jackbox, 'jackbox library', :library do
 		should respond_to :with
 	end 
 	describe 'Object.with' do
+		
 		it 'includes the calling context' do
 			class One
 				def foo(arg)
@@ -297,12 +355,15 @@ describe Jackbox, 'jackbox library', :library do
 			end
 			expect{Two.new.tester}.to_not raise_error
 			Two.new.tester.should == 'in One and in Two with something'
+			
 		end
 		
 		it 'allows passing instance variables' do
+			
 			STDOUT.should_receive(:puts).with('in One#foo with arg tester')
 			STDOUT.should_receive(:puts).with('in One#foo with arg mester')
 			STDOUT.should_receive(:puts).with('in One#foo with arg in Two#faa with arg me')
+			
 			class One
 				def foo(arg)
 					'in One#foo with arg ' + arg
@@ -310,7 +371,7 @@ describe Jackbox, 'jackbox library', :library do
 			end
 			class Two
 				
-				def faa arg='yuyu'
+				def faa arg='nothing'
 					'in Two#faa with arg ' + arg
 				end
 
@@ -321,7 +382,6 @@ describe Jackbox, 'jackbox library', :library do
 					with One.new, @tester, @mester do  |*args|
 						args.each { |e| puts foo e }
 						puts foo faa 'me'
-						# puts @var
 					end
 				end
 				
@@ -329,17 +389,29 @@ describe Jackbox, 'jackbox library', :library do
 			Two.new.fii
 		end
 		
-		it 'raises an error if not used properly' do
-			expect{with Object.new}.to raise_error
+		it 'raises an error if used with no block' do
+			expect{with Object.new}.to raise_error(LocalJumpError)
 		end
 		
-		it 'allows you to decorate an object multiple methods' do
+		it 'raises an error if used on self' do
+			expect{
+				
+				with self do
+					
+				end
+				
+			}.to raise_error(Jackbox::UserError)
+		end
+		
+		it 'works with decorate on an object multiple times' do
+			
 			class Object
 				def foo
 				end
 				def moo
 				end
 			end
+			
 			o = with Object.new do
 				decorate :foo do
 					'foo'
@@ -355,7 +427,8 @@ describe Jackbox, 'jackbox library', :library do
 	end
 	
 	describe 'object#with target' do
-		class Target
+		
+		class BarNone
 			def bar
 				:large_bar
 			end
@@ -366,12 +439,19 @@ describe Jackbox, 'jackbox library', :library do
 			end
 		end
 		
-		it 'allows access to the receiver and the object of with all at the same time' do
+		it 'allows access to the receiver and the object of with on different levels' do
+			
 			$stdout.should_receive(:puts).with(:large_bar)
+			
 			ro = RegularObject.new 
-			ro.with Target.new do
-				object_tester bar
+
+			ro.with o = BarNone.new do
+				
+				@var = object_tester bar										# @var is set on o not ro
+				
 			end
+			o.instance_variable_get(:@var).should == :large_bar
+			
 		end
 	end
 	
@@ -385,11 +465,11 @@ describe Jackbox, 'jackbox library', :library do
 			
 			expect {
 				class Unbelievers
-					def fuckall obj
+					def erroneous obj
 						raise RuntimeError, "#{obj}"
 					end
 					with Object.new do
-						Unbelievers.new.fuckall 'lha is the name'
+						Unbelievers.new.erroneous 'lha is the name'
 					end
 				end
 			}.to raise_error(RuntimeError, 'lha is the name')
@@ -397,59 +477,31 @@ describe Jackbox, 'jackbox library', :library do
 		end
 		
 		it 'exits via throw' do
+			
 			$stdout.should_receive(:puts).with('If this is printed we have a problem').exactly(0).times
+			
 			catch(:signal) {
 				with Object.new do
 					throw :signal
 				end
 				puts 'If this is printed we have a problem'
 			}
+			
 		end
 		
 		it 'also works this way' do
+			
 			expect {
 				with Object.new do
 					throw :signal
 				end
 			}.to throw_symbol(:signal)
+			
 		end
 		
 	end
 	
 
-	#####
-	# in?
-	describe "#in?" do
-		it 'tests membership' do
-			a = [1,2,3]
-			1.in?(a).should be
-			
-			b = (3..6)
-			4.in?(b).should be
-			
-			require 'set'
-			s = Set[4,6,8]
-			6.in?(s).should be
-			
-		end
-	end
-	
-	
-	#####
-	# to_filepath
-	describe "#to_filepath" do
-		it 'turns a namespace to a filepath' do
-			module Foo
-				module Bar
-					class One
-					end
-				end
-			end
-			Foo::Bar::One.to_filepath.should == 'Foo/Bar/One'
-		end
-	end
-	
-	
 	if RUBY_VERSION < '2.0.0'
 	#####
 	# #singleton_class
@@ -478,6 +530,43 @@ describe Jackbox, 'jackbox library', :library do
 		end
 	end
 	end
+	
+	#####
+	# in?
+	describe "#in?" do
+		
+		it 'tests membership' do
+			a = [1,2,3]
+			1.in?(a).should be
+			
+			b = (3..6)
+			4.in?(b).should be
+			
+			require 'set'
+			s = Set[4,6,8]
+			6.in?(s).should be
+			
+		end
+		
+	end
+	
+	
+	#####
+	# to_filepath
+	describe "#to_filepath" do
+		
+		it 'turns a namespace to a filepath' do
+			module Foo
+				module Bar
+					class One
+					end
+				end
+			end
+			Foo::Bar::One.to_filepath.should == 'Foo/Bar/One'
+		end
+		
+	end
+	
 	
 	#####
 	# Regular module syntax candifiers
