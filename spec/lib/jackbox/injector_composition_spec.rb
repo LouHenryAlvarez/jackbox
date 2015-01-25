@@ -412,5 +412,106 @@ describe 'multiple injector composition and decomposition' do
 	
 	end
 
+	it 'allows regular module inclusion and extension' do
+
+		expect{
+			
+			module AB
+				def meth
+				end
+			end
+		
+			module BA
+				include AB
+				def mith
+				end
+			end
+		
+			class Base
+				include BA
+				def moth
+				end
+			end
+			
+			Base.new.meth
+			Base.new.mith
+			Base.new.moth
+			
+			class Second
+				def math
+				end
+			end
+			
+			Second.new.extend(BA).mith
+			Second.new.extend(BA).meth
+		
+		}.to_not raise_error
+		
+	end
+	
+	it 'does not instantiate on regular module ops' do
+
+		module AB
+			def meth
+			end
+		end
+	
+		module BA
+			include AB
+			def mith
+			end
+		end
+		BA.instance_variables.should be_empty
+	
+		class Base
+			include BA
+			def moth
+			end
+		end
+		Base.instance_variables.should be_empty
+		
+		Base.new.meth
+		Base.new.mith
+		Base.new.moth
+		
+		class Second
+			def math
+			end
+		end
+		
+		Second.new.extend(BA).instance_variables.should be_empty
+		Second.new.extend(BA).instance_variables.should be_empty
+			
+	end
+	
+	
+	it 'raises cyclic inclusion on module self inclusion' do
+
+		expect{
+			module AC
+				def foo
+				end
+				include AC
+			end
+		}.to raise_error(ArgumentError)
+		
+	end
+	
+	it 'does the same for Injector self inclusion' do
+		
+		expect{
+			
+			Includer = injector :includer
+			
+			includer do
+				def far
+				end
+				inject Includer
+			end
+			
+		}.to raise_error(ArgumentError)
+		
+	end
+	
 end		
 
