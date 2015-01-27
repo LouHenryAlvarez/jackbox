@@ -66,7 +66,7 @@ end
 <pre><code># the same class
 class One
   decorate :foo do
-    super() + 'decoration '                         # super available within decoration
+    super() + 'decoration '                   # super available within decoration
   end
 end
 
@@ -79,7 +79,7 @@ One.new.foo
 <pre><code>one = One.new
 
 one.decorate :foo do |arg|
-  super() + arg                                     # again the use of super is possible
+  super() + arg                               # again the use of super is possible
 end
 
 one.foo('after')
@@ -113,7 +113,7 @@ class Two
   end
   def meth
     with One.new do
-      return foo faa 'with something'               # context of One and Two available simultaneously!!!
+      return foo faa 'with something'         # context of One and Two available simultaneously!!!
     end
   end
 end
@@ -181,25 +181,25 @@ end
 <p>To define local functions/lambdas. Define symbols in local scope:</p>
 
 <pre><code>def main
-  lets bar =-&gt;(arg){ arg * arg }                    # read as lets set bar to lambda/proc 
+  lets bar =-&gt;(arg){ arg * arg }              # read as lets set bar to lambda/proc 
 
   # later on ...
 
-  var = bar[3]                                      # bar is only available within #main
+  var = bar[3]                                # bar is only available within #main
   #...
 end                                                         
 </code></pre>
 
 <p>As a shortcut for define_method. Use it for short functional definitions:</p>
 
-<pre><code>lets( :meth ){ |arg| arg * 2 }                      # read as lets define symbol :meth to be ....
+<pre><code>lets( :meth ){ |arg| arg * 2 }                # read as lets define symbol :meth to be ....
 meth(3)                                                         
 # =&gt; 6 
 </code></pre>
 
 <p>Can be used to define a special values or pseudo-immutable strings:</p>
 
-<pre><code>lets(:foo){3+Math::Pi}                              # read as lets set :foo to value
+<pre><code>lets(:foo){3+Math::Pi}                        # read as lets set :foo to value
 lets(:faa){ 'some important string' }
 </code></pre>
 
@@ -218,7 +218,7 @@ Name = injector :name
 
 # or even ...
 
-injector :Name                                      # capitalized method
+injector :Name                                # capitalized method
 </code></pre>
 
 <p>Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the section on injector versioning, and perhaps injector directives. </p>
@@ -226,7 +226,7 @@ injector :Name                                      # capitalized method
 <pre><code># somewhere in your code
 include Injectors
 
-injector :my_injector                               # define the injector 
+injector :my_injector                         # define the injector 
 
 my_injector do                     
   def bar                  
@@ -241,7 +241,7 @@ widget.bar
 # or...  
 Mine = my_injector
 class Target
-  inject Mine                                       # apply the injector
+  inject Mine                                 # apply the injector
 end
 
 Target.new.bar
@@ -259,7 +259,7 @@ end
 
 <p><strong>Injectors can have prolongations:</strong></p>
 
-<pre><code>my_injector do                                      # first prolongation
+<pre><code>my_injector do                                # first prolongation
 
   def another_method
   end
@@ -268,7 +268,7 @@ end
 
 # ...
 
-my_injector do                                      # another prolongation
+my_injector do                                # another prolongation
 
   def yet_another_method
   end
@@ -329,37 +329,37 @@ SecondClass.new.val.should == 'something'
 # injector declaration
 injector :my_injector do                                                            
   def bar
-    :a_bar                                          # version bar.1
+    :a_bar                                    # version bar.1
   end
   def foo
     # ...
   end
 end
 
-enrich my_injector                                  # apply --snapshot:  to any object instance
-bar.should == :a_bar                                # pass the test
+enrich my_injector                            # apply --snapshot:  to any object instance
+bar.should == :a_bar                          # pass the test
 
 #__________________
 # injector prolongation
 my_injector do                                                                          
   def bar
-    :some_larger_bar                                # version bar.2 ... re-defines bar
+    :some_larger_bar                          # version bar.2 ... re-defines bar
   end
   def some_other_function
   # ...
   end
 end
 
-bar.should == :a_bar                                # bar.1 is still the one  
+bar.should == :a_bar                          # bar.1 is still the one  
 </code></pre>
 
 <p>When re-injection occurs, and only then does the new version of the #bar method come into play. Here is the code:</p>
 
 <pre><code>#_________________
 # re-injection
-enrich my_injector                                  # re-injection: re-apply --snapshot on any object instance
+enrich my_injector                            # re-injection: re-apply --snapshot on any object instance
 
-bar.should == :some_larger_bar                      # bar.2 now available
+bar.should == :some_larger_bar                # bar.2 now available
 expect{some_other_function}.to_not raise_error      # some_other_function.1 is also present
 </code></pre>
 
@@ -368,32 +368,32 @@ expect{some_other_function}.to_not raise_error      # some_other_function.1 is a
 <pre><code>#___________________
 # injector declaration:
 Versions = injector :versions do
-  def meth arg                                      # version meth.1
+  def meth arg                                # version meth.1
     arg ** arg
   end
 end
 
 class One
-  inject Versions                                   # apply --first snapshot
+  inject Versions                             # apply --first snapshot
 end
 
 #_________________
 # injector prolongation:                              
 versions do
-  def meth arg1, arg2                               # version meth.2 ... redefines meth.1
+  def meth arg1, arg2                         # version meth.2 ... redefines meth.1
     arg1 * arg2
   end
 end
 
 class Two
-  inject Versions                                   # apply --second snapshot
+  inject Versions                             # apply --second snapshot
 end
 
 
 # result
-Two.new.meth(2,4).should == 8                       # meth.2 
-                                                                  # two different injector versions
-One.new.meth(3).should == 27                        # meth.1
+Two.new.meth(2,4).should == 8                 # meth.2 
+                                                      # two different injector versions
+One.new.meth(3).should == 27                  # meth.1
 </code></pre>
 
 <p>Re-injection on classes is a little bit trickier.  Why? Because class injection is more pervasive --we don't necessarily want to be redefining a class at every step. To re-inject a class we must use the Strategy Pattern or use a private update.  See the rspec files for more on this.  </p>
@@ -403,36 +403,36 @@ One.new.meth(3).should == 27                        # meth.1
 <pre><code>#_____________________
 # injector declaration
 injector :functionality do
-  def basic arg                                     # version basic.1
+  def basic arg                               # version basic.1
     arg * 2
   end
 end
 
-o = Object.new.enrich functionality                 # apply --first snapshot
-o.basic(1).should == 2                              # basic.1 
+o = Object.new.enrich functionality           # apply --first snapshot
+o.basic(1).should == 2                        # basic.1 
 
 
 #_____________________
 # injector prolongation
 functionality do
-  def basic arg                                     # basic.2 ... basic.1 redefined
+  def basic arg                               # basic.2 ... basic.1 redefined
     arg * 3
   end
 
-  def compound                                      # compound.1 --binding locally to basic.2 in this prolongation
+  def compound                                # compound.1 --binding locally to basic.2 in this prolongation
     basic(3) + 2                                      
   end
 end
 
-p = Object.new.enrich(functionality)                # apply --second snapshot: like above
-p.basic(1).should == 3                              # basic.2 
-p.compound.should == 11                             # compound.1 
+p = Object.new.enrich(functionality)          # apply --second snapshot: like above
+p.basic(1).should == 3                        # basic.2 
+p.compound.should == 11                       # compound.1 
 
-o.basic(1).should == 2                              # basic.1 --NOT basic.2: like above
+o.basic(1).should == 2                        # basic.1 --NOT basic.2: like above
 
-                                                    #####################################################
-o.compound.should == 11                             # compound.1 --local binding to basic.2 NOT basic.1
-                                                    #####################################################
+                                              #####################################################
+o.compound.should == 11                       # compound.1 --local binding to basic.2 NOT basic.1
+                                              #####################################################
 </code></pre>
 
 <p>There is one more interesting property however. The use of #define_method to re-define methods in any prolongation updates the entire injector and all its versions.  This preserves one of the fundamental tenets of injectors: being able to take some local context, enclose it and through the injector introduce it to some indiscriminate place. Here is an example of #define_method' difference:</p>
@@ -525,7 +525,7 @@ end
 # more inflight definitions
 var = 'wheels'
 Landing do
-    define_method :gear do                            # a definintion based on available surrounding context
+    define_method :gear do                    # a definintion based on available surrounding context
         var
     end
 end
@@ -741,7 +741,7 @@ injector :sweedish do
     end
 end
 
-cup = Coffee.new.enrich(sweedish)                   # clobbers original strategy for this instance only!!
+cup = Coffee.new.enrich(sweedish)             # clobbers original strategy for this instance only!!
 cup.brew
 cup.strategy.should == ('sweedish')
 </code></pre>
@@ -890,7 +890,7 @@ tester.perform.should == 'do the deed'
 <pre><code>class Vector
     extend Abstract
     def speed
-        0
+      0
     end
     def direction
     end
@@ -899,10 +899,10 @@ expect{Vector.new}.to raise_error
 
 class Velocity &lt; Vector
     def speed
-        super + 35
+      super + 35
     end
     def direction
-        :north
+      :north
     end
 end
 
@@ -997,6 +997,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
       </div>
     </div>
 
-  
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-58877141-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
   </body>
 </html>
