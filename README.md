@@ -1,9 +1,19 @@
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-58877141-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
 <!---
 # @author Lou Henry Alvarez
 -->
 Copyright © 2014 LHA. All rights reserved.
 
-Jackbox
+Jackbox   <a href="https://plus.google.com/102732809517976898938" rel="publisher">Google+</a>
 =======
 
 Jackbox is a set of programming tools which enhance the Ruby language and provide additional software constructs.  
@@ -33,7 +43,7 @@ At the class level during definition:
     # the same class
     class One
       decorate :foo do
-        super() + 'decoration '                         # super available within decoration
+        super() + 'decoration '                   # super available within decoration
       end
     end
 
@@ -46,7 +56,7 @@ At the object level during execution:
     one = One.new
 
     one.decorate :foo do |arg|
-      super() + arg                                     # again the use of super is possible
+      super() + arg                               # again the use of super is possible
     end
 
     one.foo('after')
@@ -78,7 +88,7 @@ There is also a new version of the :with construct.  The important thing to reme
       end
       def meth
         with One.new do
-          return foo faa 'with something'               # context of One and Two available simultaneously!!!
+          return foo faa 'with something'         # context of One and Two available simultaneously!!!
         end
       end
     end
@@ -143,23 +153,23 @@ This is simple syntax sugar.  It allows the creation of local or global procs us
 To define local functions/lambdas. Define symbols in local scope:
 
     def main
-      lets bar =->(arg){ arg * arg }                    # read as lets set bar to lambda/proc 
+      lets bar =->(arg){ arg * arg }              # read as lets set bar to lambda/proc 
 
       # later on ...
 
-      var = bar[3]                                      # bar is only available within #main
+      var = bar[3]                                # bar is only available within #main
       #...
     end															
 
 As a shortcut for define_method. Use it for short functional definitions:
 
-    lets( :meth ){ |arg| arg * 2 }                      # read as lets define symbol :meth to be ....
+    lets( :meth ){ |arg| arg * 2 }                # read as lets define symbol :meth to be ....
     meth(3)															
     # => 6 
 
 Can be used to define a special values or pseudo-immutable strings:
 
-    lets(:foo){ 3+Math::Pi }                            # read as lets set :foo to value
+    lets(:foo){ 3+Math::Pi }                      # read as lets set :foo to value
     lets(:faa){ 'some important string' }
     
 
@@ -178,7 +188,7 @@ Injectors are the main tool in Jackbox at the time of this writing. These again 
 
     # or even ...
 
-    injector :Name                                      # capitalized method
+    injector :Name                                # capitalized method
 
 
 Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, local binding, and perhaps injector directives. 
@@ -186,7 +196,7 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
     # somewhere in your code
     include Injectors
 
-    injector :my_injector                               # define the injector 
+    injector :my_injector                         # define the injector 
     
     my_injector do                     
       def bar                  
@@ -195,14 +205,14 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
     end
 
     # later on...
-    widget.enrich my_injector                           # apply the injector
+    widget.enrich my_injector                     # apply the injector
     widget.bar
 
     # or...  
     
     Mine = my_injector
     class Target
-      inject Mine                                       # apply the injector
+      inject Mine                                 # apply the injector
     end
     
     Target.new.bar
@@ -222,7 +232,7 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
 
     injector :my_injector
 
-    my_injector do                                      # first prolongation
+    my_injector do                                # first prolongation
 
       def another_method
       end
@@ -231,7 +241,7 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
 
     # ...
 
-    my_injector do                                      # another prolongation
+    my_injector do                                # another prolongation
 
       def yet_another_method
       end
@@ -290,34 +300,34 @@ We'll use some examples to illustrate the point.  This is how versioning occurs:
     # injector declaration
     injector :my_injector do 															
       def bar
-        :a_bar                                          # version bar.1
+        :a_bar                                    # version bar.1
       end
       def foo
       	# ...
       end
     end
 
-    object1.enrich my_injector                          # apply the injector --first snapshot
-    object1.bar.should == :a_bar                        # pass the test
+    object1.enrich my_injector                    # apply the injector --first snapshot
+    object1.bar.should == :a_bar                  # pass the test
 
     #__________________
     # injector prolongation
     my_injector do 																			
       def bar
-        :some_larger_bar                                # version bar.2 ... re-defines bar
+        :some_larger_bar                          # version bar.2 ... re-defines bar
       end
       def some_other_function
       # ...
       end
     end
     
-    object2.enrich my_injector                          # apply the injector --second snapshot
+    object2.enrich my_injector                    # apply the injector --second snapshot
     object2.bar.should == :some_larger_bar
 
     # result
     ###########
     
-    object1.bar.should == :a_bar                        # bar.1 is still the one
+    object1.bar.should == :a_bar                  # bar.1 is still the one
 
     ###########################################
     # The object has kept its preferred version
@@ -327,9 +337,9 @@ When re-injection occurs, and only then does the new version of the #bar method 
 
     #_________________
     # re-injection
-    object1.enrich my_injector                          # re-injection --third snapshot
+    object1.enrich my_injector                    # re-injection --third snapshot
 
-    object1.bar.should == :some_larger_bar              # bar.2 now available
+    object1.bar.should == :some_larger_bar        # bar.2 now available
     expect{some_other_function}.to_not raise_error      # some_other_function.1 is also present
 
 
@@ -338,33 +348,33 @@ Here is an example with classes:
     #___________________
     # injector declaration:
     Versions = injector :versions do
-      def meth arg                                      # version meth.1
+      def meth arg                                # version meth.1
         arg ** arg
       end
     end
 
     class One
-      inject Versions                                   # apply --first snapshot
+      inject Versions                             # apply --first snapshot
     end
 
     #_________________
     # injector prolongation:                              
     versions do
-      def meth arg1, arg2                               # version meth.2 ... redefines meth.1
+      def meth arg1, arg2                         # version meth.2 ... redefines meth.1
         arg1 * arg2
       end
     end
 
     class Two
-      inject Versions                                   # apply --second snapshot
+      inject Versions                             # apply --second snapshot
     end
 
 
     # result
     #############################
-    Two.new.meth(2,4).should == 8                       # meth.2 
-                                                                      # two different injector versions
-    One.new.meth(3).should == 27                        # meth.1
+    Two.new.meth(2,4).should == 8                 # meth.2 
+                                                          # two different injector versions
+    One.new.meth(3).should == 27                  # meth.1
     #############################
     #
 
@@ -375,41 +385,41 @@ Right now, we want to give some treatment to injector local binding.  That is, t
     #_____________________
     # injector declaration
     injector :functionality do
-      def basic arg                                     # version basic.1
+      def basic arg                               # version basic.1
         arg * 2
       end
     end
     Version1 = functionality 
 
 
-    o = Object.new.enrich Version1                      # apply --first snapshot
-    o.basic(1).should == 2                              # basic.1 
+    o = Object.new.enrich Version1                # apply --first snapshot
+    o.basic(1).should == 2                        # basic.1 
 
 
     #_____________________
     # injector prolongation
     functionality do
-      def basic arg                                     # basic.2 ... basic.1 redefined
+      def basic arg                               # basic.2 ... basic.1 redefined
         arg * 3
       end
 
-      def compound                                      # compound.1 --bound locally to basic.2
+      def compound                                # compound.1 --bound locally to basic.2
         basic(3) + 2                                      
       end
-    end                                                 #________________
-    Version2 = functionality                            # version naming
-                                                        #^^^^^^^^^^^^^^^^
+    end                                           #________________
+    Version2 = functionality                      # version naming
+                                                  #^^^^^^^^^^^^^^^^
 
-    p = Object.new.enrich Version2                      # apply --second snapshot (like above)
-    p.basic(1).should == 3                              # basic.2 
-    p.compound.should == 11                             # compound.1 
+    p = Object.new.enrich Version2                # apply --second snapshot (like above)
+    p.basic(1).should == 3                        # basic.2 
+    p.compound.should == 11                       # compound.1 
     
 
     # result
     ###################################
     
-    o.basic(1).should == 2                              # basic.1 
-    o.compound.should == 11                             # compound.1 --local injector binding
+    o.basic(1).should == 2                        # basic.1 
+    o.compound.should == 11                       # compound.1 --local injector binding
     
     ###################################
     # This ensures #compound.1 keeps bound
@@ -448,14 +458,14 @@ The composition of multiple injectors into an object can be specified as follows
     include Injectors
     
     # declare injectors
-    injector :FuelSystem                                # capitalized methods
+    injector :FuelSystem                          # capitalized methods
     injector :Engines
     injector :Capsule
     injector :Landing
 
     # compose the object
     class SpaceShip
-    	inject FuelSystem()                               # capitalized method use
+    	inject FuelSystem()                         # capitalized method use
     	inject Engines()
     	inject Capsule()
     	inject Landing()
@@ -505,7 +515,7 @@ The composition of multiple injectors into an object can be specified as follows
     # more in-flight definitions
     var = 'wheels'
     Landing do
-    	define_method :gear do                        # a definintion based on available surrounding context
+    	define_method :gear do                  # a definintion based on available surrounding context
     		var
     	end
     end
@@ -710,7 +720,7 @@ Here are a couple alternate implementations:
     	end
     end
 
-    cup = Coffee.new.enrich(sweedish)                   # clobbers original strategy for this instance only!!
+    cup = Coffee.new.enrich(sweedish)           # clobbers original strategy for this instance only!!
     cup.brew
     cup.strategy.should == ('sweedish')
 

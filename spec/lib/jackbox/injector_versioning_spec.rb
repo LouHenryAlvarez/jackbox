@@ -102,7 +102,7 @@ describe 'Injector versioning:', :injectors do
 	describe "injector versioning and its relationship to classes" do
 	# similar to object level versioning in that it uses a snapshot of the injector`s existing methods up to the point of injection, using only 
 	# that version of methods as the object of injection.  But, unlike object level versioning, because class injection is static, reinjection 
-	# does not change that, unless we use the Strategy Pattern which completely changes the class's strategy of methods" do
+	# does not change the class unless we use the Strategy Pattern which completely changes the class's strategy of methods" 
 		
 		the "class injector versioning is similar to object injector versioning" do
 			

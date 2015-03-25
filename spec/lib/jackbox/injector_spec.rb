@@ -167,7 +167,7 @@ describe Injectors, :injectors do
 				
 			end
 			
-			these 'redefinition constitute new injector can prolongations' do
+			these 'redefinition constitute new injector prolongations' do
 				
 				injector :my_injector do
 					def foo

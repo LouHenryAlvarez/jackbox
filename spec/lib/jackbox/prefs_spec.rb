@@ -177,7 +177,7 @@ describe 'what Prefs does' do
 
 			pref :boo => "something"
 		end
-	  C.boo.should == 'something'  ##TODO:
+	  C.boo.should == 'something'
 		lambda{C.boo=(3)}.should_not raise_error
 		lambda{C.new.boo}.should raise_error
 	end
