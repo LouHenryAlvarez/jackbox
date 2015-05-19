@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="58b73fb9-2757-4f6b-ad7f-3646839a8b80" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Gemfile" afterPath="$PROJECT_DIR$/Gemfile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/spec/lib/jackbox/injector_spec.rb" afterPath="$PROJECT_DIR$/spec/lib/jackbox/injector_spec.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/spec/lib/jackbox/injector_versioning_spec.rb" afterPath="$PROJECT_DIR$/spec/lib/jackbox/injector_versioning_spec.rb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/spec/sanity/injector_sanity_spec.rb" afterPath="$PROJECT_DIR$/spec/sanity/injector_sanity_spec.rb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/spec/lib/jackbox/injector_scoping_spec.rb" afterPath="$PROJECT_DIR$/spec/lib/jackbox/injector_scoping_spec.rb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/jackbox/injectors.rb" afterPath="$PROJECT_DIR$/lib/jackbox/injectors.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb" afterPath="$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/spec/sanity/jackbox_sanity_spec.rb" afterPath="$PROJECT_DIR$/spec/sanity/jackbox_sanity_spec.rb" />
     </list>
     <ignored path="jackbox.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -39,110 +38,48 @@
     <favorites_list name="jackbox" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.19456366">
-      <split-first>
-        <leaf>
-          <file leaf-file-name="semantic_injectors_spec.rb" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb">
-              <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.5984655" vertical-offset="559" max-vertical-offset="5124">
-                  <caret line="79" column="0" selection-start-line="79" selection-start-column="0" selection-end-line="79" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="injectors.rb" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/lib/jackbox/injectors.rb">
-              <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="1638" max-vertical-offset="5707">
-                  <caret line="126" column="0" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="jackbox.rb" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/lib/jackbox.rb">
-              <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="1209" max-vertical-offset="5174">
-                  <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <splitter split-orientation="horizontal" split-proportion="0.24486148">
-          <split-first>
-            <leaf>
-              <file leaf-file-name="semantic_injectors_spec.rb" pinned="false" current-in-tab="true">
-                <entry file="file://$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb">
-                  <provider selected="true" editor-type-id="text-editor">
-                    <state vertical-scroll-proportion="2.7762148" vertical-offset="1105" max-vertical-offset="5124">
-                      <caret line="252" column="0" selection-start-line="252" selection-start-column="0" selection-end-line="252" selection-end-column="0" />
-                      <folding />
-                    </state>
-                  </provider>
-                </entry>
-              </file>
-            </leaf>
-          </split-first>
-          <split-second>
-            <splitter split-orientation="horizontal" split-proportion="0.32577565">
-              <split-first>
-                <leaf>
-                  <file leaf-file-name="semantic_injectors_spec.rb" pinned="false" current-in-tab="true">
-                    <entry file="file://$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb">
-                      <provider selected="true" editor-type-id="text-editor">
-                        <state vertical-scroll-proportion="1.7953964" vertical-offset="1872" max-vertical-offset="5124">
-                          <caret line="252" column="0" selection-start-line="252" selection-start-column="0" selection-end-line="252" selection-end-column="0" />
-                          <folding />
-                        </state>
-                      </provider>
-                    </entry>
-                  </file>
-                </leaf>
-              </split-first>
-              <split-second>
-                <splitter split-orientation="horizontal" split-proportion="0.5">
-                  <split-first>
-                    <leaf>
-                      <file leaf-file-name="semantic_injectors_spec.rb" pinned="false" current-in-tab="true">
-                        <entry file="file://$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb">
-                          <provider selected="true" editor-type-id="text-editor">
-                            <state vertical-scroll-proportion="0.83120203" vertical-offset="2522" max-vertical-offset="5124">
-                              <caret line="244" column="24" selection-start-line="244" selection-start-column="24" selection-end-line="244" selection-end-column="24" />
-                              <folding />
-                            </state>
-                          </provider>
-                        </entry>
-                      </file>
-                    </leaf>
-                  </split-first>
-                  <split-second>
-                    <leaf>
-                      <file leaf-file-name="semantic_injectors_spec.rb" pinned="false" current-in-tab="true">
-                        <entry file="file://$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb">
-                          <provider selected="true" editor-type-id="text-editor">
-                            <state vertical-scroll-proportion="0.85549873" vertical-offset="3452" max-vertical-offset="5124">
-                              <caret line="317" column="24" selection-start-line="317" selection-start-column="24" selection-end-line="317" selection-end-column="24" />
-                              <folding />
-                            </state>
-                          </provider>
-                        </entry>
-                      </file>
-                    </leaf>
-                  </split-second>
-                </splitter>
-              </split-second>
-            </splitter>
-          </split-second>
-        </splitter>
-      </split-second>
-    </splitter>
+    <leaf>
+      <file leaf-file-name="injectors.rb" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lib/jackbox/injectors.rb">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="2184" max-vertical-offset="5280">
+              <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="168" selection-end-column="0" />
+              <folding>
+                <marker date="1430079186000" expanded="true" signature="295:492" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="1024:4286" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="1364:4256" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="1445:4168" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="1837:4095" placeholder="unless ... end" />
+                <marker date="1430079186000" expanded="true" signature="4067:4133" placeholder="{ ... }" />
+                <marker date="1430079186000" expanded="true" signature="4498:4555" placeholder="{ ... }" />
+                <marker date="1430079186000" expanded="true" signature="5244:5308" placeholder="{ ... }" />
+                <marker date="1430079186000" expanded="true" signature="5558:5833" placeholder="{ ... }" />
+                <marker date="1430079186000" expanded="true" signature="5809:5823" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="6099:6324" placeholder="{ ... }" />
+                <marker date="1430079186000" expanded="true" signature="6495:6528" placeholder="{ ... }" />
+                <marker date="1430079186000" expanded="true" signature="7696:7986" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="8635:10171" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="8781:8944" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="8814:8865" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="8914:8925" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="9210:10075" placeholder="do ... end" />
+                <marker date="1430079186000" expanded="true" signature="9238:9979" placeholder="unless ... end" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="jackbox.rb" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/jackbox.rb">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1209" max-vertical-offset="5395">
+              <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -153,8 +90,8 @@
         <option value="$PROJECT_DIR$/spec/lib/jackbox/prefs_spec.rb" />
         <option value="$PROJECT_DIR$/lib/jackbox.rb" />
         <option value="$PROJECT_DIR$/Gemfile" />
-        <option value="$PROJECT_DIR$/lib/jackbox/injectors.rb" />
         <option value="$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb" />
+        <option value="$PROJECT_DIR$/lib/jackbox/injectors.rb" />
       </list>
     </option>
   </component>
@@ -489,7 +426,6 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32916668" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="top" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.62967914" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2553648" sideWeight="0.49928057" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.25751072" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.2546495" sideWeight="0.5007194" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.49168974" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
@@ -501,9 +437,10 @@
       <window_info id="Debug" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.50500715" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.32805756" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5064378" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -536,9 +473,137 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/lib/jackbox/injectors.rb">
       <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6045">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1430079186000" expanded="true" signature="295:492" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1024:4286" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1364:4256" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1445:4168" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1837:4095" placeholder="unless ... end" />
+            <marker date="1430079186000" expanded="true" signature="4067:4133" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="4498:4555" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5244:5308" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5558:5833" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5809:5823" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="6099:6324" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="6495:6528" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="7696:7986" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8635:10171" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8781:8944" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8814:8865" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8914:8925" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9210:10075" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9238:9979" placeholder="unless ... end" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/jackbox.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1209" max-vertical-offset="5395">
+          <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/jackbox/injectors.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6058">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1430079186000" expanded="true" signature="295:492" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1024:4286" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1364:4256" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1445:4168" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1837:4095" placeholder="unless ... end" />
+            <marker date="1430079186000" expanded="true" signature="4067:4133" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="4498:4555" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5244:5308" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5558:5833" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5809:5823" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="6099:6324" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="6495:6528" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="7696:7986" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8635:10171" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8781:8944" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8814:8865" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8914:8925" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9210:10075" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9238:9979" placeholder="unless ... end" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/jackbox.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1209" max-vertical-offset="5395">
+          <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/jackbox/injectors.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6058">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1430079186000" expanded="true" signature="295:492" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1024:4286" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1364:4256" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1445:4168" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1837:4095" placeholder="unless ... end" />
+            <marker date="1430079186000" expanded="true" signature="4067:4133" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="4498:4555" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5244:5308" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5558:5833" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5809:5823" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="6099:6324" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="6495:6528" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="7696:7986" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8635:10171" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8781:8944" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8814:8865" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8914:8925" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9210:10075" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9238:9979" placeholder="unless ... end" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/jackbox.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1209" max-vertical-offset="5395">
+          <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/jackbox/injectors.rb">
+      <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1638" max-vertical-offset="5707">
           <caret line="126" column="0" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1430079186000" expanded="true" signature="295:492" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1024:4286" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1364:4256" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1445:4168" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1837:4095" placeholder="unless ... end" />
+            <marker date="1430079186000" expanded="true" signature="4067:4133" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="4498:4555" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5244:5308" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5558:5833" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5809:5823" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="6099:6324" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="6495:6528" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="7696:7986" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8635:10171" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8781:8944" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8814:8865" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8914:8925" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9210:10075" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9238:9979" placeholder="unless ... end" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -546,14 +611,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1209" max-vertical-offset="5174">
           <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4381">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -597,7 +654,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.24386725" vertical-offset="0" max-vertical-offset="901">
           <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -618,17 +674,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/jackbox/injectors.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="975" max-vertical-offset="6450">
-          <caret line="126" column="0" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/spec/lib/jackbox/semantic_injectors_spec.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.85549873" vertical-offset="3452" max-vertical-offset="5124">
-          <caret line="317" column="24" selection-start-line="317" selection-start-column="24" selection-end-line="317" selection-end-column="24" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="2184" max-vertical-offset="5280">
+          <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="168" selection-end-column="0" />
+          <folding>
+            <marker date="1430079186000" expanded="true" signature="295:492" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1024:4286" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1364:4256" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1445:4168" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="1837:4095" placeholder="unless ... end" />
+            <marker date="1430079186000" expanded="true" signature="4067:4133" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="4498:4555" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5244:5308" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5558:5833" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="5809:5823" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="6099:6324" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="6495:6528" placeholder="{ ... }" />
+            <marker date="1430079186000" expanded="true" signature="7696:7986" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8635:10171" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8781:8944" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8814:8865" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="8914:8925" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9210:10075" placeholder="do ... end" />
+            <marker date="1430079186000" expanded="true" signature="9238:9979" placeholder="unless ... end" />
+          </folding>
         </state>
       </provider>
     </entry>

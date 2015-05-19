@@ -1,0 +1,28 @@
+0.9.5.8
+  
+  . More seamless integration with the Ruby base
+  
+  . Injectors now work at the top level
+    . extend/enrich to work at the top level
+    . include/inject also work at the top level
+
+    Previously injection/enrichment were faltering at the top level.  Now they 
+    work the same way all the way through.
+    
+  . Ancestors are reported the right way now
+    . ejected injectors do not show in the ancestors chain
+    . works both on class/singleton_class ancestors calls
+    
+  . Added Injector#show, #to_s, #inspect implementations 
+  
+  . Changed Injectors name spacing.  Now contained within Jackbox.
+  
+  . Added some specs and reworked others.
+  
+  . Cleaned up some code.
+
+    Issues:
+
+      Top level:
+      . 
+

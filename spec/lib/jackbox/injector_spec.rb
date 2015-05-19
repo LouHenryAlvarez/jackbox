@@ -6,26 +6,7 @@ require "spec_helper"
 	
 	Injectors are like modules; they can be extended or included in other modules, but
 	exhibit some additional functionality not present in modules.  
-	
-	# This class provides a sub-namespace container with some particular properties.  Injectors
-	# are like modules in that they hold a set of methods pertaining to a certain domain, but have a slightly different
-	# syntax and semantics.  They create a namespace which in addition to the regular Module defined properties also 
-	# has the ability to dynamically inject more methods into its targets, to then either completely remove that 
-	# funcionality, simply quiet it down, or to camouflage it until needed.  It allows the solution of problems 
-	# like not being able to have additive decorators, or the creation of functionality to be used only once or while 
-	# starting or debugging and then the cancellation of that functionality.  See DX(eXtra Dude) dubugger help injector
-	# for an example.  Also refer to specs for examples.  
-	# 
-	# 
-	# ==Features:
-	# * Like modules but with slightly different syntax and semantics
-	# * Add and remove code dynamically on all injected objects just by calling a method
-	# * Add and remove more code afterwards just calling same method
-	# * Enable to remove code from individual objects or all of them
-	# * Have special ops to implode, collapse, and go silent
-	# * Endow all methods or a subset with cross-concern user code 
-	# * Injectors also work as modules 
-	
+		
 =end
 
 include Injectors
@@ -474,7 +455,7 @@ describe Injectors, :injectors do
 						super() + 0.50
 					end
 				end
-				expect{eject :milk}.to raise_error(NoMethodError, /eject/)
+				# expect{eject :milk}.to raise_error(NoMethodError, /eject/)
 			
 				cup = Coffee.new.enrich(milk)
 				friends_cup = Coffee.new.enrich(milk)
@@ -494,112 +475,113 @@ describe Injectors, :injectors do
 
 
 
-		describe 'Injector Directives: the entire injector and all instances eliminated via <injector> :implode
-		produces different results than ejecting individual injectors, or <injector> :collapse and then restored
-		using <injector> :rebuild' do
-		
-			an 'example of complete injector implosion' do
+		describe 'Injector Directives: ' do
+			
+			describe "<injector> :implode, the entire injector and all instances eliminated.  Produces different results than 
+			ejecting individual injectors, or from using <injector> :collapse and then restored using <injector> :rebuild" do
+			
+				an 'example of complete injector implosion' do
 				
-				class Model
-					def feature
-						'a standard feature'
-					end
-				end
-
-				injector :extras do
-					def feature
-						super() + ' plus some extras'
-					end
-				end
-				
-				car = Model.new.enrich(extras)
-				car.feature.should == 'a standard feature plus some extras'
-
-				extras :implode
-				
-				# total implosion
-				expect{extras}.to raise_error(NameError, /extras/)
-				car.feature.should == 'a standard feature'
-				
-				expect{ 
-					new_car = Model.new.enrich(extras) 
-					}.to raise_error(NameError, /extras/)
-					
-				expect{
-					extras do
-						def foo
+					class Model
+						def feature
+							'a standard feature'
 						end
 					end
-					}.to raise_error(NameError, /extras/)
+
+					injector :extras do
+						def feature
+							super() + ' plus some extras'
+						end
+					end
+				
+					car = Model.new.enrich(extras)
+					car.feature.should == 'a standard feature plus some extras'
+
+					extras :implode
+				
+					# total implosion
+					expect{extras}.to raise_error(NameError, /extras/)
+					car.feature.should == 'a standard feature'
+				
+					expect{ 
+						new_car = Model.new.enrich(extras) 
+						}.to raise_error(NameError, /extras/)
 					
-			end
-
-			describe 'difference between injector ejection/implosion' do
-		
-				the 'Injector reconstitution after ejection is possible through reinjection
-				but reconstitution after injector implosion is NOT AVAILABLE' do
-
-					# code defined
-					class Job
-						injector :agent do
-							def call
+					expect{
+						extras do
+							def foo
 							end
 						end
-						inject agent
-					end
-					Job.injectors.should == [:agent]
+						}.to raise_error(NameError, /extras/)
+					
+				end
 
-					# normal use
-					expect{Job.new.call}.to_not raise_error
+				describe 'difference between injector ejection/implosion' do
+		
+					the 'Injector reconstitution after ejection is possible through reinjection
+					but reconstitution after injector implosion is NOT AVAILABLE' do
 
-					# code ejection
-					Job.eject :agent
-
-					# code extended and re-injected
-					class Job
-						inject agent
-						agent do
-							def sms
-							end
-						end
-					end
-
-					#normal use
-					expect{Job.new.call}.to_not raise_error
-					expect{Job.new.sms}.to_not raise_error
-
-					# code imlossion
-					Job.agent :implode
-
-					# Unavailable !!!
-					expect{
+						# code defined
 						class Job
-							inject :agent
-						end
-						}.to raise_error
-
-					# Unavailable !!!
-					expect{
-						class Job
-							agent do
-								def something
+							injector :agent do
+								def call
 								end
 							end
-						end }.to raise_error
+							inject agent
+						end
+						Job.injectors.should == [:agent]
 
-					# Unavailable!!!
-					expect{Job.new.call}.to raise_error
-					expect{Job.new.sms}.to raise_error
+						# normal use
+						expect{Job.new.call}.to_not raise_error
+
+						# code ejection
+						Job.eject :agent
+
+						# code extended and re-injected
+						class Job
+							inject agent
+							agent do
+								def sms
+								end
+							end
+						end
+
+						#normal use
+						expect{Job.new.call}.to_not raise_error
+						expect{Job.new.sms}.to_not raise_error
+
+						# code imlossion
+						Job.agent :implode
+
+						# Unavailable !!!
+						expect{
+							class Job
+								inject :agent
+							end
+							}.to raise_error
+
+						# Unavailable !!!
+						expect{
+							class Job
+								agent do
+									def something
+									end
+								end
+							end }.to raise_error
+
+						# Unavailable!!!
+						expect{Job.new.call}.to raise_error
+						expect{Job.new.sms}.to raise_error
+
+					end
 
 				end
 
 			end
-
 		end
-
-		describe 'injectors can be silenced. This description produces similar results to 
-		the previous except that further injector method calls DO NOT raise an error 
-		they just quietly return nil' do
+		
+		describe '<injector> :collapse.  Injectors can be silenced. This description produces similar results to 
+		the previous except that further injector method calls DO NOT raise an error they just quietly return nil' do
 			
 			the 'case with objects' do
 		
@@ -682,7 +664,7 @@ describe Injectors, :injectors do
 		
 		end
 		
-		describe 'quieted injectors restored without having
+		describe '<injector> :rebuild.  Quieted injectors restored without having
 		to re-inject them into every object they modify' do
 		
 			the 'case with objects' do
@@ -765,10 +747,10 @@ describe Injectors, :injectors do
 		the 'following interdepent calls do not raise any errors' do
 
 			expect{
+
 				include Injectors
 
 				injector :tester
-
 				
 				tester do
 					extend self																									# extend self
@@ -783,13 +765,13 @@ describe Injectors, :injectors do
 
 				tester do
 					decorate :order do |num|																		# decorate the same method
-						self.to_s + super(num)
+						"#{self.to_s} " + super(num)
 					end	
 				end
-				tester.order(50).should =~ /^<Injector.+?manus for 50/ 				# call decorated method extended to self 
-				
+				tester.order(50).should match( /^<|tester|> manus for 50/ )		# call decorated method extended to self 
 
 
+				$stdout.should_receive(:puts).with("<|tester|> manus for 30")
 				with tester do 																								# with self(tester)
 					puts order 30																								# execute method
 					def receive weight																					# define singleton method
@@ -812,58 +794,51 @@ describe Injectors, :injectors do
 
 		end
 		
-		the 'following is equivalent to the above' do
-		# we believe this to be a ressonable design limit: injectors act upon other objects
-		# NOT upon themselves.  If you need self referential access use extend (see above)
-		
+		it 'should also pass' do
+
 			expect{
-																																			
-			injector :try_this do 																				##########################
-				enrich self																									# enrich == extend on self
-			end 																													##########################
-			
+
+				injector :fester 
+
+				fester do                                                     ##################
+					enrich self																									# enrich == extend
+                                                                      ##################
+					def meth arg																								# define method enriched on self
+						arg * arg
+					end
+				end
+				fester.meth(4).should == 16																		# call method enriched on self
+
+
+				fester do
+					decorate :meth do |arg| 																		# re-define method enriched on self
+						super(arg) + 1
+					end
+				end
+				fester.meth(3).should == 10																		# call re-defined method
+
+
+				# splat
+				with fester do 																								# with object self
+					# byebug
+					meth(5).should == 26
+					def math arg1, arg2																					# define singleton method on self
+						meth(arg1 + arg2)
+					end
+				end
+				fester.math(3, 2).should == 26																# call singleton method on self
+
 			}.to_not raise_error
-			
-			try_this do
-				extend self																									# extend self
-																																		# Note: you cannot self enrich an injector
-				def order weight
-					lets manus =->(){"manus for #{weight}"}
-					manus[]
+
+			fester do 																											# define new instance method depending on singleton method
+				def moth arg											
+					math(arg, arg) - 2																					
 				end
 			end
-			try_this.order(50).should == 'manus for 50'											# call method extended to self
 
+			fester.moth(4).should == 63
 
-			try_this do
-				decorate :order do |num|																		# decorate the same method
-					self.to_s + super(num)
-				end	
-			end
-			try_this.order(50).should =~ /^<Injector.+?manus for 50/ 				# call decorated method extended to self 
-			
-
-
-			with try_this do 																								# with self(tester)
-				puts order 30																								# execute method
-				def receive weight																					# define singleton method
-					"received #{weight}"
-				end
-			end
-			try_this.receive(90).should == 'received 90'										# call singleton method
-
-
-			try_this do
-				def more_tests arg																					# define instance method which depends on singleton method
-					receive 23                           											# call singleton method
-					"tested more #{arg}"
-				end
-			end
-			try_this.should_receive(:receive).with(23)											# call instance method extended to self
-			try_this.more_tests('of the api').should == 'tested more of the api'
-			
 		end
-	
 	end
 	
 	

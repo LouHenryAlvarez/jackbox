@@ -269,7 +269,7 @@ describe Jackbox, 'jackbox library', :library do
 					self.to_s + super(num)
 				end	
 			end
-			tester.order(50).should =~ /^<Injector.+?manus for 50/ 				# call decorated method extended to self 
+			tester.order(50).should =~ /^|manus| for 50/ 				# call decorated method extended to self 
 			
 		end
 		
