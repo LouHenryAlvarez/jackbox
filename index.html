@@ -37,7 +37,7 @@
 <p>There are some basic Jackbox methods.  The are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  Their descriptions follow:</p>
 
 <h4>
-<a id="decoratesym-blk" class="anchor" href="#decoratesym-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#decorate(:sym, &amp;blk)</h4>
+<a id="decorate-sym-blk" class="anchor" href="#decorate-sym-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#decorate :sym, &amp;blk</h4>
 
 <p>This method allows for decorations to be placed on a single method, be it an instance or class method without too much fuss. One important thing about #decorate is that it works like #define_method.  It also makes possible the use of ruby's keyword :super within the body of the decorator.  Use it instead of #alias_method_chain.</p>
 
@@ -87,7 +87,7 @@ Object.new.inspect
 </code></pre>
 
 <h4>
-<a id="withobj-blk" class="anchor" href="#withobj-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#with(obj, &amp;blk)</h4>
+<a id="with-obj-blk" class="anchor" href="#with-obj-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#with obj, &amp;blk</h4>
 
 <p>There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  The other important thing about #with is that it returns the same object you passed into it. Here is the sample usage code:</p>
 
@@ -154,7 +154,7 @@ end
 </code></pre>
 
 <h4>
-<a id="letssymnil-blk" class="anchor" href="#letssymnil-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#lets(sym=nil, &amp;blk)</h4>
+<a id="lets-symnil-blk" class="anchor" href="#lets-symnil-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#lets :sym=nil, &amp;blk</h4>
 
 <p>This is simple syntax sugar.  It allows the creation of local or global procs using a more function-like syntax.  It adds readability to some constructs.  Here are some examples:</p>
 
