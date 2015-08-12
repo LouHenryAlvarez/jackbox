@@ -1,5 +1,5 @@
 
-Copyright © 2014 LHA. All rights reserved.
+Copyright © 2014 LHA (Lou Henry Alvarez). All rights reserved.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -10,4 +10,4 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 In the above copyright notice, the letters LHA are the english acronym 
-for Luis Enrique Alvarez who is the author and owner of the copyright.
+for Luis Enrique Alvarez Barea who is the author and owner of the copyright.

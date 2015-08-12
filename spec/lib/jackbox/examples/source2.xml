@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<address_book>
+  <contact>
+    <name>
+      <first>Winnie</first>
+      <last>the Pooh</last>
+    </name>
+  </contact>
+  <contact>
+    <name>
+      <first>Jamie</first>
+      <last>the Weeh</last>
+    </name>
+  </contact>
+</address_book>

@@ -1,28 +1,28 @@
-require "spec_helper"
-=begin rdoc
-
-	#####
-	# eXtra Dude: Debugger Helper specification
-
-	Current Practice is:
-		.
-		.
-		log or puts (some_variable)
-		or
-		open(some_file) do |file| ... or Logger.new()
-			file.puts(some_variable) ... log.debug(some_variable)
-		end
-		... later in the program life, these statements must be commented out
-
-	We want a methodology to load some very basic debugging help over and beyond the trickery of puts statements 
-	in current use or that somehow crystalizes those current practices and enhances them with some helpful 
-	additions like loging program state info and line number.  We also want the ability to call on the debugger at any 
-	point without much a-do, or to even automatically break into the debugger on Exception or other condition, and it has
-	to be system independent, working with all versions of ruby.
-
-=end
-
-	
+# require "spec_helper"
+# =begin rdoc
+# 
+# 	#####
+# 	# eXtra Dude: Debugger Helper specification
+# 
+# 	Current Practice is:
+# 		.
+# 		.
+# 		log or puts (some_variable)
+# 		or
+# 		open(some_file) do |file| ... or Logger.new()
+# 			file.puts(some_variable) ... log.debug(some_variable)
+# 		end
+# 		... later in the program life, these statements must be commented out
+# 
+# 	We want a methodology to load some very basic debugging help over and beyond the trickery of puts statements 
+# 	in current use or that somehow crystalizes those current practices and enhances them with some helpful 
+# 	additions like loging program state info and line number.  We also want the ability to call on the debugger at any 
+# 	point without much a-do, or to even automatically break into the debugger on Exception or other condition, and it has
+# 	to be system independent, working with all versions of ruby.
+# 
+# =end
+# 
+# 	
 # describe DX, :dx do
 # 
 # 	before do
@@ -280,7 +280,6 @@ require "spec_helper"
 # 		}
 # 		
 # 		it 'outputs caller info' do
-# 			# byebug
 # 			subject.new("snail").crawl("in dirt", "slowly")
 # 			sleep 0.2
 # 			if !OS.windows?

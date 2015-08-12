@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<employees>
+  <employee>
+    <first_name>Winnie</first_name>
+    <surname>the Pooh</surname>
+  </employee>
+  <employee>
+    <first_name>Jamie</first_name>
+    <surname>the Weeh</surname>
+  </employee>
+</employees>

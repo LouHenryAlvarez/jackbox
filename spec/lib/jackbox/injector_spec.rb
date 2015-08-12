@@ -15,6 +15,7 @@ describe Injectors, :injectors do
 
 	describe :injector do
 		it 'creates the injector function' do
+			should respond_to :injector
 			class Bar
 			end
 			Bar.should respond_to :injector
@@ -36,88 +37,148 @@ describe Injectors, :injectors do
 			
 				expect {
 					
-					
-					injector :my_injector # &blk
+					injector :my_injector 
 				
 					#  or...
 					
-					Name = injector :name # &blk
+					Name = injector :name 
 				
 					# or even ...
 					
-					injector :Name # $blk
+					injector :Name 													# capitalized method
 				
 				}.to_not raise_error
 				
 			end
 
 			it 'allows the following expressions' do
+
 				expect{
 
-		    # somewhere in your code
+			    # somewhere in your code
 		
-		    injector :my_injector                               # define the injector 
+			    injector :my_injector                   # define the injector 
 
-		    # later on...
+			    # later on...
 		
-		    my_injector do  
-			    def foo
-				  	'a foo'
+			    my_injector do  
+				    def foo
+					  	'a foo'
+						end
+			      def bar                  
+			        :a_bar
+			      end
+			    end
+
+			    # later on...
+		
+					widget = Object.new
+			    widget.extend my_injector
+			    widget.bar
+
+			    # or...  
+		
+			    Mine = my_injector
+		
+			    class Target1
+			      include Mine                          # apply the injector
+						extend Mine
+			    end
+
+			    Target1.new.bar
+
+					module Container
+						jack :some_jack												# alternate term
+
+						class Contained
+							inject Container.some_jack
+						end
 					end
-		      def bar                  
-		        :a_bar
-		      end
-		    end
-
-		    # later on...
-		
-				widget = Object.new
-		    widget.enrich my_injector
-		    widget.bar
-
-		    # or...  
-		
-		    Mine = my_injector
-		    class Target
-		      inject Mine                                       # apply the injector
-					enrich Mine
-		    end
-
-		    Target.new.bar
-
-				module None
-					facet :fff
-
-					class Bone
-						inject None.fff
-					end
-				end
 				
-				# etc ...
+					# etc ...
 
 				}.to_not raise_error
+
 			end 
 			
 			the 'above generate the following target methods' do
 				
-				Target.bar.should == :a_bar
-				Target.new.bar.should == :a_bar
+				Target1.bar.should == :a_bar
+				Target1.new.bar.should == :a_bar
 				
-				Target.foo.should == 'a foo'
-				Target.new.foo.should == 'a foo'
+				Target1.foo.should == 'a foo'
+				Target1.new.foo.should == 'a foo'
 				
-				None.fff 
+				Container.some_jack
 				
-				# ...
-
 			end
 			
+			it 'follows the method lookup algorythm' do
+				
+				injector :some_injector
+				
+				expect{
+					class SomeReceiver
+						include some_injector
+					end
+				}.to raise_error(NameError)
+				
+			end
+			
+			it 'allows you to follow the constant lookup algorythmn' do
+				
+				Some_Injector = injector :some_injector
+				
+				expect{
+					class Some_Receiver
+						inject Some_Injector
+					end
+				}.to_not raise_error
+				
+			end
+			
+			it 'has alternate syntax and function through the inject/enrich keywords' do
+
+				# inject
+
+				injector :alternate do
+					def meth arg
+						arg < 3
+					end
+				end
+
+				class AlternateClass
+					# ...
+				end
+				AlternateClass.inject alternate
+
+				AlternateClass.new.meth(2).should == true
+
+				# enrich
+
+				class Window
+
+					def draw
+						'window'
+					end
+
+					injector :scroll_bars do
+						def draw
+							super() + ' with scroll bars'
+						end
+					end
+
+				end
+
+				Window.new.enrich(Window.scroll_bars).draw.should == 'window with scroll bars'
+
+			end
+
 		end		
 
-		describe 'Another main difference is that Injectors can be redefined using a block.
-		This toys with the ideas of modules as closures.' do
-
-			there 'can be subsequent additions and redefinitions on the block' do
+		# This toys with the ideas of modules as closures.' 
+		describe 'another main difference is that Injectors are defined using a block.' do
+			there 'can be subsequent additions and definitions on the block' do
 
 				# declare the injector
 				Stuff = injector :stuff do
@@ -128,7 +189,6 @@ describe Injectors, :injectors do
 
 				# define containers and include the injector
 				class Something
-					# define class
 					include Stuff
 				end
 				
@@ -148,28 +208,72 @@ describe Injectors, :injectors do
 				
 			end
 			
-			these 'redefinition constitute new injector prolongations' do
-				
-				injector :my_injector do
-					def foo
-						'a foo'
-					end
+			it 'can have code dynamically injected into a receiver' do
 
-					def bar
-						:a_bar
+				Thing = Object.new
+				Thang = Object.new
+
+				injector :agent
+
+				Thing.extend agent
+				Thang.extend agent
+
+				agent do 																							# on the fly definitions
+					define_method :capability do
+						'do the deed'
+					end
+					define_method :location do
+						'main building'
+					end
+					define_method :tester do
+						'some crap happened'
 					end
 				end
-				
-				AnotherName = my_injector
+				Thing.should respond_to :capability
+				Thing.capability.should == 'do the deed'
+				Thang.should respond_to :location
+				Thang.location.should == 'main building'
 
-				class Target
+			end
+
+			these 'blocks allow on the fly modules which can also include state from the surrounding context' do
+			
+				class ClosureExpose
+			
+					some_value = 'something'
+				
+					injector :capture do
+						define_method :val do
+							some_value
+						end
+					end
+			
+					inject capture
+				end
+			
+				# the result
+				ClosureExpose.new.val.should == 'something'
+			
+				class SecondClass
+					include ClosureExpose.capture
+				end
+			
+				# the result
+				SecondClass.new.val.should == 'something'
+			
+			end
+		
+			these 'new blocks constitute new injector prolongations' do
+				
+				AnotherName = injector :another_injector 
+				
+				class Target2
 					include AnotherName
-					extend AnotherName
 				end
 
 				#_____________________
 				# first prolongation
-				my_injector do
+				another_injector do
 					def meth arg
 						arg
 					end
@@ -181,70 +285,32 @@ describe Injectors, :injectors do
 				
 				expect {
 					
-					Target.meth(3).should == 3
-					
-					Target.new.mith(1,2,3).should == [1,2,3]
+					Target2.new.mith(1,2,3).should == [1,2,3]
+					Target2.new.meth(4).should == 4
 					
 				}.to_not raise_error
 				
 				#____________________
 				# another prolongation
-				my_injector do
+				another_injector do
 					def moth arg1, arg2
 						arg1 + arg2
 					end
 				end
 				
-				expect {
-					
-					Target.moth(3, 2).should == 5
-					
-				}.to_not raise_error
-				
 			end
 		
 		end
-		
-		it 'allows defining modules on the fly which can also include state from the surrounding context' do
-			
-			class ClosureExpose
-			
-				some_value = 'something'
-				
-				injector :capture do
-					define_method :val do
-						some_value
-					end
-				end
-			
-				inject capture
-			end
-			
-			# the result
-			ClosureExpose.new.val.should == 'something'
-			
-			class SecondClass
-				inject ClosureExpose.capture
-			end
-			
-			# the result
-			SecondClass.new.val.should == 'something'
-		end
-		
 	end
 
-	describe 'method definition' do
-
+	describe 'method definition on injectors' do
 		the 'methods of the injector closure can be defined using the def keyword' do
 
 			injector :MethodDefinitions
-
 			MethodDefinitions() do
-
 				def some_crazy_method
 					'I am %#&*@^%_crazy enough'
 				end
-
 			end
 			o = Object.new.enrich MethodDefinitions()
 			o.some_crazy_method.should ==  'I am %#&*@^%_crazy enough'
@@ -253,6 +319,7 @@ describe Injectors, :injectors do
 
 		the 'methods can be defined using the define_method method proc style' do
 
+			injector :MethodDefinitions
 			MethodDefinitions do
 				define_method :more_crazynex do |x, y|
 					x * y * x * y
@@ -265,6 +332,7 @@ describe Injectors, :injectors do
 
 		the 'methods can be defined using the define_method lambda style' do
 
+			injector :MethodDefinitions
 			MethodDefinitions do
 				define_method :gone_bonkers, lambda { |x,y,z| (x * y * z).split(':').join('#@')}
 			end
@@ -272,81 +340,75 @@ describe Injectors, :injectors do
 			gone_bonkers('errrr:rrrr', 2, 3).should == 'errrr#@rrrrerrrr#@rrrrerrrr#@rrrrerrrr#@rrrrerrrr#@rrrrerrrr#@rrrr'
 
 		end
-
 	end
 
-	describe 'the receiver of the injectors' do
-
-		it 'can have code dynamically injected into an object receiver' do
-
-			Thing = Object.new
-			Thang = Object.new
-
-			injector :agent
-
-			Thing.extend agent
-			Thang.extend agent
-
-			agent do 																																		# on the fly definitions
-				define_method :capability do
-					'do the deed'
-				end
-				define_method :location do
-					'main building'
-				end
-				define_method :tester do
-					'some crap happened'
+	describe 'the types of receivers' do
+		
+		it 'can be a class INSTANCE' do
+			
+			injector :class_instance_injector do
+				def new *args
+					puts "--done--"
+					super(*args)
 				end
 			end
-			Thing.should respond_to :capability
-			Thing.capability.should == 'do the deed'
-			Thang.should respond_to :location
-			Thang.location.should == 'main building'
-			
-		end
 
-		it 'can be a class receiver' do
-			
+			class SomeClassInstance
+				# ...
+			end
+
+			SomeClassInstance.enrich class_instance_injector
+
+			$stdout.should_receive(:puts).with("--done--")
+			iu = SomeClassInstance.new
+
+		end
+		
+		it 'can be an actual class receiver' do
+		
+			Layout = injector( :layout ){
+				def expand
+				end
+			}
+			Color = injector( :color ){
+				def tint
+				end
+			}
 			class Widget
 
-				injector :layout do
-					def expand
-					end
-				end
-				injector :color do
-					def tint
-					end
-				end
-				include layout
-				include color
-			end
+				include Layout 
+				include Color
 			
-			# Widget.injectors.should == [:layout, :color]
+			end
+			Widget.injectors.sym_list.should == [:layout, :color]
+
 			expect{Widget.new.expand}.to_not raise_error
 			expect{Widget.new.tint}.to_not raise_error
-			
+		
 		end
 
-		it 'has alternate syntax and function through the inject/enrich keywords' do
+		it 'can be an object instance receiver' do
 			
-			class Window
-				def draw
-					'window'
-				end
-
-				injector :scroll_bars do
-					def draw
-						super() + ' with scroll bars'
-					end
+			injector :for_an_object do
+				def to_s
+					'oohooo'
 				end
 			end
 			
-			Window.new.enrich(Window.scroll_bars).draw.should == 'window with scroll bars'
+			o = Object.new
+			
+			o.enrich for_an_object
+			
+			o.to_s.should == 'oohooo'
 			
 		end
+	
+	end
 
-		a 'list of injections to an object is available from the enriched object themselves' do
-			
+	describe 'introspection on receivers' do
+		
+		a 'list of injections to an object is available from the objects themselves' do
+		
 			class Coffee
 				def cost
 					1.50
@@ -354,96 +416,43 @@ describe Injectors, :injectors do
 			end
 			injector :milk 
 			injector :sprinkles 
-			
+		
 			cup = Coffee.new.enrich(milk).enrich(sprinkles)
-			cup.injectors.should == [:milk, :sprinkles]
-			
+			cup.injectors.sym_list.should == [:milk, :sprinkles]
+		
 		end
 
 		the 'list if also available on class injection' do
-			
+		
 			class SomeClass
 				inject injector :one
 				inject injector :two
 			end
-			SomeClass.injectors.should == [:one, :two]
+			SomeClass.injectors.sym_list.should == [:one, :two]
+		
+		end
+		
+		the 'same is true at the class instance level' do
+			
+			# from above
+			SomeClassInstance.injectors.sym_list.should == [:class_instance_injector]
 			
 		end
-	end
 		
+		#
+		# more on this at the end of file
+		#
+		
+	end
+	
 
 	describe 'injectors can all be dynamically erased from context. In various ways:' do
-
 		describe 'An injector individually ejected to eliminate its function. All subsequent
 		method calls on the injectors methods may raise an error if there is nothing else up
 		the lookup chain' do
 
-			the 'injector functionally can be removed from a class of objects. Note: only 
-			available on injected classes, i.e: using the inject keyword' do
-				
-				# create the injection
-				class Home
-					injector :layout do
-						def fractal
-						end
-					end
-					inject layout
-				end
-				expect{Home.new.fractal}.to_not raise_error
-
-				# another injector
-				class Home
-					injector :materials do
-						def plastic
-						end
-					end
-					inject materials
-				end
-				Home.injectors.should == [:layout, :materials ]
-
-				# build
-				my_home = Home.new
-				friends = Home.new
-				
-				# eject the code
-				class Home
-					eject :layout
-				end
-				
-				# the result
-				Home.injectors.should == [:materials]
-				expect{my_home.fractal}.to raise_error
-				expect{friends.fractal}.to raise_error
-				expect{Home.new.fractal}.to raise_error(NoMethodError)
-				
-				# eject the other injector
-				class Home
-					eject :materials
-				end
-				
-				# the result
-				Home.injectors.should be_empty
-				expect{my_home.plastic}.to raise_error
-				expect{friends.plastic}.to raise_error
-				expect{Home.new.plastic}.to raise_error(NoMethodError)
-				
-			end
-
-			but 'the main injector is still available for re-injection' do
-				
-				# re-inject the class
-				class Home
-					inject layout
-				end
-				
-				# the result
-				expect{Home.new.fractal}.to_not raise_error
-				expect{Home.new.dup}.to_not raise_error
-				
-			end
-
-			the 'functionality removed from the individual objects when enriched,
-			Note: using the enrich keyword' do
+			the 'functionality removed from the individual objects.
+			Note: applied using the enrich keyword on the object instance' do
 				
 				class Coffee
 					def cost
@@ -469,326 +478,148 @@ describe Injectors, :injectors do
 				friends_cup.cost.should == 1.50
 				
 			end
-				
 			
-		end
+			the 'functionality removed from a class INSTANCE
+			Note: when applied via the enrich keywork on the class' do
 
-
-
-		describe 'Injector Directives: ' do
-			
-			describe "<injector> :implode, the entire injector and all instances eliminated.  Produces different results than 
-			ejecting individual injectors, or from using <injector> :collapse and then restored using <injector> :rebuild" do
-			
-				an 'example of complete injector implosion' do
-				
-					class Model
-						def feature
-							'a standard feature'
-						end
+				injector :part do
+					def connector
+						'connected'
 					end
-
-					injector :extras do
-						def feature
-							super() + ' plus some extras'
-						end
-					end
-				
-					car = Model.new.enrich(extras)
-					car.feature.should == 'a standard feature plus some extras'
-
-					extras :implode
-				
-					# total implosion
-					expect{extras}.to raise_error(NameError, /extras/)
-					car.feature.should == 'a standard feature'
-				
-					expect{ 
-						new_car = Model.new.enrich(extras) 
-						}.to raise_error(NameError, /extras/)
-					
-					expect{
-						extras do
-							def foo
-							end
-						end
-						}.to raise_error(NameError, /extras/)
-					
 				end
-
-				describe 'difference between injector ejection/implosion' do
-		
-					the 'Injector reconstitution after ejection is possible through reinjection
-					but reconstitution after injector implosion is NOT AVAILABLE' do
-
-						# code defined
-						class Job
-							injector :agent do
-								def call
-								end
-							end
-							inject agent
-						end
-						Job.injectors.should == [:agent]
-
-						# normal use
-						expect{Job.new.call}.to_not raise_error
-
-						# code ejection
-						Job.eject :agent
-
-						# code extended and re-injected
-						class Job
-							inject agent
-							agent do
-								def sms
-								end
-							end
-						end
-
-						#normal use
-						expect{Job.new.call}.to_not raise_error
-						expect{Job.new.sms}.to_not raise_error
-
-						# code imlossion
-						Job.agent :implode
-
-						# Unavailable !!!
-						expect{
-							class Job
-								inject :agent
-							end
-							}.to raise_error
-
-						# Unavailable !!!
-						expect{
-							class Job
-								agent do
-									def something
-									end
-								end
-							end }.to raise_error
-
-						# Unavailable!!!
-						expect{Job.new.call}.to raise_error
-						expect{Job.new.sms}.to raise_error
-
-					end
-
+				class Whole
 				end
-
+				Whole.extend part
+				
+				Whole.connector.should == 'connected'
+				Whole.injectors.sym_list.should == [:part]
+				
+				# eject the part
+				
+				Whole.eject part
+				
+				# result
+				
+				Whole.injectors.should be_empty
+				expect{
+					Whole.eject part
+				}.to raise_error(ArgumentError)
+				
 			end
-		end
-		
-		describe '<injector> :collapse.  Injectors can be silenced. This description produces similar results to 
-		the previous except that further injector method calls DO NOT raise an error they just quietly return nil' do
 			
-			the 'case with objects' do
-		
-				injector :copiable do
-					def object_copy
-						'a dubious copy'
-					end
-				end
-		
-				o1 = Object.new.enrich(copiable)
-				o2 = Object.new.enrich(copiable)
-		
-				o1.object_copy.should == 'a dubious copy'
-				o2.object_copy.should == 'a dubious copy'
-		
-				copiable :silence
-		
-				o1.object_copy.should == nil
-				o2.object_copy.should == nil
-		
-			end
-
-			the 'case with a classes' do
-
-				class SomeClass
-					injector :code do
-						def tester
-							'boo'
+			the 'injector functionality removed from a class of objects. 
+			Note: applied using the inject keyword on the class' do
+				
+				# create the injection
+				class Home
+					include jack :layout do
+						def fractal
 						end
 					end
-					
-					inject code
 				end
-				
-				# collapse
-				SomeClass.code :collapse
+				expect{Home.new.fractal}.to_not raise_error
+
+				# another injector
+				class Home
+					include jack :materials do
+						def plastic
+						end
+					end
+				end
+				Home.injectors.sym_list.should == [:layout, :materials ]
 
 				# build
-				a = SomeClass.new
-				b = SomeClass.new
-
-				# INTERESTINGLY!!
-				a.tester.should == nil
-				b.tester.should == nil
+				my_home = Home.new
+				friends = Home.new
 				
-				# further
-				SomeClass.eject :code 
-				expect{ a.tester }.to raise_error
-				expect{ b.tester }.to raise_error
-
-			end
-			
-			the 'class members are not affected by the collapse' do
-		
-				# define container
-				class BumperCar
-					def fun
-						'this is fun'
-					end
-				end				
-				
-				injector :somecode do 																				# share member name with container
-					def fun
-						super + ' and more fun'
-					end
+				# eject the code
+				class Home
+					eject :layout
 				end
-			
-				bc = BumperCar.new.enrich(somecode).enrich(somecode)					# decorator pattern
-				bc.fun.should == 'this is fun and more fun and more fun'
-			
-				somecode :collapse																						# collapse the injector
+				Home.injectors.sym_list.should == [:materials]
 				
-				bc.fun.should == 'this is fun'																# class memeber foo intact
-			                                                                    
-				# eject all injectors                                             
-				bc.injectors.each { |ij| bc.eject ij }												# same as before
-				bc.fun.should == 'this is fun' 
-		
+				# the result
+				expect{my_home.fractal}.to raise_error(NoMethodError)
+				expect{friends.fractal}.to raise_error(NoMethodError)
+				expect{Home.new.fractal}.to raise_error(NoMethodError)
+				
+				# eject the other injector
+				class Home
+					eject :materials
+				end
+				Home.injectors.sym_list.should be_empty
+				
+				# the result
+				expect{my_home.plastic}.to raise_error(NoMethodError)
+				expect{friends.plastic}.to raise_error(NoMethodError)
+				expect{Home.new.plastic}.to raise_error(NoMethodError)
+				
 			end
-		
+
+			but 'the main injector is still available for re-injection' do
+				
+				# re-inject the class
+				class Home
+					inject layout
+				end
+				
+				# the result
+				expect{Home.new.fractal}.to_not raise_error
+				expect{Home.new.dup}.to_not raise_error
+				
+			end
+
 		end
-		
-		describe '<injector> :rebuild.  Quieted injectors restored without having
-		to re-inject them into every object they modify' do
-		
-			the 'case with objects' do
-	
-				injector :reenforcer do
-					def thick_walls
-						'=====  ====='
-					end
-				end
 
-				o1 = Object.new.enrich(reenforcer)
-				o2 = Object.new.enrich(reenforcer)
-	
-				reenforcer :collapse
-	
-				o1.thick_walls.should == nil
-				o2.thick_walls.should == nil
-	
-				reenforcer :rebuild
-	
-				o1.thick_walls.should == '=====  ====='
-				o2.thick_walls.should == '=====  ====='
-	
-			end
 
-			the 'case with a classes' do
-			
-				class SomeBloatedObject
-					injector :ThinFunction do
-						def perform
-							'do the deed'
-						end
-					end
-					inject ThinFunction()
-				end
-				SomeBloatedObject.ThinFunction :silence
-			
-				tester = SomeBloatedObject.new
-				tester.perform.should == nil
-			
-				SomeBloatedObject.ThinFunction :active
-				tester.perform.should == 'do the deed'
-			
-			end
-	
-			the 'rebuild reconstructs the entire injector and all applications' do
-		
-				class BumperCar
-					def fun
-						'this is fun'
-					end
-				end
-				injector :othercode do 																				# share memeber name with container
-					def fun
-						super + ' and more fun'
-					end
-				end
-		
-				bc = BumperCar.new.enrich(othercode).enrich(othercode)				# decorator pattern
-				bc.fun.should == 'this is fun and more fun and more fun'
-		
-				othercode :silence																						# declare injector silence
-				
-				bc.fun.should == 'this is fun'																# class member un-affected
-				
-				othercode :active
-				bc.fun.should == 'this is fun and more fun and more fun'			# restores all decorations !!!
-				
-				# restore the original
-				bc.injectors.each { |ij| bc.eject ij }												# same as before
-				bc.fun.should == 'this is fun' 
-		
-			end
-	
-		end
 	end
 
-	describe 'a shimmer of orthogonality with injectors' do
-
+	describe 'orthogonality of injectors within Jackbox' do
+		
 		the 'following interdepent calls do not raise any errors' do
 
 			expect{
-
 				include Injectors
 
-				injector :tester
+				injector :tester1
 				
-				tester do
+				tester1 do
 					extend self																									# extend self
 																																			# Note: you cannot self enrich an injector
 					def order weight
-						lets manus =->(){"manus for #{weight}"}
-						manus[]
+						lets label =->(){"label for #{weight}"}
+						label[]
 					end
 				end
-				tester.order(50).should == 'manus for 50'											# call method extended to self
+				tester1.order(50).should == 'label for 50'											# call method extended to self
 
 
-				tester do
+				tester1 do
 					decorate :order do |num|																		# decorate the same method
 						"#{self.to_s} " + super(num)
 					end	
 				end
-				tester.order(50).should match( /^<|tester|> manus for 50/ )		# call decorated method extended to self 
+				tester1.order(50).should match( /|tester1| label for 50/ )  # call decorated method extended to self 
 
 
-				$stdout.should_receive(:puts).with("<|tester|> manus for 30")
-				with tester do 																								# with self(tester)
+				$stdout.should_receive(:puts).with("|tester1| label for 30")
+				with tester1 do 																							# with self(tester1)
 					puts order 30																								# execute method
 					def receive weight																					# define singleton method
 						"received #{weight}"
 					end
 				end
-				tester.receive(90).should == 'received 90'										# call singleton method
+				tester1.receive(90).should == 'received 90'										# call singleton method
 
 
-				tester do
+				tester1 do
 					def more_tests arg																					# define instance method which depends on singleton method
 						receive 23                           											# call singleton method
 						"tested more #{arg}"
 					end
-				end
-				tester.should_receive(:receive).with(23)											# call instance method extended to self
-				tester.more_tests('of the api').should == 'tested more of the api'
+				end                     
+				
+				tester1.more_tests('of the api').should == 'tested more of the api'
 				
 			}.to_not raise_error
 
@@ -798,50 +629,130 @@ describe Injectors, :injectors do
 
 			expect{
 
-				injector :fester 
+				injector :tester2 
 
-				fester do                                                     ##################
+				tester2 do                                                    ##################
 					enrich self																									# enrich == extend
                                                                       ##################
 					def meth arg																								# define method enriched on self
 						arg * arg
 					end
 				end
-				fester.meth(4).should == 16																		# call method enriched on self
+				tester2.meth(4).should == 16																	# call method enriched on self
 
 
-				fester do
+				tester2 do
 					decorate :meth do |arg| 																		# re-define method enriched on self
 						super(arg) + 1
 					end
 				end
-				fester.meth(3).should == 10																		# call re-defined method
+				tester2.meth(3).should == 10																	# call re-defined method
 
 
 				# splat
-				with fester do 																								# with object self
-					# byebug
+				with tester2 do 																							# with object self
 					meth(5).should == 26
 					def math arg1, arg2																					# define singleton method on self
 						meth(arg1 + arg2)
 					end
 				end
-				fester.math(3, 2).should == 26																# call singleton method on self
+				tester2.math(3, 2).should == 26																# call singleton method on self
 
 			}.to_not raise_error
 
-			fester do 																											# define new instance method depending on singleton method
+			tester2 do 																											# define new instance method depending on singleton method
 				def moth arg											
-					math(arg, arg) - 2																					
+					math(arg, arg) 																				
 				end
 			end
 
-			fester.moth(4).should == 63
+			tester2.moth(4).should == 65
+
+		end
+
+		describe 'othogonality: equivalent injector forms' do
+
+			the 'following class injection forms are all equivalent' do
+
+				class Injected
+					# ...
+				end
+
+				injector :First do
+					def meth
+						:meth
+					end
+				end
+				Injected.inject First()
+				Injected.new.meth.should == :meth
+
+				Injected.eject First()
+				Injected.inject First() do
+					def meth
+						:meth
+					end
+				end
+				Injected.new.meth.should == :meth
+
+				Injected.eject First()
+				injector( :First ){
+					def meth
+						:meth
+					end
+				}
+				Injected.inject First()
+				Injected.new.meth.should == :meth
+
+				Injected.eject First()
+				Injected.inject injector( :First ){
+					def meth
+						:meth
+					end
+				}
+				Injected.new.meth.should == :meth
+
+			end
+
+			the 'following instance enrichment forms are all equvalent' do
+
+				injector :second do
+					def meth
+						:meth
+					end
+				end
+				enrich second
+				meth.should == :meth
+
+				eject second
+				enrich injector :second do
+					def meth
+						:meth
+					end
+				end
+				meth.should == :meth
+
+				eject second
+				injector( :second ){
+					def meth
+						:meth
+					end
+				}
+				enrich second
+				meth.should == :meth
+
+				eject second
+				enrich injector( :second ){
+					def meth
+						:meth
+					end
+				}
+				meth.should == :meth
+
+			end
 
 		end
 	end
-	
-	
+
 end 
 
 

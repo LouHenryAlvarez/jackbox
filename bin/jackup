@@ -3,7 +3,7 @@
 #
 # author: LHA
 # 
-######
+###### 
 require 'thor'
 require 'jackbox'
 require_relative '../lib/jackbox/examples/dir'
@@ -145,7 +145,6 @@ Stage jackbox support to project files:
 		
 		# helpers
 		def rfolder
-			# "#{ENV['HOME']}/tmp/jackup/#{(0..10).map { |c| ('a'..'z').to_a.sample }.join}"
 			"#{ENV['HOME']}/tmp/jackup/#{(0...10).map { ('a'..'z').to_a[rand(26)] }.join}"
 		end
 

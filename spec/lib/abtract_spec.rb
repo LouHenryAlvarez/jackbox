@@ -25,7 +25,7 @@ describe Abstract do
 				def direction
 				end
 			end
-			expect{Vector.new}.to raise_error
+			expect{Vector.new}.to raise_error(NoMethodError)
 			class Velocity < Vector
 				def speed
 					super + 35
@@ -42,7 +42,7 @@ describe Abstract do
 			class First
 				extend Abstract
 			end
-			expect{First.new}.to raise_error
+			expect{First.new}.to raise_error(NoMethodError)
 			class Second < First
 			end
 			expect{Second.new}.to_not raise_error

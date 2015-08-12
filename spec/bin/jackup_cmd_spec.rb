@@ -94,7 +94,7 @@ describe 'jackup command', :command do
   				###
   				assure_it 'defines a gem project'
   				assure_it 'has custom files'
-        it_behaves_like 'a tooled project'
+        	it_behaves_like 'a tooled project'
   				###
         after :all do
           Dir.chdir '..'

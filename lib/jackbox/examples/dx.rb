@@ -178,4 +178,5 @@ end
 # def log *args
 # 	DX.log
 # end
+
 DX.assert_loaded

@@ -1,3 +1,91 @@
+0.9.5.9
+
+. Added a spec for Injector behavior under Inheritance
+. Fixed problem with same method name object level class ejection
+. Changed the injector namespace resolution to be more consistent
+  . all injectors accessible from the object they were defined
+  . top level injectors still accessible at the top
+  . Object level injectors accessible everywhere
+. Fixed problem found with late code un-evaluation for blocks called on include/extend/update
+. Fixed problems found with injections on class instances
+  . injectors are now reported in this order: Class instance first, instances of THE class second
+  . class instance injectors don't get include/reported on instances of the class
+  . ejection on the Class instance now works normally
+. Added Name Spacing spec to the set
+  . injectors with caps are always part of the global name space
+  . the rest of injectors are in scope where they are defined
+  . can still be made follow constant lookup
+. Finished spec-out for injector tagging
+  . Version Tagging/Naming now has a formal spec as part of name spacing
+  . tags are frozen versions of an injector
+. Redefined #ancestors to more correctly reflect the actual ancestor chain
+  . the only thing left off are the injectors subject to :implosion
+  . the :implosion is marked on the individual injectors
+. Relocated the ancestors examples to the inheritance spec
+. Added a couple of methods relating to injector versions
+  . defined history/versions method
+  . defined #precedent method
+. Added the concept of soft tags
+  . they serve to define a new coding pattern employing the idea of iterative injection 
+  . they simultaneously create a method :name_ in the callers namespace
+. Changed #with method to module_eval on Modules
+  . fixed issue with referring #define_method to caller
+  . if it's not in the object for the with it errors out
+. Added transformers example(Working Beautifully)
+. Changed #injectors reflection api to have more flexibility 
+  . injectors :name gets the last injector by that name
+  . injectors :name, :name gets those last injectors
+  . injectors simply gets all injectors
+. Finalized injectors.#... sub object model api
+  . Name.injectors == [j,......]
+  . Name.injectors.by_name == [:name, ......]
+    . Name.injectors.sym_list == [:name, ......]
+  . Name.injectors.collect_by_name(:name) == [j,......]  (default method)
+    . Name.injectors.all_by_sym(:name) == [j,......]  (default method)
+    . same as Name.injectors :name
+  . Name.injectors.find_by_name(:name) == j (the last injector by name)
+    . Name.injectors.pick_by_sym(:name) == j (the last injector by name)
+  . Name.injectors.#Enumerable...
+. Added a way to refers to tags on ancestor introspection( not displaying under pry only irb )
+. Changed the show method to a more compact version
+. Reworked the inheritance and ancestor chain examples
+. Added inheritance spec examples to show ancestor search
+. Added examples into the name spacing spec to show Tags on ancestor chains
+. Fixed an issue existing only on Ruby 1.9 with define method at the top level
+. Cleaned code and examples
+. Changed #to_s/#inspect/#show display routines including for tags
+. Started work on optimizations
+. Added sym_for object method to Module class
+. Solved automatic tag tracing
+. Override module_eval to work with functor(&code)
+  . added functor definition
+. Added the notion of equality to Injectors
+. Reworked examples to:
+  . comply with new equality operators
+  . accommodate hard tags
+. Added the tags method
+. Polished the history method
+. Started exploration on using Weak References for Injectors
+. Fixed complete Injector implosion from leaving the Injector name obliterated
+. Refactored some code
+. Examples to test history
+. Renamed and refactored other examples
+. Added examples to the Patterns spec
+. With statement streamlined and rescued
+. Combined history and tags
+  . ensure all tags are accounted for before
+  . ensuring history returns correct results
+. Finished with equality
+. Broke out injector spec into smaller files:
+  . Directives
+  . Introspection
+. Added examples of new workflows and patterns
+. Cleaned up tagging and other examples
+. Updated Ruby, gems, and tested compatibility
+  . compatible with the latest and greatest
+ALL SPECS PASSING
+  
+
 0.9.5.8
   
   . More seamless integration with the Ruby base
@@ -14,15 +102,7 @@
     . works both on class/singleton_class ancestors calls
     
   . Added Injector#show, #to_s, #inspect implementations 
-  
   . Changed Injectors name spacing.  Now contained within Jackbox.
-  
   . Added some specs and reworked others.
-  
   . Cleaned up some code.
-
-    Issues:
-
-      Top level:
-      . 
 

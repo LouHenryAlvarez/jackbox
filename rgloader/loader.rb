@@ -1,4 +1,4 @@
-# RubyEncoder v2.0 loader
+# RubyEncoder v1.0 loader
 _v = RUBY_VERSION.scan(/^\d+\.\d+\.\d+/)[0].delete('.')
 _v = '' if _v.to_i < 190
 _p = RUBY_PLATFORM.scan(/([A-Za-z0-9_]+)-([A-Za-z_]+)/)[0]

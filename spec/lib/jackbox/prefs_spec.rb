@@ -114,17 +114,17 @@ describe 'what Prefs does' do
 		module Descendant
 			include Tester
 		end
-		lambda{Descendant.pref1}.should raise_error
+		lambda{Descendant.pref1}.should raise_error(NoMethodError)
 		module Offspring
 			extend Tester
 		end
-		lambda{Offspring.pref1}.should raise_error
+		lambda{Offspring.pref1}.should raise_error(NoMethodError)
 		class Child
 			include Tester
 			extend Tester
 		end
-		lambda{Child.pref1}.should raise_error
-		lambda{Child.new.pref1}.should raise_error
+		lambda{Child.pref1}.should raise_error(NoMethodError)
+		lambda{Child.new.pref1}.should raise_error(NoMethodError)
 	end
 	
 	it 'should allow all of the following' do
@@ -179,7 +179,7 @@ describe 'what Prefs does' do
 		end
 	  C.boo.should == 'something'
 		lambda{C.boo=(3)}.should_not raise_error
-		lambda{C.new.boo}.should raise_error
+		lambda{C.new.boo}.should raise_error(NoMethodError)
 	end
 
 	it 'should be possible to reset the prefs to their defaults' do

@@ -167,12 +167,10 @@ describe Jackbox, 'jackbox library', :library do
 		
 		it 'also works like so' do
 			
-			STDOUT.should_receive(:puts).with(/is your object/)
-			
 			Object.decorate :inspect do
-				puts super() + " is your object"
+				super() + " is your object"
 			end
-			Object.new.inspect
+			Object.new.inspect.should =~ /is your object/
 			
 		end
 
@@ -325,6 +323,17 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
+		it 'does allow errors to raise thru' do
+			
+			lets make =->(something){
+				raise something
+			}
+			
+			expect{
+				make[:nothing]
+			}.to raise_error
+			
+		end
 	end
 
 
@@ -400,7 +409,7 @@ describe Jackbox, 'jackbox library', :library do
 					
 				end
 				
-			}.to raise_error(Jackbox::UserError)
+			}.to raise_error(ArgumentError)
 		end
 		
 		it 'works with decorate on an object multiple times' do
@@ -444,8 +453,8 @@ describe Jackbox, 'jackbox library', :library do
 			$stdout.should_receive(:puts).with(:large_bar)
 			
 			ro = RegularObject.new 
-
-			ro.with o = BarNone.new do
+			o = BarNone.new
+			ro.with o do
 				
 				@var = object_tester bar										# @var is set on o not ro
 				

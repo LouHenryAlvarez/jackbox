@@ -14,15 +14,19 @@ describe 'Injector versioning:', :injectors do
 	describe 'injector versioning and its relationship to object instances' do
 	
 		the 'injector versioning uses a snapshot of the injector`s existing methods up to the point of injection' do
-		# using only that version of	methods as the object of injection.  Any overrides to methods in any subsequent injector prolongations 
-		# do not take effect in this target.  Any new methods added to the injector do become available to the target, although
+		# using only that version of	methods as the object of injection.  AA4ny overrides to methods in any subsequent injector prolongations 
+		# do not take effect in this target.  AA4ny new methods added to the injector do become available to the target, although
 		# may contain internal references to newer versions of the target methods. This ensures to keep everyting working correctly.'
 		
+			#___________________
+			# injector declaration
+			injector :My_injector
+
 	    #___________________
-	    # injector declaration
-	    injector :my_injector do 															
+	    # injector first prolongation
+	    My_injector do 															
 	      def bar
-	        :a_bar                                          # version bar.1
+	        :a_bar                                  # version bar.1
 	      end
 	      def foo
 	      	# ...
@@ -30,14 +34,14 @@ describe 'Injector versioning:', :injectors do
 	    end
 	
 			object1 = Object.new
-	    object1.enrich my_injector                          # apply the injector --first snapshot
-	    object1.bar.should == :a_bar                        # pass the test
+	    object1.enrich My_injector()                # apply the injector --first snapshot
+	    object1.bar.should == :a_bar                # pass the test
 
 	    #__________________
-	    # injector prolongation
-	    my_injector do 																			
+	    # injector second prolongation
+	    My_injector do 																			
 	      def bar
-	        :some_larger_bar                                # version bar.2 ... re-defines bar
+	        :some_larger_bar                        # version bar.2 ... re-defines bar
 	      end
 	      def some_other_function
 	      # ...
@@ -45,13 +49,13 @@ describe 'Injector versioning:', :injectors do
 	    end
     
 			object2 = Object.new
-	    object2.enrich my_injector                          # apply the injector --second snapshot
+	    object2.enrich My_injector()                # apply the injector --second snapshot
 	    object2.bar.should == :some_larger_bar
 
 	    # result
 	    ###########
     
-	    object1.bar.should == :a_bar                        # bar.1 is still the one
+	    object1.bar.should == :a_bar                # bar.1 is still the one
 
 	    ###########################################
 	    # The object has kept its preferred version
@@ -62,7 +66,7 @@ describe 'Injector versioning:', :injectors do
 			
 			#_________________
 			# re-injection
-			enrich my_injector																		# re-injection on any object instance
+			enrich My_injector()																	# re-injection on any object instance
 			bar.should == :some_larger_bar												# bar.2 now available
 			
 			expect{some_other_function}.to_not raise_error				# some_other_function.1 is present
@@ -106,83 +110,94 @@ describe 'Injector versioning:', :injectors do
 		
 		the "class injector versioning is similar to object injector versioning" do
 			
+			#___________________
+			# injector declaration:
+			injector :Versions 
+
 	    #___________________
-	    # injector declaration:
-	    Versions = injector :versions do
-	      def meth arg                                      # version meth.1
+	    # injector first prolongation
+	    Version1 = Versions do
+	      def meth arg                              # version meth.1
 	        arg ** arg
 	      end
 	    end
 
 	    class One
-	      inject Versions                                   # apply --first snapshot
+	      inject Version1                           # apply --first snapshot
 	    end
 
 	    #_________________
-	    # injector prolongation:                              
-	    versions do
-	      def meth arg1, arg2                               # version meth.2 ... redefines meth.1
+	    # injector second prolongation                              
+	    Version2 = Versions do
+	      def meth arg1, arg2                       # version meth.2 ... redefines meth.1
 	        arg1 * arg2
 	      end
 	    end
 
 	    class Two
-	      inject Versions                                   # apply --second snapshot
+	      inject Version2                           # apply --second snapshot
 	    end
 
 
 	    # result
 	    #############################
-	    Two.new.meth(2,4).should == 8                       # meth.2 
-	                                                                      # two different injector versions
-	    One.new.meth(3).should == 27                        # meth.1
+	    Two.new.meth(2,4).should == 8               # meth.2 
+	                                                            # two different injector versions
+	    One.new.meth(3).should == 27                # meth.1
 	    #############################
 	    #
 			
 		end
 		
-		the 'above updates by re-injection are different for classes --we can update individual object instances' do
-			
-			One.inject Versions 																			# re-injection: applying version 2 to class One has no effect
-			
-			expect{ One.new.meth(4,5) }.to raise_error 								# meth.2: fails!! unavailable because class injection is static
-			
+		# we can update individual object instances but not classes directly
+		# this is unavailable because class injection is pervasive
+		the 'simple re-injection is different for classes: it fails ' do
 			
 			# re-injection can happen on individual object instances
-			One.new.enrich(Versions).meth(4,5).should == 20						# meth.2
+			One.new.enrich(Version2).meth(4,5).should == 20			# meth.2 works!!
+			
+			# re-injection applying version 2 to class One has no effect
+			One.inject Version2 												
+			expect{ One.new.meth(4,5) }.to raise_error(ArgumentError) 					# meth.2: fails!! 
 			
 		end
 		
 		the 'way to class level injector updates is through the Strategy Pattern' do
 					 
+			# DO NOT want to necessarily update older clients of the class
+			# but possible if needed
+
 			class One
-				eject Versions																					# eject version 1
+				eject Versions()													# eject version 1
 			
-				inject Versions																					# re-inject with prolonged injector -- can be any version
+				inject Versions()													# re-inject with prolonged injector -- can be any version
 			end
-			One.new.meth(4,5).should == 20														# meth.2 now available!!
+			One.new.meth(4,5).should == 20							# meth.2 now available!!
 			
-			# We feel this is the correct approach but there is 
-			# a little syntactical handicap/ambiguity
+			################################################
+			# We feel this is the correct approach but has #
+			# a sllight syntactical handicap/ambiguity     #
+			################################################
 			
 		end
 		
 		a 'preferred way as of late: private updates --could change' do
 			
-			versions do
+			Versions do
 				def meth(*args)
 					args.inject(&:+)
 				end
 			end
 			
 			class One
-				update Versions																					# changes strategy for you --but always to the latest only
+				update Versions()													# changes strategy for you
+																									# by design a private method as sign of its delicate nature 
 			end
+			
 			# or ....
 			
-			One.send :update, Versions																# by design a private method as sign of its delicate nature 
-																																# DO NOT want to necessarily update older clients of the class
-			One.new.meth( 3,4,5,6 ).should == 18											# but possible if needed
+			One.send :update, Versions()
+			One.new.meth( 3,4,5,6 ).should == 18				# new version now available!
 			
 		end
 		
@@ -212,38 +227,61 @@ describe 'Injector versioning:', :injectors do
 				
 			end
 			Freak.new.twitch.should == '/\/\/\/\/\/\/\/\/\/'
+		
 		end
-		
-		
+
+		there 'is a different way todo global updates on Injectors: use define_method' do
+
+			SomeSlot = slot :some_slot do
+				def foo_bar
+					'a foo and a bar'
+				end
+			end
+
+			class Client
+				inject SomeSlot
+			end
+
+			Client.new.foo_bar.should == 'a foo and a bar'			# expected
+
+			some_slot do
+				define_method :foo_bar do
+					'fooooo and barrrrr'
+				end
+			end
+
+			Client.new.foo_bar.should == 'fooooo and barrrrr'		# different
+
+		end
 	end
 
 	describe "utility of injector versioning: " do
 		
 		it 'allows to easily override methods without affecting other parts of your program' do
 			
-			J = injector :j do
+			J1 = injector :j do
 				def meth(arg)
-					p arg or arg
+					arg
 				end
 			end
 			
-			class A
-				inject J
+			class AA4
+				inject J1
 			end
-			A.new.meth(3).should == 3
+			AA4.new.meth(3).should == 3
 			
-			j do
+			J2 = j do
 				def meth(arg)
 					arg *arg
 				end
 			end
 			
-			class B
-				inject J
+			class BBB
+				inject J2
 			end
-			B.new.meth(3).should == 9
+			BBB.new.meth(3).should == 9
 			
-			A.new.meth(3).should == 3
+			AA4.new.meth(3).should == 3
 			
 		end
 		
@@ -251,42 +289,38 @@ describe 'Injector versioning:', :injectors do
 
 	    #_____________________
 	    # injector declaration
-	    injector :functionality do
-	      def basic arg                                     # version basic.1
+	    VersionOne = injector :functionality do
+	      def basic arg                             # version basic.1
 	        arg * 2
 	      end
 	    end
-	    Version1 = functionality 
 
-
-	    o = Object.new.enrich Version1                      # apply --first snapshot
-	    o.basic(1).should == 2                              # basic.1 
+	    o = Object.new.enrich VersionOne						# apply --first snapshot
+	    o.basic(1).should == 2                      # basic.1 
 
 
 	    #_____________________
 	    # injector prolongation
-	    functionality do
-	      def basic arg                                     # basic.2 ... basic.1 redefined
+	    VersionTwo = functionality do
+	      def basic arg                             # basic.2 ... basic.1 redefined
 	        arg * 3
 	      end
 
-	      def compound                                      # compound.1 --bound locally to basic.2
+	      def compound                              # compound.1 --bound locally to basic.2
 	        basic(3) + 2                                      
 	      end
-	    end                                                 #________________
-	    Version2 = functionality                            # version naming
-	                                                        #^^^^^^^^^^^^^^^^
+	    end                                         
 
-	    p = Object.new.enrich Version2                      # apply --second snapshot (like above)
-	    p.basic(1).should == 3                              # basic.2 
-	    p.compound.should == 11                             # compound.1 
+	    p = Object.new.enrich VersionTwo            # apply --second snapshot (like above)
+	    p.basic(1).should == 3                      # basic.2 
+	    p.compound.should == 11                     # compound.1 
 
 
 	    # result
 	    ###################################
 
-	    o.basic(1).should == 2                              # basic.1 
-	    o.compound.should == 11                             # compound.1 --local injector binding
+	    o.basic(1).should == 2                      # basic.1 
+	    o.compound.should == 11                     # compound.1 --local injector binding
 
 	    ###################################
 	    # This ensures #compound.1 keeps bound
@@ -294,29 +328,6 @@ describe 'Injector versioning:', :injectors do
 
 		end
 
-		there 'is a different way todo global updates: define_method' do
-			
-			SomeFacet = facet :some_facet do
-				def foo_bar
-					'a foo and a bar'
-				end
-			end
-			
-			class Client
-				inject SomeFacet
-			end
-			
-			Client.new.foo_bar.should == 'a foo and a bar'			# expected
-			
-			some_facet do
-				define_method :foo_bar do
-					'fooooo and barrrrr'
-				end
-			end
-			
-			Client.new.foo_bar.should == 'fooooo and barrrrr'		# different
-			
-		end
 	end
 end
 
