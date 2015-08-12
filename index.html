@@ -5,7 +5,7 @@
     <title>Jackbox by LouHenryAlvarez</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
@@ -21,22 +21,20 @@
     <section class="main-content">
       
 
-
-
 <p>Copyright © 2014 LHA. All rights reserved.</p>
 
 <h1>
 <a id="jackbox---google" class="anchor" href="#jackbox---google" aria-hidden="true"><span class="octicon octicon-link"></span></a>Jackbox   <a href="https://plus.google.com/102732809517976898938">Google+</a>
 </h1>
 
-<p>Jackbox is a set of programming tools which enhance the Ruby language and provide additional software constructs.  </p>
+<p>Jackbox is a set of programming tools enhancing the Ruby language and providing additional software constructs.  </p>
 
-<p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as an <strong>extended closure</strong> or a form of closure which can also serve as module.  But, most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture your methods' surrounding context and introduce it into an indiscriminate target.  They make it possible to solve several general problems in the areas of OOP and GOF standard and traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns.  They instrument control over the presence of injector code in targets with mechanisms involving injector ejection and directives.  Finally, they introduce the concept of injector versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
+<p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of an <strong>extended closure</strong> or a <strong>closure which can also serve as module</strong>.  Most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture its surrounding context and mix it into an indiscriminate target.  They make it possible to solve several general problems in the areas of OOP and the GOF standard, and overcome traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns.  They instrument control over the presence of injector code in targets (code presence) with mechanisms involving injector ejection and directives.  They extend Ruby's mix-in and method resolution into new levels over and beyond what is possible with regular modules. Finally, they introduce some new code patterns and also the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
 
 <h2>
 <a id="basic-methods" class="anchor" href="#basic-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Methods</h2>
 
-<p>There are some basic Jackbox methods.  The are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  These are their descriptions:</p>
+<p>There are some basic Jackbox methods.  The are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  Their descriptions follow:</p>
 
 <h4>
 <a id="decoratesym-blk" class="anchor" href="#decoratesym-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#decorate(:sym, &amp;blk)</h4>
@@ -56,8 +54,7 @@ end
 
 <p>At the class level during definition:</p>
 
-<pre><code># the same class
-class One
+<pre><code>class One
   decorate :foo do
     super() + 'decoration '                   # super available within decoration
   end
@@ -67,7 +64,7 @@ One.new.foo
 #=&gt; foo decoration
 </code></pre>
 
-<p>At the object level during execution:</p>
+<p>Or, at the object level during execution:</p>
 
 <pre><code>one = One.new
 
@@ -92,7 +89,7 @@ Object.new.inspect
 <h4>
 <a id="withobj-blk" class="anchor" href="#withobj-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#with(obj, &amp;blk)</h4>
 
-<p>There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  Here is the sample usage code:</p>
+<p>There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  The other important thing about #with is that it returns the same object you passed into it. Here is the sample usage code:</p>
 
 <pre><code>class One
   def foo(arg)
@@ -201,10 +198,10 @@ Name = injector :name
 
 # or even ...
 
-injector :Name                                # capitalized method
+jack :Name                                    # capitalized method, using alias #jack
 </code></pre>
 
-<p>Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, local binding, and perhaps injector directives. </p>
+<p>Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, their behavior under inheritance, and perhaps injector directives. </p>
 
 <pre><code># somewhere in your code
 include Injectors
@@ -255,7 +252,7 @@ end
 </code></pre>
 
 <h4>
-<a id="injectorsym----j" class="anchor" href="#injectorsym----j" aria-hidden="true"><span class="octicon octicon-link"></span></a>#injector(:sym)   #=&gt; j</h4>
+<a id="injector-sym" class="anchor" href="#injector-sym" aria-hidden="true"><span class="octicon octicon-link"></span></a>#injector :sym</h4>
 
 <p>It defines an object of type Injector with the name of symbol.  Use it when you want to generate an Injector object for later use.  The symbol can then be used as a handle to the injector whenever you need to prolong the injector by adding methods to it or apply it to another object.</p>
 
@@ -284,33 +281,31 @@ SecondClass.new.val.should == 'something'
 <p>For all this to happen Jackbox also introduces some additional ruby constructs, namely the keywords #inject and #enrich.  These can be thought of as simply new corollaries to #include and #extend. In fact they can be used interchangeably.  If you're working with injectors you may want to use them instead depending on context to make clear your intent.</p>
 
 <h4>
-<a id="injectincludej" class="anchor" href="#injectincludej" aria-hidden="true"><span class="octicon octicon-link"></span></a>#inject/include(<em>j</em>)</h4>
+<a id="includeinject-jack" class="anchor" href="#includeinject-jack" aria-hidden="true"><span class="octicon octicon-link"></span></a>#include/inject *jack</h4>
 
-<p>This method is analogous to ruby's #include but its use is reserved for Injectors.  The scope of this method is the same as the scope of #include, and its intended use like include's is for class definitions. Use it to "include" an Injector into a receiving class.</p>
+<p>This method is analogous to ruby's #include but its use is reserved for Injectors.  The scope of this method is the same as the scope of #include, and its intended use like include's is for class definitions. Use it to "include" an Injector into a receiving class.  Takes multiple injectors.</p>
 
 <h4>
-<a id="enrichextendj" class="anchor" href="#enrichextendj" aria-hidden="true"><span class="octicon octicon-link"></span></a>#enrich/extend(<em>j</em>)</h4>
+<a id="extendenrich-jack" class="anchor" href="#extendenrich-jack" aria-hidden="true"><span class="octicon octicon-link"></span></a>#extend/enrich *jack</h4>
 
-<p>This method in turn is analogous to ruby's #extend. The scope of this method is also the same as that of #extend, and its intended use if for object definition.  Use it to extend the receiver of an injector.</p>
+<p>This method in turn is analogous to ruby's #extend. The scope of this method is also the same as that of #extend, and its intended use if for object definition.  Use it to extend the receiver of an injector.  Takes multiple injectors.</p>
 
 <p><strong>IMPORTANT NOTE: Injector lookup follows the method and not the constant lookup algorithm.</strong></p>
 
 <p>If you need to follow constant lookup, here is the code for that:</p>
 
-<pre><code>Name = injector :sym ....
+<pre><code>Name = injector :sym ....                     # this also creates a hard tag (see below)
 </code></pre>
 
 <h3>
 <a id="injector-versioning" class="anchor" href="#injector-versioning" aria-hidden="true"><span class="octicon octicon-link"></span></a>Injector Versioning</h3>
 
-<p>One of the most valuable properties of injectors is Injector Versioning.  Versioning is the term used to identify a feature in the code that produces an artifact of injection which contains a certain set of methods with their associated outputs, and represents a snapshot of that injector up until the point it's applied to an object.  From, that point on the object contains only that version of methods from that injector, and any subsequent overrides to those methods are only members of the "prolongation" of the injector and do not become part of the object of injection unless some form of re-injection occurs. Newer versions of an injector's methods only become part of newer objects or newer injections into existing targets.</p>
-
-<p><strong>Note: One important thing to remember about versioning is that it refers to re-definitions of methods in newer prolongations of the same injector and the relationship those methods have to the other members of the version and to client code.</strong></p>
+<p>One of the most valuable properties of injectors is Injector Versioning.  Versioning is the term used to identify a feature in the code that produces an artifact of injection which contains a certain set of methods with their associated outputs, and represents a snapshot of that injector up until the point it's applied to an object.  From, that point on the object contains only that version of methods from that injector, and any subsequent overrides to those methods are only members of the "prolongation" of the injector and do not become part of the object of injection unless some form of re-injection occurs. Newer versions of an injector's methods only become part of newer objects or newer injections into existing targets.  With Jackbox Injector Versioning two different versions of the same code object can be running simultaneously. </p>
 
 <p>We'll use some examples to illustrate the point.  This is how versioning occurs:</p>
 
-<pre><code>#___________________
-# injector declaration
+<pre><code># injector declaration
+#___________________
 injector :my_injector do                                                            
   def bar
     :a_bar                                    # version bar.1
@@ -323,8 +318,8 @@ end
 object1.enrich my_injector                    # apply the injector --first snapshot
 object1.bar.should == :a_bar                  # pass the test
 
-#__________________
 # injector prolongation
+#__________________
 my_injector do                                                                          
   def bar
     :some_larger_bar                          # version bar.2 ... re-defines bar
@@ -339,46 +334,50 @@ object2.bar.should == :some_larger_bar
 
 object1.bar.should == :a_bar                  # bar.1 is still the one
 
-###########################################
-# First object has kept its preferred version
-###########################################
+###############################################
+# First object has kept its preferred version #
+###############################################
 </code></pre>
 
 <p>When re-injection occurs, and only then does the new version of the #bar method come into play. But the object remains unaffected otherwise, keeping its preferred version of methods.  The new version is available for further injections down the line and to newer client code.  Internal local-binding is preserved.  If re-injection is executed then clients of the previous version get updated with the newer one.  Here is the code:</p>
 
-<pre><code>#_________________
-# re-injection
+<pre><code># re-injection
+#_________________
 object1.enrich my_injector                    # re-injection --third snapshot
 
 object1.bar.should == :some_larger_bar        # bar.2 now available
+
+###############################################
+# First object now has the updated version    #
+###############################################
 </code></pre>
 
-<p>Re-injection on classes is a little bit trickier.  Why? Because class injection should be more pervasive --we don't necessarily want to be redefining a class at every step. To re-inject a class we must use the Strategy Pattern or use a private update.  See the sections below as well as the rspec files for more on this.  </p>
+<p>Re-injection on classes is a little bit trickier.  Why? Because class injection should be more pervasive --we don't necessarily want to be redefining a class at every step. To re-inject a class we must use the Strategy Pattern (see below) or use a private update.  See the sections below as well as the rspec files for more on this.   </p>
 
-<p>Here is an example:</p>
+<p>Here is an example of Injector Versioning as it pertains to classes:</p>
 
-<pre><code>#___________________
-# injector declaration:
-Versions = injector :versions do
+<pre><code># injector declaration:
+#___________________
+injector :Versions do
   def meth arg                                # version meth.1
     arg ** arg
   end
 end
 
 class One
-  inject Versions                             # apply --first snapshot
+  inject Versions()                           # apply --snapshot
 end
 
-#_________________
 # injector prolongation:                              
-versions do
+#_________________
+Versions do
   def meth arg1, arg2                         # version meth.2 ... redefines meth.1
     arg1 * arg2
   end
 end
 
 class Two
-  inject Versions                             # apply --second snapshot
+  inject Versions()                           # apply --snapshot
 end
 
 # result
@@ -386,77 +385,127 @@ end
 Two.new.meth(2,4).should == 8                 # meth.2 
 One.new.meth(3).should == 27                  # meth.1
 
-#################################
-# Two different injector versions
-#################################
+##############################################
+# Two different injector versions coexisting #
+##############################################
+</code></pre>
 
-# update the class
+<p>To update the class, we then do the following:</p>
 
-class One
-  update Versions                             # CALL to #update
+<pre><code>class One
+  update Versions()                           # private call to #update
 end
 
 One.new.meth(2,4).should == 8                 # meth.2 
 Two.new.meth(2,4).should == 8                 # meth.2 
 
-#################################
-# Same vesion now on both classes
-#################################
+##############################################
+# class One is now updated to the latest     #
+##############################################
 </code></pre>
 
-<p>Before we move on, we also want to give some further treatment of injector local-binding.  That is, the binding of an injectors' methods is local to the prolongation/version in which they are located before the versioning occurs.  Here, is the code:</p>
+<h3>
+<a id="taggingnaming" class="anchor" href="#taggingnaming" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tagging/Naming</h3>
 
-<pre><code>#_____________________
-# injector declaration
-injector :functionality do
+<p>The use of Tags is central to the concept of Injector Versioning.  Tagging happens in the following ways:</p>
+
+<pre><code>Version1 = jack :function do
+  def meth arg
+    arg
+  end
+  def mith
+    meth 2
+  end
+end
+
+Version2 = function do
+  def mith arg
+    meth(arg) * meth(arg)
+  end
+end
+</code></pre>
+
+<p>Version1 and Version2 are two different hard versions/tags/names of the same Injector.  There are also soft tags (see below).  Additionally, the name given to an injector plays a role in defining its scope.  Injectors with capitalized names like :Function, :Style, etc have a global scope.  That is they are available throughout the program:</p>
+
+<pre><code>class A
+  injector :Function
+end
+
+class B
+  include Function
+end
+
+# This is perfectly valid with injectors  
+</code></pre>
+
+<p>On the other hand Injectors with a lower case name are only available <strong>from</strong> the scope in which they were defined, like the following example shows:</p>
+
+<pre><code>class AA
+  injector :form
+end
+
+class BB
+  include form                                
+end                         
+
+# This genenerates and ERROR! 
+
+class BB
+  include AA.form
+end
+
+# This is perfectly valid with injectors  
+</code></pre>
+
+<p>Before we move on, we also want to give some further treatment to injector local-binding.  That is, the binding of an injectors' methods is local to the prolongation/version in which they are located before the versioning occurs.  Here, is the code:</p>
+
+<p><strong>Note: In the following examples we use the notion of version naming/tagging.  This allows you to tag different versions/prolongations of an Injector for later use.  Once a version is tagged it shouldn't be modified</strong></p>
+
+<pre><code># injector declaration
+#_____________________
+
+Version1 = injector :functionality do
   def basic arg                               # version basic.1
     arg * 2
   end
 end
-Version1 = functionality 
 
-o = Object.new.enrich Version1                # apply --first snapshot
+o = Object.new.enrich Version1                # apply --snapshot (like above)
 o.basic(1).should == 2                        # basic.1 
 
-#_____________________
 # injector prolongation
-functionality do
-  def basic arg                               # basic.2 ... basic.1 redefined for
+#_____________________
+
+Version2 = functionality do
+  def basic arg                               # version basic.2
     arg * 3                                   # specific use in compound.1
   end
 
-  def compound                                # compound.1 --bound locally to basic.2
+  def compound                                # compound.1 
     basic(3) + 2                                      
   end
-end                                           
-Version2 = functionality                      
+end
 
-p = Object.new.enrich Version2                # apply --second snapshot (like above)
+p = Object.new.enrich Version2                # apply --snapshot (like above)
 p.basic(1).should == 3                        # basic.2 
-p.compound.should == 11                       # compound.1 
-
-
-# result
+p.compound.should == 11                       # compound.1 --bound locally to basic.2
 
 o.basic(1).should == 2                        # basic.1 
-o.compound.should == 11                       # compound.1 --local injector binding
+o.compound.should == 11                       # compound.1 --bound locally to basic.2
 
-###################################
-# #compound.1 remains bound
-# to the right version #basic.2
-###################################
+####################################################
+# #compound.1 bound to the right version #basic.2  #
+####################################################
 </code></pre>
 
-<p><strong>Note: In the above examples we also introduced the notion of version naming.  This is a another feature of the code which allows you to tag different versions/prolongations of your injectors for later use.  Once a version is tagged it shouldn't be modified</strong></p>
-
-<p>There is one more interesting property however. </p>
-
 <h4>
-<a id="define_method-sym-lambdanil-code-" class="anchor" href="#define_method-sym-lambdanil-code-" aria-hidden="true"><span class="octicon octicon-link"></span></a>#define_method( sym, lambda=nil, &amp;code )</h4>
+<a id="define_method-sym-blk" class="anchor" href="#define_method-sym-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#define_method sym, &amp;blk</h4>
 
-<p>The use of #define_method to re-define methods in any prolongation updates the entire injector and all its versions.  This preserves a fundamental tenet of injectors: take some local context, enclose it, and use the injector to introduce it to some indiscriminate target. This also has some other uses as we'll see with in our description of patterns and injector composition.  Here is an example of the different results obtained with #define_method:</p>
+<p>There is one more interesting property to method definition on Injectors however. The use of #define_method to re-define methods in any prolongation updates the entire injector and all its versions.  This also preserves a fundamental tenet of injectors: take some local context, enclose it, and use the injector to introduce it to some indiscriminate target, and additionally has some other uses as we'll see with in our description of patterns and injector composition.  </p>
 
-<pre><code>SomeFacet = facet :some_facet do
+<p>Here is an example of the difference with #define_method:</p>
+
+<pre><code>jack :some_jack do
     def meth
       :meth
     end
@@ -467,39 +516,115 @@ o.compound.should == 11                       # compound.1 --local injector bind
 end
 
 class Client
-    inject SomeFacet
+    inject some_jack
 end
 
 Client.new.meth.should == :meth
 Client.new.foo_bar.should == 'a foo and a bar'      
 
 
-some_facet do                                 # New version, but no re-injection
-    def meth
+some_jack do                                  
+    def meth                                    # New version
       puts :them
     end
 
-    define_method :foo_bar do
+    define_method :foo_bar do                   # New version
         'fooooo and barrrrr'
     end
-end
+end     
+                                              ################################
+                                              # Like above!                  #
+Client.new.meth.should == :meth               # No re-injection == No change #
+                                              ################################
 
-Client.new.meth.should == :meth              
-# Like above!
-# No re-injection == No change
-##############################
-
-Client.new.foo_bar.should == 'fooooo and barrrrr'   
-# Different!!!
-# No re-injection but changed
-# thanks to define_method
-#############################
+                                              ################################
+Client.new.foo_bar.should ==                  # Different!!!                 #
+'fooooo and barrrrr'                          # No re-injection == Change    #
+                                              # . Thanks to define_method    #
+                                              ################################ 
 </code></pre>
 
 <p>Injector Versioning together with injector local-binding allow the metamorphosis of injectors to fit the particular purpose at hand and keeping those local modifications isolated from the rest of your program making your code to naturally evolve with your program. Use it as an alternative to refinements.</p>
 
 <h3>
-<a id="multiple-injector-composition" class="anchor" href="#multiple-injector-composition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Multiple Injector composition</h3>
+<a id="injector-introspection" class="anchor" href="#injector-introspection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Injector introspection</h3>
+
+<p>Injectors have the ability to speak about themselves.  Moreover injectors can speak about their members just like any module or class, and can also inject their receivers with these introspecting capabilities.  Every injected/enriched object or module/class can enumerate its injectors, and injectors can enumerate their members, and so forth.  </p>
+
+<pre><code>injector :Function do
+  def far
+  end
+  def close
+  end
+end
+
+injector :Style do
+    def pretty
+    end
+end
+
+class Target
+  inject Function(), Style()
+end
+
+# class ?
+
+Function().class.should == Injector                 
+Style().class.should == Injector 
+</code></pre>
+
+<h4>
+<a id="injectors-sym----" class="anchor" href="#injectors-sym----" aria-hidden="true"><span class="octicon octicon-link"></span></a>#injectors *sym ---</h4>
+
+<p>Called with no arguments returns a list of injectors.  A call with a list of injector symbols however returns an array of actual Injector objects matching the names supplied in a LIFO fashion. An example use goes like this:</p>
+
+<pre><code># injectors (in this target) ?
+
+Target.injectors 
+=&gt; [(#944120:|Function|), (#942460:|Style|)] 
+
+# injectors :name ?
+
+Target.injectors :Function
+ =&gt; [(#944120:|Function|)]                    # same as #injectors.collect_by_name :name
+
+Target.injectors :all                         # all injectors in this class's hierarchy 
+                                              (see section on Inheritance)
+</code></pre>
+
+<p>The method also extends into a minuscule API: </p>
+
+<pre><code>Target.injectors.by_name.should == [:Function, :Style] 
+# ...
+Target.injectors(:all).by_name
+# aliased to :sym_list
+
+Target.injectors.collect_by_name :name        # see above
+# ...
+Target.injectors(:all).collect_by_name :name
+# aliased to :all_by_sym
+
+Target.injectors.find_by_name :Function       # last one in first out
+ =&gt; (#944120:|Function|)      
+# ...
+Target.injectors(:all).find_by_name :name
+# aliased to last_by_sym
+
+Function().instance_methods.should == [:far, :close]      
+Style().instance_methods.should == [:pretty]    
+
+# later on...
+
+# eject all injectors in target
+Target.injectors.each{ |j| Target.eject j }
+
+# or..
+
+Target.eject *Target.injectors       
+</code></pre>
+
+<h3>
+<a id="injector-composition" class="anchor" href="#injector-composition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Injector composition</h3>
 
 <p>The composition of multiple injectors into an object can be specified as follows:</p>
 
@@ -514,14 +639,15 @@ injector :Landing
 # compose the object
 class SpaceShip
 
-    inject FuelSystem(), Engines(), Capsule(), Langind()
-  # capitalized method use
+    inject FuelSystem(), Engines(), Capsule(), Langing()    # capitalized method use
 
     def launch
         gas_tank fuel_lines burners ignition :go
         self
     end
 end
+
+Spaceship.injectors.by_name == [:FuelSystem, :Engines, :Capsule, :Landing]
 
 # define functionality
 FuelSystem do
@@ -552,7 +678,93 @@ Landing do
 end
 </code></pre>
 
-<p>But, this is the basic idea here.  An extended closure which can be used as a mix-in, prolonged to add function, and versioned and renamed to fit the purpose at hand. Using this approach Jackbox also goes on to solve the Decorator Pattern problem in the Ruby language.  </p>
+<h3>
+<a id="inheritance" class="anchor" href="#inheritance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Inheritance</h3>
+
+<p>The behavior of Injectors under inheritance is partially specified by what follows:</p>
+
+<pre><code>injector :j
+
+class C
+end
+C.inject j {                                  #foo pre-defined at time of injection
+  def foo
+    'foo'
+  end
+}
+C.injectors.by_name.should == [:j]
+C.new.injectors.by_name.should == [:j]
+
+C.new.foo.should == 'foo'
+
+# D inherits from C
+
+class D &lt; C                                   # methods are inherited from j 
+end
+D.injectors.by_name.should == []
+D.injectors(:all).by_name == [:j]
+
+# New Objects
+C.new.foo.should == 'foo'                                           
+D.new.foo.should == 'foo'
+</code></pre>
+
+<p>More importantly though is the following:</p>
+
+<pre><code>jack :player do                       
+    def sound                               
+        'Lets make some music'                
+    end                                     
+end                                       
+
+TapePlayer = player do                        # version Tag
+    def play                                      # inherirts :sound
+        return 'Tape playing...' + sound()                          
+    end                                     
+end                                       
+
+CDPlayer = player do                          # another version Tag
+    def play                                      # also inherits sound
+        return 'CD playing...' + sound()
+    end
+end
+
+class BoomBox
+    include TapePlayer
+
+    def on
+        play
+    end
+end
+
+class JukeBox &lt; BoomBox                       # regular class inheritance
+    inject CDPlayer
+end
+
+BoomBox.new.on.should == 'Tape playing...Lets make some music'
+JukeBox.new.on.should == 'CD playing...Lets make some music'
+
+jack :speakers
+
+Bass = speakers do                            # adding composition   
+    def sound                               
+        super + '...boom boom boom...'        
+    end                                     
+end                                       
+JukeBox.inject Bass
+
+JukeBox.new.on.should == 'CD playing...Lets make some music...boom boom boom...'
+</code></pre>
+
+<p>From all this, the important thing to take is that injectors provide a sort of versioned inheritance.  The version inherits all of the pre-existing methods from the injector and freezes that function.  We can either Tag/Name it of simply include/extend into a target but the function is frozen at that time.  Tags cannot be modified or more clearly shouldn't be modified.  Classes retain the frozen version of the injector until the time an update is made.  Of course, there is always #define_method.   For more on all this see, the Rspec examples.</p>
+
+<hr>
+
+<p>But, this is the basic idea here.  An extended closure which can be used as a mix-in, prolonged to add function, and versioned and renamed to fit the purpose at hand. </p>
+
+<hr>
+
+<p>Using this approach Jackbox also goes on to solve the Decorator Pattern problem in the Ruby language.  </p>
 
 <h3>
 <a id="the-gof-decorator-pattern" class="anchor" href="#the-gof-decorator-pattern" aria-hidden="true"><span class="octicon octicon-link"></span></a>The GOF Decorator Pattern:</h3>
@@ -595,85 +807,6 @@ cup = Coffee.new.enrich milk, sprinkles, sprinkles
 cup.cost.should == 2.10
 cup.should be_instance_of(Coffee)
 cup.injectors.should == [:milk, :sprinkles, :sprinkles]
-</code></pre>
-
-<p>Another compelling property and a different composition flow for this particular pattern also benefits from #define_method in another interesting way.  The actual injector function is defined only after some other date is available. Here is an example:</p>
-
-<pre><code>class Widget
-    def cost
-        1
-    end
-end
-w = Widget.new
-
-injector :decorator
-
-w.enrich decorator, decorator, decorator, decorator
-
-# user input
-bid = 3.5 
-
-decorator do
-    define_method :cost do                      # defines function on all injectors of the class
-        super() + bid
-    end
-end
-
-w.cost.should == 15
-</code></pre>
-
-<h3>
-<a id="injector-introspection" class="anchor" href="#injector-introspection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Injector introspection</h3>
-
-<p>Injectors have the ability to speak about themselves.  Moreover injectors can speak about their members just like any module or class, and inject their receivers with these introspecting capabilities.  Every injected/enriched object or class can enumerate its injectors, and injectors can enumerate their members, and so forth.  </p>
-
-<pre><code>injector :Function do
-  def far
-    puts :faaaar
-  end
-  def close
-    puts 'here'
-  end
-end
-injector :Style do
-    def pretty
-        'oohooo'
-    end
-end
-
-class Target
-end
-Target.inject Function(), Style()
-
-# class == Injector
-
-Function().class.should == Injector                 
-Style().class.should == Injector 
-
-# injectors in this target
-
-Target.injectors.should == [:Function, :Style]      
-
-# methods in Injector
-
-Function().instance_methods.should == [:far, :close]      
-Style().instance_methods.should == [:pretty]    
-</code></pre>
-
-<h4>
-<a id="injectorssym" class="anchor" href="#injectorssym" aria-hidden="true"><span class="octicon octicon-link"></span></a>#injectors(*sym)</h4>
-
-<p>Called with no arguments returns a list of injector symbols.  A call with a list of injector symbols however returns an array of actual Injector objects. An example use goes like this:</p>
-
-<pre><code>class Target
-  inject function
-  inject style
-end
-
-# later on...
-
-# eject all injectors in target
-Target.injectors.each{ |ij| Target.eject ij }       
 </code></pre>
 
 <h3>
@@ -736,30 +869,9 @@ expect{Home.new.fractal}.to raise_error
 <p>The code for this makes use of :eject which is also part of Jackbox and opens the door to some additional functionality provided by injectors.  This additional function allows Injectors to be truly used to inject and eject code at will.</p>
 
 <h4>
-<a id="ejectsym" class="anchor" href="#ejectsym" aria-hidden="true"><span class="octicon octicon-link"></span></a>:eject(sym)</h4>
+<a id="eject-sym" class="anchor" href="#eject-sym" aria-hidden="true"><span class="octicon octicon-link"></span></a>:eject *sym</h4>
 
-<p>This method ejects injector function from a single object or class.  For other forms of injector withdrawal see the next sections.  It is in scope on any classes injected or enriched by an injector.  With this capability we can do the following with our Spaceship example from above:</p>
-
-<pre><code>SpaceShip.injectors.should == [:FuelSystem, :Engines, :Capsule, :Landing]
-flyer.injectors.should == [:FuelSystem, :Engines, :Capsule, :Landing]
-flyer.fuel_lines :on
-flyer.ignition :on
-flyer.o2
-flyer.gear.should == 'wheels'
-
-# eject class level injector at the object level
-flyer.eject :Capsule
-
-# expect errors
-SpaceShip.injectors.should == [:FuelSystem, :Engines, :Capsule, :Landing]
-flyer.injectors.should == [:FuelSystem, :Engines, :Landing]
-expect{flyer.o2}.to raise_error
-flyer.fuel_lines :good
-flyer.ignition :on
-flyer.gear.should == 'wheels'
-</code></pre>
-
-<p>For more details see the Rspec examples in this project.</p>
+<p>This method ejects injector function from a single object or class.  For other forms of injector withdrawal see the next sections.  It is in scope on any classes injected or enriched by an injector.  For more on this see the rspec examples.</p>
 
 <h3>
 <a id="the-gof-strategy-pattern" class="anchor" href="#the-gof-strategy-pattern" aria-hidden="true"><span class="octicon octicon-link"></span></a>The GOF Strategy Pattern:</h3>
@@ -822,6 +934,117 @@ cup.strategy.should == 'sweedish'
 </code></pre>
 
 <h3>
+<a id="soft-tags" class="anchor" href="#soft-tags" aria-hidden="true"><span class="octicon octicon-link"></span></a>Soft Tags</h3>
+
+<p>Just like hard tags above but a name is not needed:</p>
+
+<pre><code>jack :SomeJack do
+  def foo
+    :foo
+  end
+end
+
+SomeJack(:tag) do                             # New Version, not named
+  def foo
+    :foooooooo
+  end
+end
+</code></pre>
+
+<h3>
+<a id="patterns-of-a-different-flavor" class="anchor" href="#patterns-of-a-different-flavor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Patterns of a Different Flavor</h3>
+
+<p>There are some additional patterns possible with Jackbox Injectors:</p>
+
+<p><strong>1) Late Decorator.-</strong> Another flow that also benefits from #define_method in an interesting way is the following:   </p>
+
+<pre><code>class Widget
+    def cost
+        1
+    end
+end
+w = Widget.new
+
+injector :decorator
+
+w.enrich decorator, decorator, decorator, decorator
+
+# user input
+bid = 3.5 
+
+decorator do
+    define_method :cost do                      # defines function on all injectors of the class
+        super() + bid
+    end
+end
+
+w.cost.should == 15
+</code></pre>
+
+<p>The actual injector function is late bound and defined only after some other data is available.</p>
+
+<p><strong>2) The Super Pattern.-</strong> No.  This is not a superlative kind of pattern.  Simply, the use of #super can be harnessed into a pattern of controlled recursion, like in the following example: </p>
+
+<pre><code>jack :Superb
+
+Superb do
+    def process string, additives, index
+        str = string.gsub('o', additives.slice!(index))
+        super(string, additives, index) + str rescue str
+    end
+    extend Superb(), Superb(), Superb()
+end   
+
+Superb().process( 'food ', 'aeiu', 0 ).should == 'fuud fiid feed faad '
+Superb(:implode)                                 
+</code></pre>
+
+<p><strong>3) The Transformer Pattern.-</strong>  For a specific example of what can be accomplished using this workflow please refer to the rspec directory under the transformers spec.  Here is the basic flow:</p>
+
+<pre><code>jack :Solution
+
+Solution( :tag ) do
+    def solution
+        1
+    end
+end
+Solution( :tag ) do
+    def solution
+        2
+    end
+end
+Solution( :tag ) do
+    def solution
+        3
+    end
+end
+
+
+class Client
+    inject Solution()
+
+    def self.solve
+        Solution().tags.each { |e|
+            update e 
+            puts new.solution rescue nil
+        }                              
+
+        # or...
+
+        solutions = Solution().tags.each
+        begin
+            update solutions.next
+            puts solved = new().solution()
+        end until solved
+        solved
+    end
+
+end
+
+Client.solve
+</code></pre>
+
+<h3>
 <a id="injector-directives" class="anchor" href="#injector-directives" aria-hidden="true"><span class="octicon octicon-link"></span></a>Injector Directives</h3>
 
 <p>Once you have an injector handle you can also use it to issue directives to the injector.  These directives can have a profound effect on your code.</p>
@@ -829,7 +1052,7 @@ cup.strategy.should == 'sweedish'
 <h4>
 <a id="collapse-directive" class="anchor" href="#collapse-directive" aria-hidden="true"><span class="octicon octicon-link"></span></a>:collapse directive</h4>
 
-<p>This description produces similar results to the previous except that further injector method calls DO NOT raise an error.  They just quietly return nil. Here are a couple of different cases:</p>
+<p>This description produces similar results to the one for injector ejection (see above) except that further injector method calls DO NOT raise an error.  They just quietly return nil. Here are a couple of different cases:</p>
 
 <p>The case with multiple objects</p>
 
@@ -863,12 +1086,11 @@ o2.object_copy.should == nil
     inject code
 end
 
-# collapse
-SomeClass.code :collapse
-
-# build
 a = SomeClass.new
 b = SomeClass.new
+
+# collapse
+SomeClass.code :collapse
 
 a.tester.should == nil
 b.tester.should == nil
@@ -888,7 +1110,7 @@ expect{ b.tester }.to raise_error
 
 <pre><code>injector :reenforcer do
     def thick_walls
-        '=====  ====='
+        '=====|||====='
     end
 end
 
@@ -902,8 +1124,8 @@ o2.thick_walls.should == nil
 
 reenforcer :rebuild
 
-o1.thick_walls.should == '=====  ====='
-o2.thick_walls.should == '=====  ====='
+o1.thick_walls.should == '=====|||====='
+o2.thick_walls.should == '=====|||====='
 </code></pre>
 
 <p>The case with a class receiver:</p>
@@ -916,12 +1138,12 @@ o2.thick_walls.should == '=====  ====='
     end
     inject ThinFunction()
 end
-SomeBloatedObject.ThinFunction :silence
+SomeBloatedObject.ThinFunction :silence  # alias to :collapse
 
 tester = SomeBloatedObject.new
 tester.perform.should == nil
 
-SomeBloatedObject.ThinFunction :active
+SomeBloatedObject.ThinFunction :active   # alias to :rebuild
 tester.perform.should == 'do the deed'
 </code></pre>
 
@@ -930,7 +1152,41 @@ tester.perform.should == 'do the deed'
 
 <p>This directive totally destroys the injector including the handle to it.  Use it carefully!</p>
 
-<p>For more information and additional examples see the rspec examples on this project.  There you'll find a long list of rspec example code showcasing some additional features of Jackbox Injectors along with some additional descriptions.</p>
+<pre><code>class Model
+    def feature
+        'a standard feature'
+    end
+end
+
+injector :extras do
+    def feature
+        super() + ' plus some extras'
+    end
+end
+
+car = Model.new.enrich(extras)
+car.feature.should == 'a standard feature plus some extras'
+
+extras :implode
+
+# total implosion
+car.feature.should == 'a standard feature'
+
+expect{extras}.to raise_error(NameError, /extras/)
+expect{ new_car = Model.new.enrich(extras) }.to raise_error(NameError, /extras/)
+expect{
+    extras do
+        def foo
+        end
+    end
+    }.to raise_error(NameError, /extras/)
+</code></pre>
+
+<hr>
+
+<p>For more information and additional examples see the rspec examples on this project.  There you'll find a long list of nearly <strong>200</strong> rspec examples and code showcasing some additional features of Jackbox Injectors along with some additional descriptions.</p>
+
+<hr>
 
 <h2>
 <a id="additional-tools" class="anchor" href="#additional-tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>Additional Tools</h2>
@@ -982,7 +1238,7 @@ Jester.value.should == 10
 <h2>
 <a id="availability" class="anchor" href="#availability" aria-hidden="true"><span class="octicon octicon-link"></span></a>Availability</h2>
 
-<p>Jackbox is current available for Linux, Mac, and Windows versions of Ruby 1.9.3 thru 2.1.1</p>
+<p>Jackbox is current available for Linux, Mac, and Windows versions of Ruby 1.9.3 thru 2.2.1</p>
 
 <h2>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
@@ -1039,17 +1295,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 
     </section>
 
-            <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-58877141-2");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
-
+  
   </body>
 </html>
-
