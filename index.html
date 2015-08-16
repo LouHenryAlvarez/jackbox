@@ -27,7 +27,7 @@
 <a id="jackbox---google" class="anchor" href="#jackbox---google" aria-hidden="true"><span class="octicon octicon-link"></span></a>Jackbox   <a href="https://plus.google.com/102732809517976898938">Google+</a>
 </h1>
 
-<p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of <strong>closures which can also serve as modules</strong>.  Most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture its surrounding context and mix it into an indiscriminate target.  They make it possible to solve several general problems in the areas of OOP, overcome traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and make possible some new code patterns.  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
+<p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of <strong>closures which can also serve as modules</strong>.  Most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture its surrounding context and mix it into an indiscriminate target.  They make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling <strong>some new code patterns.</strong>  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
 
 <h2>
 <a id="basic-methods" class="anchor" href="#basic-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Methods</h2>
@@ -37,20 +37,9 @@
 <h4>
 <a id="decorate-sym-blk" class="anchor" href="#decorate-sym-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#decorate :sym, &amp;blk</h4>
 
-<p>This method allows for decorations to be placed on a single method, be it an instance or class method without too much fuss. One important thing about #decorate is that it works like #define_method.  It also makes possible the use of ruby's keyword :super within the body of the decorator.  Use it instead of #alias_method_chain.</p>
+<p>This method allows for decorations to be placed on a single method, be it an instance or class method without too much fuss. One important thing about #decorate is that it works like #define_method, but in addition, it also makes possible the use of Ruby's #super within the body of the decorator.  It really presents a better alternative and can be used instead of #alias_method_chain.</p>
 
-<p>Examples:</p>
-
-<pre><code># some class
-class One
-  def foo
-    'foo '
-  end
-end
-# then...
-</code></pre>
-
-<p>At the class level during definition:</p>
+<p>At the class level:</p>
 
 <pre><code>class One
   decorate :foo do
@@ -62,7 +51,7 @@ One.new.foo
 #=&gt; foo decoration
 </code></pre>
 
-<p>Or, at the object level during execution:</p>
+<p>Or, at the object level:</p>
 
 <pre><code>one = One.new
 
@@ -87,7 +76,9 @@ Object.new.inspect
 <h4>
 <a id="with-obj-blk" class="anchor" href="#with-obj-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#with obj, &amp;blk</h4>
 
-<p>There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  The other important thing about #with is that it returns the same object you passed into it. Here is the sample usage code:</p>
+<p>There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work <strong>with</strong> both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it. </p>
+
+<p>Here is some sample usage code:</p>
 
 <pre><code>class One
   def foo(arg)
@@ -110,6 +101,26 @@ Two.new.meth
 #=&gt; 'in One and in Two with something'
 </code></pre>
 
+<p>Use it to define function:</p>
+
+<pre><code># internal facade for Marshal
+with Object.new do
+
+    @file_spec = [file, mode]               
+    def dump hash
+        File.open(*@file_spec) do |file|
+            Marshal.dump( hash, file)
+        end
+    end
+    def load hash
+        File.open(*@file_spec) do |file|
+            hash.merge!(Marshal.load( file ))
+        end
+    end
+
+end
+</code></pre>
+
 <p>Use it with <strong>#decorate</strong> on singleton classes like this:</p>
 
 <pre><code>class Dir
@@ -128,31 +139,8 @@ Two.new.meth
 end
 </code></pre>
 
-<p>Or its use in the following method:</p>
-
-<pre><code>def add_line(spec)
-  open spec[:to], 'r+' do |file|
-    lines = file.readlines
-
-    # ...
-
-    # insert our line after check to see not already there
-    with lines do
-      format = spec[:format] || required
-      unless join.match(Regexp.new(format.join('|')))
-        insert(
-          index &amp;&amp; index + 1 || 0, format.last
-        ) 
-      end
-    end
-
-    file.write lines.join
-  end
-end
-</code></pre>
-
 <h4>
-<a id="lets-symnil-blk" class="anchor" href="#lets-symnil-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#lets :sym=nil, &amp;blk</h4>
+<a id="lets-symnil-blk" class="anchor" href="#lets-symnil-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a>#lets sym=nil, &amp;blk</h4>
 
 <p>This is simple syntax sugar.  It allows the creation of local or global procs using a more function-like syntax.  It adds readability to some constructs.  Here are some examples:</p>
 
@@ -184,7 +172,7 @@ lets(:faa){ 'some important string' }
 <h2>
 <a id="injectors" class="anchor" href="#injectors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Injectors</h2>
 
-<p>Injectors are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that has properties of both a closure and a module.  They can also be thought of as an <strong>extended closure</strong> if you will.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors, as well as elaborate on some of the other properties of injectors. But, there are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: </p>
+<p>Injectors are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that has properties of both a closure and a module.  They can also be thought of as an <strong>extended closure</strong> if you will or as a special kind of module if you want.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors, as well as elaborate on some of the other properties of injectors. But, it is essential to understand there are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: </p>
 
 <p><strong>INJECTORS ARE DECLARED IN THE FOLLOWING WAYS:</strong></p>
 
@@ -196,7 +184,8 @@ Name = injector :name
 
 # or even ...
 
-jack :Name                                    # capitalized method, using alias #jack
+jack :Name                                    # capitalized method, using alias #jack 
+slot :name                                    # also alias to slot
 </code></pre>
 
 <p>Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, their behavior under inheritance, and perhaps injector directives. </p>
@@ -215,6 +204,7 @@ end
 # later on...
 widget.enrich my_injector                     # apply the injector
 widget.bar
+# =&gt; bar
 
 # or...  
 
@@ -224,8 +214,30 @@ class Target
 end
 
 Target.new.bar
+# =&gt; bar
 
 # etc ...
+</code></pre>
+
+<p>Here is a more interesting example:</p>
+
+<pre><code>class ClosureExpose
+
+    some_value = 'something'
+
+    injector :capture do
+        define_method :val do
+            some_value
+        end
+    end
+end
+
+class SecondClass
+    inject ClosureExpose.capture
+end
+
+# the result
+SecondClass.new.val.should == 'something'
 </code></pre>
 
 <p><strong>INJECTORS HAVE PROLONGATIONS:</strong></p>
@@ -252,31 +264,37 @@ end
 <h4>
 <a id="injector-sym" class="anchor" href="#injector-sym" aria-hidden="true"><span class="octicon octicon-link"></span></a>#injector :sym</h4>
 
-<p>It defines an object of type Injector with the name of symbol.  Use it when you want to generate an Injector object for later use.  The symbol can then be used as a handle to the injector whenever you need to prolong the injector by adding methods to it or apply it to another object.</p>
+<p>This is a global function.  It defines an object of type Injector with the name of symbol.  Use it when you want to generate an Injector object for later use.  The symbol can then be used as a handle to the injector whenever you need to prolong the injector by adding methods to it or apply it to another object. Additionally, this symbol plays a role in defining the injector's scope.  Injectors with capitalized names like :Function, :Style, etc have a global scope.  That is they are available throughout the program:</p>
 
-<p>Here is a more interesting example:</p>
-
-<pre><code>class ClosureExpose
-
-    some_value = 'something'
-
-    injector :capture do
-        define_method :val do
-            some_value
-        end
-    end
-
+<pre><code>class A
+  injector :Function
 end
 
-class SecondClass
-    inject ClosureExpose.capture
+class B
+  include Function()
 end
 
-# the result
-SecondClass.new.val.should == 'something'
+# This is perfectly valid with injectors  
 </code></pre>
 
-<p>For all this to happen Jackbox also introduces some additional ruby constructs, namely the keywords #inject and #enrich.  These can be thought of as simply new corollaries to #include and #extend. In fact they can be used interchangeably.  If you're working with injectors you may want to use them instead depending on context to make clear your intent.</p>
+<p>On the other hand Injectors with a lower case name are only available <strong>from</strong> the scope in which they were defined, like the following example shows:</p>
+
+<pre><code>class AA
+  injector :form
+end
+
+class BB
+  include form                                # This genenerates and ERROR!                                 
+end                         
+
+class BB
+  include AA.form
+end
+
+# This is perfectly valid with injectors  
+</code></pre>
+
+<p>For all this to happen Jackbox also introduces some additional Ruby constructs, namely the keywords #inject and #enrich.  These can be thought as simply new corollaries to #include and #extend. In fact they can be used interchangeably.  If you're working with injectors you may want to use them instead depending on context to make clear your intent.</p>
 
 <h4>
 <a id="includeinject-jack" class="anchor" href="#includeinject-jack" aria-hidden="true"><span class="octicon octicon-link"></span></a>#include/inject *jack</h4>
@@ -423,37 +441,10 @@ Version2 = function do
 end
 </code></pre>
 
-<p>Version1 and Version2 are two different hard versions/tags/names of the same Injector.  There are also soft tags (see below).  Additionally, the name given to an injector plays a role in defining its scope.  Injectors with capitalized names like :Function, :Style, etc have a global scope.  That is they are available throughout the program:</p>
+<p>Version1 and Version2 are two different hard versions/tags/names of the same Injector.  There are also soft tags (see below).  </p>
 
-<pre><code>class A
-  injector :Function
-end
-
-class B
-  include Function
-end
-
-# This is perfectly valid with injectors  
-</code></pre>
-
-<p>On the other hand Injectors with a lower case name are only available <strong>from</strong> the scope in which they were defined, like the following example shows:</p>
-
-<pre><code>class AA
-  injector :form
-end
-
-class BB
-  include form                                
-end                         
-
-# This genenerates and ERROR! 
-
-class BB
-  include AA.form
-end
-
-# This is perfectly valid with injectors  
-</code></pre>
+<h3>
+<a id="local-binding" class="anchor" href="#local-binding" aria-hidden="true"><span class="octicon octicon-link"></span></a>Local Binding</h3>
 
 <p>Before we move on, we also want to give some further treatment to injector local-binding.  That is, the binding of an injectors' methods is local to the prolongation/version in which they are located before the versioning occurs.  Here, is the code:</p>
 
@@ -572,7 +563,7 @@ Style().class.should == Injector
 </code></pre>
 
 <h4>
-<a id="injectors-sym----" class="anchor" href="#injectors-sym----" aria-hidden="true"><span class="octicon octicon-link"></span></a>#injectors *sym ---</h4>
+<a id="injectors-sym" class="anchor" href="#injectors-sym" aria-hidden="true"><span class="octicon octicon-link"></span></a>#injectors *sym</h4>
 
 <p>Called with no arguments returns a list of injectors.  A call with a list of injector symbols however returns an array of actual Injector objects matching the names supplied in a LIFO fashion. An example use goes like this:</p>
 
@@ -709,7 +700,7 @@ D.new.foo.should == 'foo'
 
 <p>More importantly though is the following:</p>
 
-<pre><code>jack :player do                       
+<pre><code>slot :player do                       
     def sound                               
         'Lets make some music'                
     end                                     
@@ -1268,7 +1259,9 @@ Jester.value.should == 10
 
 <p><strong><a href="mailto:service.delivered@ymail.com">service.delivered@ymail.com</a></strong>.  </p>
 
-<p>Please include your platform along with a description of the problem and any available stack trace.  Please keep in mind that, at this time we have limited staff and we will do our best to have a quick response time.</p>
+<p>Please include your platform along with a description of the problem and any available stack trace.  Please keep in mind that, at this time we have limited staff and we will do our best to have a quick response time. </p>
+
+<p>Also please follow us at <a href="http://jackbox.us">http://jackbox.us</a></p>
 
 <h2>
 <a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Licensing</h2>
