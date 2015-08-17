@@ -21,11 +21,11 @@
     <section class="main-content">
       
 
-<p>Copyright © 2014 LHA. All rights reserved.</p>
-
 <h1>
 <a id="jackbox---google" class="anchor" href="#jackbox---google" aria-hidden="true"><span class="octicon octicon-link"></span></a>Jackbox   <a href="https://plus.google.com/102732809517976898938">Google+</a>
 </h1>
+
+<p>Copyright © 2014, 2015 LHA. All rights reserved.</p>
 
 <p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of <strong>closures which can also serve as modules</strong>.  Most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture its surrounding context and mix it into an indiscriminate target.  They make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling <strong>some new code patterns.</strong>  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
 
@@ -773,13 +773,13 @@ injector :milk do
         super() + 0.30
     end
 end
-injector :sprinkles do
+injector :vanilla do
     def cost
         super() + 0.15
     end
 end
 
-cup = Coffee.new.enrich(milk).enrich(sprinkles)
+cup = Coffee.new.enrich(milk).enrich(vanilla)
 cup.should be_instance_of(Coffee)
 
 cup.cost.should == 1.95
@@ -787,15 +787,15 @@ cup.cost.should == 1.95
 
 <p>Furthermore, these same decorators can be then re-applied MULTIPLE TIMES to the same receiver.  This is something that is normally not possible with the regular Ruby base language.  Here are further examples:</p>
 
-<pre><code>cup = Coffee.new.enrich(milk).enrich(sprinkles).enrich(sprinkles)
+<pre><code>cup = Coffee.new.enrich(milk).enrich(vanilla).enrich(vanilla)
 
 # or even...
 
-cup = Coffee.new.enrich milk, sprinkles, sprinkles
+cup = Coffee.new.enrich milk, vanilla, vanilla
 
 cup.cost.should == 2.10
 cup.should be_instance_of(Coffee)
-cup.injectors.should == [:milk, :sprinkles, :sprinkles]
+cup.injectors.should == [:milk, :vanilla, :vanilla]
 </code></pre>
 
 <h3>
@@ -1266,7 +1266,8 @@ Jester.value.should == 10
 <h2>
 <a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Licensing</h2>
 
-<p>Jackbox is currently free for anyone to <strong>use</strong>.</p>
+<p>Jackbox is currently free for anyone to <strong>use</strong>.
+Copyright © 2014, 2015 LHA. All rights reserved.</p>
 
 <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -1276,7 +1277,8 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 
-<p>Copyright © 2014 LHA. All rights reserved.</p>
+<p>In the above copyright notice, the letters LHA are the english acronym 
+for Luis Enrique Alvarez (Barea) who is the author and owner of the copyright.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/LouHenryAlvarez/jackbox">Jackbox</a> is maintained by <a href="https://github.com/LouHenryAlvarez">LouHenryAlvarez</a>.</span>
