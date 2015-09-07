@@ -26,7 +26,6 @@ require "spec_helper"
 
 =end
 
-
 ###########################
 injector :Major
 injector :minor            
@@ -223,18 +222,20 @@ describe 'injector Tagging/Naming and its relationship to Injector Versioning' d
 			}
 		}.to raise_error(NoMethodError)
 		
-		OtherTag = Bar do 			# This works!!
-			def foo
-				:oof
-			end
-		end 				# Bar is a true method 
-		
 		# This is consistent with the notion of a version:
 		# the tag is a snapshot of the Injector at the point of creation
 		# . once defined it shouldn't be modified
 		# . to make modifications create a new version
-		# The same tag can be applied to different targets or 
-		# a new version created using the original Injector
+		 
+	end
+		
+	it 'does work this way however' do
+		
+		OtherTag = Bar do 			# New Tag/version!!
+			def foo
+				:oof
+			end
+		end 				# Bar is a true method 
 		
 		class TagsTester
 			include SomeTag
@@ -242,7 +243,7 @@ describe 'injector Tagging/Naming and its relationship to Injector Versioning' d
 		
 		TagsTester.new.foo.should == :foo
 		
-		# To update the version a target uses do a target.update
+		# update the version a target uses 
 		
 		class TagsTester
 			update OtherTag
@@ -251,8 +252,23 @@ describe 'injector Tagging/Naming and its relationship to Injector Versioning' d
 		TagsTester.new.foo.should == :oof
 		
 	end
+end
 
+describe "tag scoping and naming" do
+	
 	it 'passes' do
+		
+		jack :M0
+		
+		TopLevelTag = M0()
+		
+		extend TopLevelTag
+		
+		singleton_class.ancestors.to_s.should match(/TopLevelTag/)
+		
+	end
+	
+	it 'also passes' do
 		
 		module M1
 			jack :j1
@@ -266,7 +282,11 @@ describe 'injector Tagging/Naming and its relationship to Injector Versioning' d
 			include M2::Atag
 		end
 		
-		A4.ancestors.to_s.should match(/Atag/)       
+		A4.ancestors.to_s.should match(/Atag/)
+		
+	end
+	
+	it 'also passes' do
 		
 		module M3
 			module M4
@@ -322,5 +342,4 @@ describe 'injector Tagging/Naming and its relationship to Injector Versioning' d
 		
 	end
 end
-
 

@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 	spec.description   = %q{Main gem for Ruby Code Injectors: Closures as Modules}
 	spec.summary       = %q{Jackbox is a set of programming tools which enhance the Ruby language and provide some additional software constructs. The main library function at this time centers around the concept of code injectors. }
 	spec.homepage      = "http://jackbox.us"
-	spec.license       = "Copyright © 2014 LHA. All rights reserved."
+	spec.license       = %Q{Copyright © 2014, 2015 LHA. All rights reserved. See LICENSE.txt}
 
 	spec.files         = `git ls-files`.split($/)
 	spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }

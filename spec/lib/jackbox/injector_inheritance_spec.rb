@@ -347,46 +347,46 @@ describe "some special cases and circumstances" do
 		# Define function after the application
 
 		multi_levelA do 
-			def fee
-				'fee'
+			def m1
+				'm1'
 			end
 		end
 
 
 		# C1 calls
 
-		C1.new.fee.should == 'fee'										# call 
+		C1.new.m1.should == 'm1'										# call 
 
 
 		# D1 inherits from C1
 
 		class D1 < C1
 		end
-		D1.new.fee.should == 'fee'										# inherited call 
+		D1.new.m1.should == 'm1'										# inherited call 
 
 
 		# E1 inherits from D1
 
 		class E1 < D1
 		end
-		E1.new.fee.should == 'fee'										# inherited call
+		E1.new.m1.should == 'm1'										# inherited call
 
 
 		# Re-define Method Cache
 		# -- previously un-applied methods
 
 		multi_levelA do 															
-			def fee
-				'feexx'                                   
+			def m1
+				'm1xx'                                   
 			end
 		end                 
 		
 		
 		# Calls are also re-defined
 		                    
-		C1.new.fee.should == 'feexx'                  # call is redefined
-		D1.new.fee.should == 'feexx'                  #      '' 
-		E1.new.fee.should == 'feexx'                  #      ''
+		C1.new.m1.should == 'm1xx'                  # call is redefined
+		D1.new.m1.should == 'm1xx'                  #      '' 
+		E1.new.m1.should == 'm1xx'                  #      ''
 
 
 		# Apply the <full> Injector onto E1
@@ -395,16 +395,16 @@ describe "some special cases and circumstances" do
 		
 		# calls
 
-		C1.new.fee.should == 'feexx'                  # =>  from cache
-		D1.new.fee.should == 'feexx'                  #    ''
+		C1.new.m1.should == 'm1xx'                  # =>  from cache
+		D1.new.m1.should == 'm1xx'                  #    ''
 		
-		E1.new.fee.should == 'feexx'                  # =>  from applied version
+		E1.new.m1.should == 'm1xx'                  # =>  from applied version
 		
 		
 		# Re-define cached injector methods
 		
 		multi_levelA do
-			def fee
+			def m1
 				'-----'
 			end
 		end
@@ -412,10 +412,10 @@ describe "some special cases and circumstances" do
 
 		# calls
 
-		C1.new.fee.should == '-----'									# re-defined!!                  
-		D1.new.fee.should == '-----'                  #      ''
+		C1.new.m1.should == '-----'									# re-defined!!                  
+		D1.new.m1.should == '-----'                  #      ''
 		
-		E1.new.fee.should == 'feexx'                  # NOT REDEFINED!!
+		E1.new.m1.should == 'm1xx'                  # NOT REDEFINED!!
 																									# -- attached with version
 		
 	end
@@ -433,46 +433,46 @@ describe "some special cases and circumstances" do
 		# Fill-in  function as you apply
 		
 		C2.inject multi_levelB	do 										# apply definitions
-			def fee                                     
-				'fee'                                     
+			def m1                                     
+				'm1'                                     
 			end                                         
 		end                                           
-		C2.new.fee.should == 'fee'										# call on Injector
+		C2.new.m1.should == 'm1'										# call on Injector
 
 
 		# DD inherits from CC                         
 
 		class D2 < C2                                 
 		end                                           # call on Injector
-		D2.new.fee.should == 'fee'										
+		D2.new.m1.should == 'm1'										
 
 
 		# EE inherits from DD                         
 
 		class E2 < D2                                 
 		end                                           # call on Injector
-		E2.new.fee.should == 'fee'										
+		E2.new.m1.should == 'm1'										
 
     
 		# Re-define methods
 		
 		multi_levelB do 															# NEW VERSION! because previous had an application
-			def fee                                     # -- was applied to C2 in the hierarchy
-				'feexx'                                   
+			def m1                                     # -- was applied to C2 in the hierarchy
+				'm1xx'                                   
 			end
 		end                                          
 
 		# Calls un-affected  !!                       # have existing version
 
-		C2.new.fee.should == 'fee'
-		D2.new.fee.should == 'fee'
-		E2.new.fee.should == 'fee'
+		C2.new.m1.should == 'm1'
+		D2.new.m1.should == 'm1'
+		E2.new.m1.should == 'm1'
 
 		E2.inject multi_levelB                      	# apply to hierarchy on E
 
-		C2.new.fee.should == 'fee'                  	# same
-		D2.new.fee.should == 'fee'                  	# same
-		E2.new.fee.should == 'feexx'                	# changed
+		C2.new.m1.should == 'm1'                  	# same
+		D2.new.m1.should == 'm1'                  	# same
+		E2.new.m1.should == 'm1xx'                	# changed
 
 	end
 
@@ -489,42 +489,42 @@ describe "some special cases and circumstances" do
 		# Apply <full> Injector definition to an ancestor
 		
 		Object.inject multi_levelC do
-			def fee
-				'feexx'
+			def m1
+				'm1xx'
 			end
 		end
     
 
 		# Call on the Injector
 		
-		C3.new.fee.should == 'feexx'                	# call Injector
+		C3.new.m1.should == 'm1xx'                	# call Injector
 
 
 		# Re-define a new Injector version
 
 		multi_levelC do 															
-			def fee
-				'fee'
+			def m1
+				'm1'
 			end
 		end
 		
 		# Calls un-afffected 
 		
-		C3.new.fee.should == 'feexx'									# still using the previous version --no changes
+		C3.new.m1.should == 'm1xx'									# still using the previous version --no changes
         
 		
 		# Inherit
 		
 		class D3 < C3
 		end
-		D3.new.fee.should == 'feexx'									# using previous version
+		D3.new.m1.should == 'm1xx'									# using previous version
     
 
 		# Inherit
 		
 		class E3 < D3
 		end
-		E3.new.fee.should == 'feexx'									# using previous version
+		E3.new.m1.should == 'm1xx'									# using previous version
              
     
     # Finally apply new version
@@ -534,14 +534,14 @@ describe "some special cases and circumstances" do
 		
 		# Calls changed from C on up
 		
-		C3.new.fee.should == 'fee'
-		D3.new.fee.should == 'fee'
-		E3.new.fee.should == 'fee'										# new version of #fee
+		C3.new.m1.should == 'm1'
+		D3.new.m1.should == 'm1'
+		E3.new.m1.should == 'm1'										# new version of #m1
 
     
 		# Call on ancestor the same
 		
-		Object.new.fee.should == 'feexx'							# previous version
+		Object.new.m1.should == 'm1xx'							# previous version
 
 	end
 

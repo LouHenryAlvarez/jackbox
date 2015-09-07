@@ -232,19 +232,19 @@ describe 'Injector versioning:', :injectors do
 
 		there 'is a different way todo global updates on Injectors: use define_method' do
 
-			SomeSlot = slot :some_slot do
+			SomeJack = jack :some_jack do
 				def foo_bar
 					'a foo and a bar'
 				end
 			end
 
 			class Client
-				inject SomeSlot
+				inject SomeJack
 			end
 
 			Client.new.foo_bar.should == 'a foo and a bar'			# expected
 
-			some_slot do
+			some_jack do
 				define_method :foo_bar do
 					'fooooo and barrrrr'
 				end

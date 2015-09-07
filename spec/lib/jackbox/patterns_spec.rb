@@ -25,13 +25,13 @@ describe 'some use cases', :injectors do
 					super() + 0.30
 				end
 			end
-			injector :sprinkles do
+			injector :vanilla do
 				def cost
 					super() + 0.15
 				end
 			end
 
-			cup = Coffee.new.enrich(milk).enrich(sprinkles)
+			cup = Coffee.new.enrich(milk).enrich(vanilla)
 			cup.should be_instance_of(Coffee)
 			cup.cost.should == 1.95
 			
@@ -50,14 +50,14 @@ describe 'some use cases', :injectors do
 					super() + 0.30
 				end
 			end
-			jack :sprinkles do
+			jack :vanilla do
 				def cost
 					super() + 0.15
 				end
 			end
 
-			cup = Coffee.new.enrich(milk).enrich(sprinkles).enrich(sprinkles)
-			cup.injectors.sym_list.should == [:milk, :sprinkles, :sprinkles]
+			cup = Coffee.new.enrich(milk).enrich(vanilla).enrich(vanilla)
+			cup.injectors.sym_list.should == [:milk, :vanilla, :vanilla]
 			cup.cost.should == 2.10
 			cup.should be_instance_of(Coffee)
 			
@@ -71,32 +71,32 @@ describe 'some use cases', :injectors do
 				end
 			end
 
-			slot :milk do
+			jack :milk do
 				def cost
 					super() + 0.30
 				end
 			end
-			slot :sprinkles do
+			jack :vanilla do
 				def cost
 					super() + 0.15
 				end
 			end
 
-			cup = Coffee.new.enrich(milk).enrich(sprinkles)
+			cup = Coffee.new.enrich(milk).enrich(vanilla)
 			cup.should be_instance_of(Coffee)
 			cup.cost.should == 1.95
 			
-			user_input = 'extra red sprinkles'
-			sprinkles do
+			user_input = 'extra red vanilla'
+			vanilla do
 				define_method :appearance do
 					user_input
 				end
 			end
 			
-			cup.enrich(sprinkles)
-			cup.injectors.sym_list.should == [:milk, :sprinkles, :sprinkles]
+			cup.enrich(vanilla)
+			cup.injectors.sym_list.should == [:milk, :vanilla, :vanilla]
 			cup.cost.should == 2.10
-			cup.appearance.should == 'extra red sprinkles'
+			cup.appearance.should == 'extra red vanilla'
 			
 		end
 

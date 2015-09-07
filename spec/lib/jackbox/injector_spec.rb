@@ -415,10 +415,10 @@ describe Injectors, :injectors do
 				end
 			end
 			injector :milk 
-			injector :sprinkles 
+			injector :vanilla 
 		
-			cup = Coffee.new.enrich(milk).enrich(sprinkles)
-			cup.injectors.sym_list.should == [:milk, :sprinkles]
+			cup = Coffee.new.enrich(milk).enrich(vanilla)
+			cup.injectors.sym_list.should == [:milk, :vanilla]
 		
 		end
 
@@ -574,7 +574,7 @@ describe Injectors, :injectors do
 
 	end
 
-	describe 'orthogonality of injectors within Jackbox' do
+	describe 'orthogonality of injectors with Jackbox' do
 		
 		the 'following interdepent calls do not raise any errors' do
 
@@ -630,10 +630,10 @@ describe Injectors, :injectors do
 			expect{
 
 				injector :tester2 
-
-				tester2 do                                                    ##################
-					enrich self																									# enrich == extend
                                                                       ##################
+				tester2 do                                                    # enrich == extend
+					enrich self																									##################
+                                                                      
 					def meth arg																								# define method enriched on self
 						arg * arg
 					end
@@ -647,7 +647,6 @@ describe Injectors, :injectors do
 					end
 				end
 				tester2.meth(3).should == 10																	# call re-defined method
-
 
 				# splat
 				with tester2 do 																							# with object self
@@ -671,85 +670,175 @@ describe Injectors, :injectors do
 		end
 
 		describe 'othogonality: equivalent injector forms' do
-
-			the 'following class injection forms are all equivalent' do
-
-				class Injected
-					# ...
-				end
-
-				injector :First do
-					def meth
-						:meth
+			
+			describe "equivalent inclusion" do
+			
+				before do
+					class Injected
+						# ...
 					end
 				end
-				Injected.inject First()
-				Injected.new.meth.should == :meth
-
-				Injected.eject First()
-				Injected.inject First() do
-					def meth
-						:meth
-					end
+			
+				after do
+				
 				end
-				Injected.new.meth.should == :meth
 
-				Injected.eject First()
-				injector( :First ){
-					def meth
-						:meth
+				the 'following class injection forms are all equivalent' do
+
+					injector :First do
+						def meth
+							:meth
+						end
 					end
-				}
-				Injected.inject First()
-				Injected.new.meth.should == :meth
+					Injected.inject First()
+					Injected.new.meth.should == :meth  
+				
+					Injected.eject First()
+				end
+				the 'following class injection forms are all equivalent' do
 
-				Injected.eject First()
-				Injected.inject injector( :First ){
-					def meth
-						:meth
+					Injected.inject First() do
+						def meth
+							:meth
+						end
 					end
-				}
-				Injected.new.meth.should == :meth
+					Injected.new.meth.should == :meth
 
+					Injected.eject First()
+				end 
+				the 'following class injection forms are all equivalent' do
+
+					injector( :First ){
+						def meth
+							:meth
+						end
+					}
+					Injected.inject First()
+					Injected.new.meth.should == :meth
+
+					Injected.eject First()
+				end
+				the 'following class injection forms are all equivalent' do
+
+					Injected.inject injector( :First ){
+						def meth
+							:meth
+						end
+					}
+					Injected.new.meth.should == :meth
+
+					Injected.eject First()
+				end
+      end
+
+			describe 'equivalent enrichment' do
+				
+				the 'following instance enrichment forms are all equvalent' do
+
+					injector :second do
+						def meth
+							:meth
+						end
+					end
+					enrich second
+					meth.should == :meth
+
+					eject second
+				end
+				the 'following instance enrichment forms are all equvalent' do
+
+					enrich injector :second do
+						def meth
+							:meth
+						end
+					end
+					meth.should == :meth
+
+					eject second
+				end
+				the 'following instance enrichment forms are all equvalent' do
+
+					injector( :second ){
+						def meth
+							:meth
+						end
+					}
+					enrich second
+					meth.should == :meth
+
+					eject second
+				end
+				the 'following instance enrichment forms are all equvalent' do
+
+					enrich injector( :second ){
+						def meth
+							:meth
+						end
+					}
+					meth.should == :meth
+
+					eject second
+				end 
+				
 			end
-
-			the 'following instance enrichment forms are all equvalent' do
-
-				injector :second do
-					def meth
-						:meth
-					end
-				end
-				enrich second
-				meth.should == :meth
-
-				eject second
-				enrich injector :second do
-					def meth
-						:meth
-					end
-				end
-				meth.should == :meth
-
-				eject second
-				injector( :second ){
-					def meth
-						:meth
-					end
-				}
-				enrich second
-				meth.should == :meth
-
-				eject second
-				enrich injector( :second ){
-					def meth
-						:meth
-					end
-				}
-				meth.should == :meth
-
+			
+		end
+		
+		describe 'other forms of othogonlity' do
+			
+			before do
+			 injector :Ortho 
 			end
-
+			
+			after do
+				Ortho(:implode)
+			end
+				 
+			it 'uses #with in the following ways' do
+			                                          
+				with Ortho() do
+					def foo
+					end
+				end
+				
+				Ortho().instance_methods.should include(:foo) 
+				
+			end
+			
+			it "also works this way" do
+				
+				class OrthoClass
+				end
+				
+				with OrthoClass do
+					include Ortho()
+					extend Ortho(), Ortho()
+				end
+				
+				with OrthoClass do
+					eject *injectors
+				end
+				
+				OrthoClass.injectors.should be_empty
+			
+			end  
+			
+			it 'works with #lets in this way' do
+			
+				with Ortho() do
+					lets(:make){'Special Make'}
+					
+					def print
+						puts make
+					end
+				end
+				
+				enrich Ortho()
+				make.should == 'Special Make'
+				#...
+				
+			end
+			
 		end
 	end
 

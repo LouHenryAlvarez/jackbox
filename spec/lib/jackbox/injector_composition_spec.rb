@@ -9,214 +9,316 @@ require "spec_helper"
 	
 =end
 
+
 include Injectors
 
 describe 'plyability of injection/ejection' do
 
-	it 'morphs mixins to a new level' do
-
-		# create injector
-		injector :j1 do
-			def j1m1
+	describe 'a new form of mixin' do
+		
+		before do
+			
+			suppress_warnings do
+				A1 = Class.new
 			end
-		end
 
-		# inject class
-		class A1
-		end
-		A1.inject j1
-
-		# instance has injectors of class
-		a1 = A1.new
-		a1.injectors.sym_list.should == [:j1]
-
-		# define function
-		j1 do
-			def j1m2
+			injector :j1 do
+				def j1m1
+				end
 			end
-		end
-		a1.j1m1.should == nil # no errors on call
-		a1.j1m2.should == nil # no errors on call
-
-		# eject the class injector for this object only
-		a1.eject j1
-		A1.injectors.sym_list.should == [:j1]
-		a1.injectors.sym_list.should == []
-
-		# expect errors on object
-		expect{ a1.j1m1 }.to raise_error(NoMethodError)
-		expect{ a1.j1m2 }.to raise_error(NoMethodError)
-
-		# class#new still the same
-		A1.new.j1m1.should == nil # no errors
-		A1.new.j1m2.should == nil # no errors
-
-		# eject function from the entire class
-		A1.eject j1
-		A1.injectors.sym_list.should == []
-
-		# expect all these errors
-		expect{ A1.new.j1m1 }.to raise_error(NoMethodError)
-		expect{ A1.new.j1m2 }.to raise_error(NoMethodError)
-		expect{ a1.j1m1 }.to raise_error(NoMethodError)
-		expect{ a1.j1m2 }.to raise_error(NoMethodError)
-		expect{ A1.eject j1 }.to raise_error(ArgumentError)
-
-		# enrich the individual object
-		a1.enrich j1
-		A1.injectors.sym_list.should == [] # still
-		a1.injectors.sym_list.should == [:j1]
-
-		# regain object function
-		a1.j1m1.should == nil # no errors
-		a1.j1m2.should == nil # no errors
-
-		# class#new still errors
-		expect{ A1.new.j1m1 }.to raise_error(NoMethodError)
-		expect{ A1.new.j1m2 }.to raise_error(NoMethodError)
-
-		# eject back out
-		a1.eject j1
-		A1.injectors.sym_list.should == [] # still
-		a1.injectors.sym_list.should == []
-
-		# expect errors
-		expect{ a1.eject j1 }.to raise_error(ArgumentError)
-		expect{ a1.j1m1 }.to raise_error(NoMethodError)
-		expect{ a1.j1m2 }.to raise_error(NoMethodError)
-
-		# re-inject the entire class
-		A1.inject j1
-		A1.injectors.sym_list.should == [:j1]
-		a1.injectors.sym_list.should == [:j1]
-
-		# no errors
-		a1.j1m1.should == nil
-		a1.j1m2.should == nil
-
-		# eject class injector from just this object again
-		a1.eject j1
-		A1.injectors.sym_list.should == [:j1]
-		a1.injectors.sym_list.should == []
-
-		expect{ a1.j1m1 }.to raise_error(NoMethodError)
-		expect{ a1.j1m2 }.to raise_error(NoMethodError)
-		expect{ a1.eject j1 }.to raise_error(ArgumentError)
-
-		# re-inject once again
-		A1.inject j1
-		A1.injectors.sym_list.should == [:j1] # pervasiveness
-		a1.injectors.sym_list.should == [] # still ejected from object
-
-		# expect errors
-		expect{ a1.j1m1 }.to raise_error(NoMethodError)
-		expect{ a1.j1m2 }.to raise_error(NoMethodError)
-		expect{ a1.eject j1 }.to raise_error(ArgumentError)
-
-		# class update: OVERRIDES OBJECT-LEVEL EJECTIONS!!
-		A1.send :update, j1
-		A1.injectors.sym_list.should == [:j1]
-		a1.injectors.sym_list.should == [:j1]
-
-		# working once again  
-		a1.j1m1.should == nil
-		a1.j1m2.should == nil
-
-	end
-
-	it 'does cover this case' do
-
-		# dual same name methods
-
-		injector :j2 do
-			def meth
-				:meth
-			end
-		end
-		injector :j3 do
-			def meth
-				:method
-			end
+	
+			A1.inject j1
+	
+			# define function
+			j1 do
+				def j1m2
+				end
+			end 
+	
 		end
 		
-		class A2
+		after do
+			
+			j1 :implode
+			
+			suppress_warnings do
+				A1 = nil
+			end
+			
 		end
-		A2.inject j2, j3
+		
+		it 'morphs mixins to a new level' do
 
-		A2.injectors.sym_list.should == [:j2, :j3]
-		a2 = A2.new
-		a2.injectors.sym_list.should == [:j2, :j3]
+			a1 = A1.new
+	
+			# instance has injectors of class
+			a1.injectors.sym_list.should == [:j1]
+	
+			a1.j1m1.should == nil # no errors on call
+			a1.j1m2.should == nil # no errors on call
+	
+			# eject the class injector for this object only
+			a1.eject j1
+	
+			a1.injectors.sym_list.should == []
+			A1.injectors.sym_list.should == [:j1]
+	
+			# expect errors on object
+			expect{ a1.j1m1 }.to raise_error(NoMethodError)
+			expect{ a1.j1m2 }.to raise_error(NoMethodError)
+	
+			# class#new still the same
+			A1.new.j1m1.should == nil # no errors
+			A1.new.j1m2.should == nil # no errors
+			
+		end
+		
+		it 'all fails after class ejection' do
+	                   
+			a1 = A1.new
 
-		a2.meth.should == :method
+			# eject function from the entire class
+			A1.eject j1
+			
+			A1.injectors.sym_list.should == []
+	
+			# expect all these errors
+			expect{ a1.j1m1 }.to raise_error(NoMethodError)
+			expect{ a1.j1m2 }.to raise_error(NoMethodError)
+			expect{ A1.new.j1m1 }.to raise_error(NoMethodError)
+			expect{ A1.new.j1m2 }.to raise_error(NoMethodError)
+			expect{ A1.eject j1 }.to raise_error(ArgumentError) # no more injectors
+	    
+		end
+		
+		it 'regains function on individula object through enrichment' do
+			
+			a1 = A1.new
 
-		A2.eject j3
-		a2.meth.should == :meth
+			# eject function from the entire class
+			A1.eject j1
+			
+			A1.injectors.sym_list.should == []   				# like above
+		    
+			# enrich the individual object
+			a1.enrich j1
+			A1.injectors.sym_list.should == [] # still
+			a1.injectors.sym_list.should == [:j1]
+	
+			# regain object function
+			a1.j1m1.should == nil # no errors
+			a1.j1m2.should == nil # no errors
+	
+			# class#new still errors
+			expect{ A1.new.j1m1 }.to raise_error(NoMethodError)
+			expect{ A1.new.j1m2 }.to raise_error(NoMethodError)
+			
+		end
+		
+		it 'fails again on individual object ejection' do 
+	
+			a1 = A1.new
 
-		A2.inject j3
-		a2.meth.should == :method
+			# eject function from the entire class
+			A1.eject j1
+			
+			A1.injectors.sym_list.should == []   				# like above
+	
+			# enrich the individual object
+			a1.enrich j1
 
-		A2.eject j2
-		a2.meth.should == :method
+			a1.injectors.sym_list.should == [:j1]       # like above
 
-		A2.eject j3
-		expect{a2.meth}.to raise_error(NoMethodError)
+			# eject back out
+			a1.eject j1                           
+			
+			a1.injectors.sym_list.should == []
+			A1.injectors.sym_list.should == [] # still
+	
+			# expect all errors
+			expect{ a1.j1m1 }.to raise_error(NoMethodError)
+			expect{ a1.j1m2 }.to raise_error(NoMethodError)
+			expect{ A1.new.j1m1 }.to raise_error(NoMethodError)
+			expect{ A1.new.j1m2 }.to raise_error(NoMethodError)
+			expect{ a1.eject j1 }.to raise_error(ArgumentError) # no more injectors
+			
+		end
+		
+		it 'regains all function on class injection' do
+	
+			a1 = A1.new
 
-		expect{A2.eject j3}.to raise_error(ArgumentError)
+			# eject function from the entire class
+			A1.eject j1
+			
+			A1.injectors.sym_list.should == []   				# like above
+	
+			# enrich the individual object
+			a1.enrich j1
 
+			a1.injectors.sym_list.should == [:j1]       # like above
+
+			# eject back out
+			a1.eject j1                           			
+			
+			a1.injectors.sym_list.should == []          # like above 
+			
+			# re-inject the entire class
+			A1.inject j1         
+			
+			A1.injectors.sym_list.should == [:j1]
+			a1.injectors.sym_list.should == [:j1]
+	
+			# no errors
+			a1.j1m1.should == nil
+			a1.j1m2.should == nil
+			A1.new.j1m1.should == nil # no errors
+			A1.new.j1m2.should == nil # no errors
+			
+		end
+		
+		it 'fails on class injection if the premise of class ejection is not met' do
+	
+			a1 = A1.new
+
+			# eject class injector from just this object again
+			a1.eject j1                                  
+			
+			A1.injectors.sym_list.should == [:j1]       # like above
+			a1.injectors.sym_list.should == []
+	              
+			# expect errors fo object
+			expect{ a1.j1m1 }.to raise_error(NoMethodError)
+			expect{ a1.j1m2 }.to raise_error(NoMethodError)
+			expect{ a1.eject j1 }.to raise_error(ArgumentError)
+			
+			# no errors for new objects of the class    # no class ejection at any point
+			A1.new.j1m1.should == nil # no errors
+			A1.new.j1m2.should == nil # no errors
+	
+			# re-inject once again
+			A1.inject j1                          			# this re-injection does not take effect
+
+			A1.injectors.sym_list.should == [:j1] 
+			a1.injectors.sym_list.should == [] # still ejected at object
+	
+			# expect errors
+			expect{ a1.j1m1 }.to raise_error(NoMethodError)
+			expect{ a1.j1m2 }.to raise_error(NoMethodError)
+			expect{ a1.eject j1 }.to raise_error(ArgumentError)
+	
+			# class update
+			A1.send :update, j1   											# only Class #update OVERRIDES OBJECT-LEVEL EJECTIONS!!
+			A1.injectors.sym_list.should == [:j1]       # (or object level injection) like above
+			a1.injectors.sym_list.should == [:j1]
+	
+			# working once again  
+			a1.j1m1.should == nil
+			a1.j1m2.should == nil
+	
+		end
+		
 	end
 
-	it 'also covers this case' do
+	describe "some special cases" do
 
-		# the same thing but ejected at the object level
-
-		injector :jj2 do
-			def meth
-				:meth
+		before do
+			
+			suppress_warnings do
+				A2 = Class.new
 			end
-		end
-		injector :jj3 do
-			def meth
-				:method
+
+			injector :j2 do
+				def meth
+					:meth
+				end
 			end
+			injector :j3 do
+				def meth
+					:method
+				end
+			end
+
+			A2.inject j2, j3
+
 		end
-		class A3
+		
+		after do
+			
+			suppress_warnings do
+				A2 = nil
+			end
+			j2 :implode
+			j3 :implode
+			
+		end
+		
+		it 'does cover this case' do
+
+			# same name methods on different entities
+
+			a2 = A2.new          
+
+			A2.injectors.sym_list.should == [:j2, :j3]
+			a2.injectors.sym_list.should == [:j2, :j3]
+
+			a2.meth.should == :method
+
+			A2.eject j3
+			
+			a2.meth.should == :meth
+
+			A2.inject j3
+			
+			a2.meth.should == :method
+
+			A2.eject j2
+			
+			a2.meth.should == :method
+
+			A2.eject j3
+
+			expect{a2.meth}.to raise_error(NoMethodError)
+			expect{A2.eject j3}.to raise_error(ArgumentError)
+
 		end
 
-		A3.inject jj2, jj3
-		aa2 = A3.new
+		it 'also covers this case' do
 
-		aa2.meth.should == :method
+ 		# the same thing but ejected at the object level
 
-		aa2.eject jj3
-		aa2.meth.should == :meth
+			a3 = A2.new
 
-		A3.inject jj3
-		aa2.meth.should == :meth
+			a3.meth.should == :method
 
-		aa2.enrich jj3
-		aa2.meth.should == :method
+			a3.eject j3
+			a3.meth.should == :meth
 
-		aa2.eject jj3
-		aa2.meth.should == :meth
+			A2.inject j3																# no Class #update NO CHANGE
+			a3.meth.should == :meth
 
-		A3.inject jj3
-		aa2.meth.should == :meth
+			a3.enrich j3
+			a3.meth.should == :method
 
-		A3.send :update, jj3
-		aa2.injectors.sym_list.should == [:jj2, :jj3]
-		aa2.meth.should == :method
+			a3.eject j3
+			a3.meth.should == :meth
 
-		aa2.eject jj3
+			A2.send :update, j3 
+			
+			a3.injectors.sym_list.should == [:j2, :j3]  # gets inverted
+			a3.meth.should == :method
 
-		aa2.meth.should == :meth
-		expect{aa2.eject jj3}.to raise_error(ArgumentError)
-		aa2.meth.should == :meth
+			a3.eject j3
 
-		aa2.eject jj2
-		aa2. injectors.should == []
+			a3.meth.should == :meth
+			expect{a3.eject j3}.to raise_error(ArgumentError)
 
-		expect{aa2.meth}.to raise_error(NoMethodError)
+			a3.eject j2
 
+			a3. injectors.should == []
+			expect{a3.meth}.to raise_error(NoMethodError)
+			
+		end  
 	end
 
 	it 'errors out when no more injectors to eject' do
@@ -270,6 +372,7 @@ injector :Landing
 # compose the object
 # 
 class SpaceShip
+	
 	inject FuelSystem(), Engines(), Capsule(), Landing()
 
 	def launch

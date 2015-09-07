@@ -311,15 +311,15 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 
-		it 'should forbid the following' do
-			# does not work at the instance level
+		it 'should not forbid the following' do
+			# does work at the instance level
 			expect {
 				
 				instance_eval {
 					lets(:foo){ 'foo bar'}
 				}
 				
-			}.to raise_error(Jackbox::UserError)
+			}.to_not raise_error(Jackbox::UserError)
 			
 		end
 		
