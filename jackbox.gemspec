@@ -22,5 +22,6 @@ Gem::Specification.new do |spec|
 	spec.add_runtime_dependency "bundler", '>= 1.6.1', "~> 1.6"
 	spec.add_runtime_dependency 'thor', '>= 0.18.1', '~> 0.18'
 
-	spec.add_development_dependency 'rspec', '>= 3.3.0', '~> 3.0'
+	spec.add_development_dependency 'rspec', '>= 3.1.0', '~> 3.1'
+	
 end
