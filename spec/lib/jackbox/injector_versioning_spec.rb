@@ -168,9 +168,9 @@ describe 'Injector versioning:', :injectors do
 			# but possible if needed
 
 			class One
-				eject Versions()													# eject version 1
+				eject Version1													# eject version 1
 			
-				inject Versions()													# re-inject with prolonged injector -- can be any version
+				inject Version2													# re-inject with prolonged injector -- can be any version
 			end
 			One.new.meth(4,5).should == 20							# meth.2 now available!!
 			

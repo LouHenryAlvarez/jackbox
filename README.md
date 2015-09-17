@@ -13,14 +13,22 @@
 -->
 Copyright © 2014, 2015 LHA. All rights reserved.
 
-Jackbox   <a href="https://plus.google.com/102732809517976898938" rel="publisher">Google+</a>
-=======
+<a href="http://jackbox.us"><h1>Jackbox</h1></a>
 
-The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of **closures which can also serve as modules**.  Most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture its surrounding context and mix it into an indiscriminate target.  They make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling **some new code patterns.**  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  
+---
+<h2 style="font-family:Papyrus-Condensed">Modular Closures, Code Injectors, Re-Classings, and other coder morphins</h2>
+---
+The defining idea behind Jackbox is: If Ruby is like Play-Doh, with Jackbox we turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The main library function at this time centers around the concept of code injectors, the idea of re-classings, and the helper functions that bring them together to provide some new and interesting capabilities.  
+
+To make it easier to grasp, code injectors can perhaps be thought of as a form of **closures which can also serve as modules**.  These modular closures most of all propose some additional interesting properties to the idea of a mix-in.  For instance, they make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling **some new code patterns** of our own.  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They give your code the ability to capture its surrounding context and mix it into an indiscriminate target. They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  
+
+Re-classings on the other hand present an alternative way to refine a class.  They provide similar benefits to refinements with a different underpinning. Together with Jackbox helper functions and injectors, re-classings can be be refined multiple times.  Capabilities can be added and removed in blocks.  Moreover, these re-classings acquire introspecting abilities.  A re-class can be tested for existence, can tell you what injectors it uses, and finally can be overridden with a more relevant one.  
+
+Our guiding principle through out it all has been keeping new constructs to a minimum.  We do not aspire to be one of those libraries that add as many methods as one can possibly think of, but which in reality never get used because nobody has the time to read them all.  We take an outer minimalistic approach that in reality takes a lot more behind the scenes to make things work.  Simplicity takes a lot of work.
 
 Basic Methods
 --------------------------
-There are some basic methods to Jackbox.  These are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  But, behind their apparent sugar coating there lie some powerful capability as shown the deeper you delve into Jackbox.  For more on them read the following sections, but their preliminary descriptions follow here:
+There are some basic methods to Jackbox.  These are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  But, behind their apparent sugar coating lie some powerful capabilities as shown the deeper you delve into Jackbox.  For more on them read the following sections, but their preliminary descriptions follow here:
 
 #### #decorate :sym, &blk 
 This method allows for decorations to be placed on a single method, be it an instance or class method without too much fuss. One important thing about #decorate is that it works like #define_method, but in addition, it also makes possible the use of Ruby's #super within the body of the decorator.  It really presents a better alternative and can be used instead of #alias\_method\_chain.
@@ -58,7 +66,7 @@ It also works like so:
 
 
 #### #with obj, &blk 
-There is also a new version of the :with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it. 
+There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it or the result of the last evaluation in the #with block.
 
 Here is some sample usage code:
 
@@ -120,7 +128,7 @@ Use it with **#decorate** on singleton classes like this:
 
     
 #### #lets sym=nil, &blk 
-We could say, this is simple syntax sugar.  It adds readability to some constructs.  It allows the creation of local or global procs using a more function-like syntax. But #lets, also opens the door to a new coding pattern termed Re-Classing.  See below.  The important thing about #lets is that it always defines some method.  Here are some examples:
+We could say, this is simple syntax sugar.  It adds readability to some constructs.  It allows the creation of local or global procs using a more function-like syntax. But #lets, also opens the door to a new coding pattern termed Re-Classing.  See below.  The important thing about #lets is that it always defines some lambda/proc/method.  It's use differs from that of #define_method in spirit, #lets is mostly for one liners. Here are some examples:
 
 To define local functions/lambdas. Define symbols in local scope:
 
@@ -160,8 +168,7 @@ Injectors are the main tool in Jackbox at the time of this writing. These again 
 
     # or even ...
 
-    jack :Name                                    # capitalized method, using alias #jack 
-    slot :name                                    # also alias to slot
+    facet :Name                                    # capitalized method, using alias #facet 
 
 
 Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, their behavior under inheritance, and perhaps injector directives. 
@@ -193,26 +200,6 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
     # => bar
     
     # etc ...
-
-Here is a more interesting example:
-
-    class ClosureExpose
-
-    	some_value = 'something'
-
-    	injector :capture do
-    		define_method :val do
-    			some_value
-    		end
-    	end
-    end
-
-    class SecondClass
-    	inject ClosureExpose.capture
-    end
-
-    # the result
-    SecondClass.new.val.should == 'something'
 
 **INJECTORS HAVE PROLONGATIONS:**
 
@@ -475,7 +462,7 @@ There is one more interesting property to method definition on Injectors however
 
 Here is an example of the difference with #define\_method:
 
-    jack :some_jack do
+    facet :some_facet do
     	def meth
     	  :meth
     	end
@@ -485,15 +472,15 @@ Here is an example of the difference with #define\_method:
     	end
     end
 
-    class Client
-    	inject some_jack
-    end
-
+    class Client                                  ################################
+      inject some_facet                           # Injector appplied            #
+    end                                           #                              #
+                                                  ################################
     Client.new.meth.should == :meth
     Client.new.foo_bar.should == 'a foo and a bar'      
 
 
-    some_jack do                                  
+    some_facet do                                  
     	def meth                                    # New version
     	  puts :them
     	end
@@ -513,7 +500,7 @@ Here is an example of the difference with #define\_method:
                                                   # . Thanks to define_method    #
                                                   ################################ 
 
-Injector Versioning together with injector local-binding allow the metamorphosis of injectors to fit the particular purpose at hand and keeping those local modifications isolated from the rest of your program making your code to naturally evolve with your program. Use it as an alternative to refinements.
+Injector Versioning together with injector local-binding allow the metamorphosis of injectors to fit the particular purpose at hand and keeping those local modifications isolated from the rest of your program making your code to naturally evolve with your program.
 
 ### Injector introspection
 Injectors have the ability to speak about themselves.  Moreover injectors can speak about their members just like any module or class, and can also inject their receivers with these introspecting capabilities.  Every injected/enriched object or module/class can enumerate its injectors, and injectors can enumerate their members, and so forth.  
@@ -735,7 +722,7 @@ The behavior of Injectors under inheritance is partially specified by what follo
 
 More importantly though is the following:
 
-    slot :player do                       
+    facet :player do                       
     	def sound                               
     		'Lets make some music'                
     	end                                     
@@ -783,10 +770,10 @@ From all this, the important thing to take is that injectors provide a sort of v
 
 
 ---
-But, this is the basic idea here.  An extended closure which can be used as a mix-in, prolonged to add function, and versioned and renamed to fit the purpose at hand. 
+But, this is the basic idea here.  An extended closure which can be used as a mix-in, prolonged to add function, and versioned and renamed to fit the purpose at hand. Using this approach Jackbox also goes on to solve the Decorator Pattern problem in the Ruby language.  
 
 ---
-Using this approach Jackbox also goes on to solve the Decorator Pattern problem in the Ruby language.  
+
 
 ### The GOF Decorator Pattern:   
 Traditionally this is only partially solved in Ruby through PORO decorators or the use of modules.  However, there are the problems of loss of class identity for the former and the limitations on the times it can be re-applied to the same object for the latter. With Jackbox this is solved.  An injector used as a decorator does not confuse class identity for the receiver. Decorators are useful in several areas of OOP: presentation layers, stream processing, command processors to name a few.  
@@ -890,197 +877,6 @@ The code for these examples makes use of the #eject method which is also opens t
 
 #### #eject *sym
 This method ejects injector function from a single object or class.  It is in scope on any classes injected or enriched by an injector.  For other forms of injector withdrawal see the next sections as in addition to this method, there are other ways to control code presence in targets through the use of Injector Directives.  See below.  For more on this also see the rspec examples.
-
-### The GOF Strategy Pattern:
-Another pattern that Jackbox helps with is the GOF Strategy Pattern.  This is a pattern with changes the guts of an object as opposed to just changing its face. Traditional examples of this pattern use PORO component injection within constructors. 
-
-Here are a couple alternate implementations:
-
-    class Coffee
-    	attr_reader :strategy
-
-    	def initialize
-    	  @strategy = nil
-    	end
-    	def cost
-    		1.00
-    	end
-      def brew
-    		@strategy = 'normal'
-      end
-    end
-
-    cup = Coffee.new
-    cup.brew
-    cup.strategy.should == 'normal'
-
-
-    injector :sweedish do
-    	def brew
-    		@strategy = 'sweedish'
-    	end
-    end
-
-    cup = Coffee.new.enrich(sweedish)           # clobbers original strategy for this instance only!!
-    cup.brew
-    cup.strategy.should == ('sweedish')
-
-
-But, with #eject it is possible to have an even more general alternate implementation. This time we completely replace the current strategy by actually ejecting it out of the class and then injecting a new one:
-
-    class Tea < Coffee  # Tea is a type of coffee!! ;~Q)
-    	injector :SpecialStrategy do
-    		def brew
-    			@strategy = 'special'
-    		end
-    	end
-    	inject SpecialStrategy()
-    end
-
-    cup = Tea.new
-    cup.brew
-    cup.strategy.should == 'special'
-
-    Tea.eject :SpecialStrategy
-
-    Tea.inject sweedish
-
-    cup.brew
-    cup.strategy.should == 'sweedish'
-
-### Soft Tags
-Just like hard tags above but a name is not needed:
-
-    jack :SomeJack do
-      def foo
-        :foo
-      end
-    end
-
-    SomeJack(:tag) do                             # New Version, not named
-      def foo
-        :foooooooo
-      end
-    end
-
----
-### Patterns of a Different Flavor
-
-There are also some additional coding patterns possible with Jackbox Injectors.  Although not part of the traditional GOF set these new patterns are only possible now thanks to languages like Ruby that permit the morphing of traditional forms into newer constructs.  Here are some new patterns: 
-
-__1) Late Decorator.-__ Another flow that also benefits from #define\_method in an interesting way is the following:   
-
-    class Widget
-    	def cost
-    		1
-    	end
-    end
-    w = Widget.new
-
-    injector :decorator
-
-    w.enrich decorator, decorator, decorator, decorator
-
-    # user input
-    bid = 3.5 
-
-    decorator do
-    	define_method :cost do                      # defines function on all injectors of the class
-    		super() + bid
-    	end
-    end
-
-    w.cost.should == 15
-
-The actual injector function is late bound and defined only after some other data is available.
-
-__2) The Super Pattern.-__ No.  This is not a superlative kind of pattern.  Simply, the use of #super can be harnessed into a pattern of controlled recursion, like in the following example: 
-
-    jack :Superb
-
-    Superb do
-    	def process string, additives, index
-    		str = string.gsub('o', additives.slice!(index))
-    		super(string, additives, index) + str rescue str
-    	end
-    	extend Superb(), Superb(), Superb()
-    end   
-
-    Superb().process( 'food ', 'aeiu', 0 ).should == 'fuud fiid feed faad '
-    Superb(:implode)                                 
-
-__3) The Transformer Pattern.-__  For a specific example of what can be accomplished using this workflow please refer to the rspec directory under the transformers spec.  Here is the basic flow:
-
-    jack :Solution
-
-    Solution( :tag ) do
-    	def solution
-    		1
-    	end
-    end
-    Solution( :tag ) do
-    	def solution
-    		2
-    	end
-    end
-    Solution( :tag ) do
-    	def solution
-    		3
-    	end
-    end
-
-
-    class Client
-    	inject Solution()
-	
-    	def self.solve
-    		Solution().tags.each { |e|
-    			update e 
-    			puts new.solution rescue nil
-    		}                              
-		
-    		# or...
-		
-    		solutions = Solution().tags.each
-    		begin
-    			update solutions.next
-    			puts solved = new().solution()
-    		end until solved
-    		solved
-    	end
-	
-    end
-
-    Client.solve
-
-__4) The Re-Classing Pattern.-__  Our base method #lets has one more interesting use which allows for an alternative way to refine classes.  We have termed this Re-Classing.  Look at the following code:
-
-    # define injectors
-
-    StringExtensions = injector :StringExtensions do
-      def to_s
-    		super + '++++'
-    	end
-    end
-
-
-    # Jackbox Reclassing
-
-    lets String do 
-    	include StringExtensions
-    end
-
-    assert( String('boo').to_s == 'boo++++' )
-
-    describe :String do
-    	it 'should pass' do
-    	
-    		String('boo').to_s.should == 'boo++++'
-    		
-    	end 
-    end
-
-The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  For more on this see, the rspec files and the Jackbox blog.              
 
 ### Injector Equality and Difference 
 
@@ -1273,6 +1069,196 @@ This directive totally destroys the injector including the handle to it.  Use it
     	end
     	}.to raise_error(NameError, /extras/)
 
+### The GOF Strategy Pattern:
+Another pattern that Jackbox helps with is the GOF Strategy Pattern.  This is a pattern with changes the guts of an object as opposed to just changing its face. Traditional examples of this pattern use PORO component injection within constructors. 
+
+Here are a couple alternate implementations:
+
+    class Coffee
+    	attr_reader :strategy
+
+    	def initialize
+    	  @strategy = nil
+    	end
+    	def cost
+    		1.00
+    	end
+      def brew
+    		@strategy = 'normal'
+      end
+    end
+
+    cup = Coffee.new
+    cup.brew
+    cup.strategy.should == 'normal'
+
+
+    injector :sweedish do
+    	def brew
+    		@strategy = 'sweedish'
+    	end
+    end
+
+    cup = Coffee.new.enrich(sweedish)           # clobbers original strategy for this instance only!!
+    cup.brew
+    cup.strategy.should == ('sweedish')
+
+
+But, with #eject it is possible to have an even more general alternate implementation. This time we completely replace the current strategy by actually ejecting it out of the class and then injecting a new one:
+
+    class Tea < Coffee  # Tea is a type of coffee!! ;~Q)
+    	injector :SpecialStrategy do
+    		def brew
+    			@strategy = 'special'
+    		end
+    	end
+    	inject SpecialStrategy()
+    end
+
+    cup = Tea.new
+    cup.brew
+    cup.strategy.should == 'special'
+
+    Tea.eject :SpecialStrategy
+
+    Tea.inject sweedish
+
+    cup.brew
+    cup.strategy.should == 'sweedish'
+
+### Soft Tags
+Just like hard tags above but a name is not needed:
+
+    jack :SomeJack do
+      def foo
+        :foo
+      end
+    end
+
+    SomeJack(:tag) do                             # New Version, not named
+      def foo
+        :foooooooo
+      end
+    end
+
+---
+### Patterns of a Different Flavor
+
+There are also some additional coding patterns possible with Jackbox Injectors.  Although not part of the traditional GOF set these new patterns are only possible now thanks to languages like Ruby that permit the morphing of traditional forms into newer constructs.  Here are some new patterns: 
+
+__1) Late Decorator.-__ Another flow that also benefits from #define\_method in an interesting way is the following:   
+
+    class Widget
+    	def cost
+    		1
+    	end
+    end
+    w = Widget.new
+
+    injector :decorator
+
+    w.enrich decorator, decorator, decorator, decorator
+
+    # user input
+    bid = 3.5 
+
+    decorator do
+    	define_method :cost do                      # defines function on all injectors of the class
+    		super() + bid
+    	end
+    end
+
+    w.cost.should == 15
+
+The actual injector function is late bound and defined only after some other data is available.
+
+__2) The Super Pattern.-__ No.  This is not a superlative kind of pattern.  Simply, the use of #super can be harnessed into a pattern of controlled recursion, like in the following example: 
+
+    facet :Superb
+
+    Superb do
+    	def process string, additives, index
+    		str = string.gsub('o', additives.slice!(index))
+    		super(string, additives, index) + str rescue str
+    	end
+    	extend Superb(), Superb(), Superb()
+    end   
+
+    Superb().process( 'food ', 'aeiu', 0 ).should == 'fuud fiid feed faad '
+    Superb(:implode)                                 
+
+__3) The Transformer Pattern.-__  For a specific example of what can be accomplished using this workflow please refer to the rspec directory under the transformers spec.  Here is the basic flow:
+
+    jack :Solution
+
+    Solution( :tag ) do
+    	def solution
+    		1
+    	end
+    end
+    Solution( :tag ) do
+    	def solution
+    		2
+    	end
+    end
+    Solution( :tag ) do
+    	def solution
+    		3
+    	end
+    end
+
+
+    class Client
+    	inject Solution()
+	
+    	def self.solve
+    		Solution().tags.each { |e|
+    			update e 
+    			puts new.solution rescue nil
+    		}                              
+		
+    		# or...
+		
+    		solutions = Solution().tags.each
+    		begin
+    			update solutions.next
+    			puts solved = new().solution()
+    		end until solved
+    		solved
+    	end
+	
+    end
+
+    Client.solve
+
+__4) The Re-Classing Pattern.-__  Our base method #lets has one more interesting use which allows for an alternative way to refine classes.  We have termed this Re-Classing.  Look at the following code:
+
+    # define injectors
+
+    StringExtensions = injector :StringExtensions do
+      def to_s
+    		super + '++++'
+    	end
+    end
+
+
+    # Jackbox Reclassing
+
+    lets String do 
+    	include StringExtensions
+    end
+
+    assert( String('boo').to_s == 'boo++++' )
+
+    describe :String do
+    	it 'should pass' do
+    	
+    		String('boo').to_s.should == 'boo++++'
+    		
+    	end 
+    end
+
+The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a>.              
 
 
 ---
@@ -1358,7 +1344,7 @@ Also please follow us at http://jackbox.us
 
 ## Licensing
 
-Jackbox is currently free for anyone to **use**.
+Jackbox single use and multi-use licenses are free.
 Copyright © 2014, 2015 LHA. All rights reserved.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,

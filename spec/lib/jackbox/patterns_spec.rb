@@ -99,6 +99,95 @@ describe 'some use cases', :injectors do
 			cup.appearance.should == 'extra red vanilla'
 			
 		end
+		
+		a 'bigger example' do
+		             
+			# some data
+
+			def database_content
+				%{car truck airplane boat}
+			end 
+
+			# rendering helper controls
+
+			class MyWidgetClass
+				def initialize(content)
+					@content = content
+				end       
+
+				def render
+					"<div id='MyWidget'>#{@content}</div>"
+				end
+			end
+
+			injector :WidgetDecorator do
+				attr_reader :width, :height       
+
+				def dim(width, heigth)
+					@width, @heigth = width, heigth
+				end
+			end
+
+			DesktopDecorator = WidgetDecorator do
+				def render
+					dim '600px', '200px'
+					%{
+						<style>
+						#MyWidget{
+							font: 14px, helvetica;
+							width:#{@width};
+							height: #{@heigth}
+						}
+						</style>
+						#{super()}
+					}
+				end
+			end
+
+			MobileDecorator = WidgetDecorator do
+				def render content
+					dim '200px', '600px'
+					%{
+						<style>
+						#MyWidget{
+							font: 10px, arial
+							width:#{@width}
+							height: #{@heigth}
+						}
+						</style>
+						#{super()}
+					}
+				end
+			end
+
+
+			# somewhere in a view
+
+			browser = 'Safari'
+			@content = database_content
+
+			my_widget = case browser
+			when match(/Safari|Firefox|IE/)
+				MyWidgetClass.new(@content).enrich(DesktopDecorator)
+			else
+				MyWidgetClass.new(@content).enrich(MobileDecorator)
+			end
+			expect(                      
+
+			my_widget.render.split.join).to  eq(		# split.join used for comparison
+				%{  
+					<style>
+					#MyWidget {
+						font: 14px, helvetica; 
+						width:600px; 
+						height:200px 
+					}
+					</style>
+					<div id='MyWidget'>car truck airplane boat</div>
+				}.split.join
+			)
+			 
+		end
 
 	end
 	
