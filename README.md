@@ -16,7 +16,7 @@ Copyright © 2014, 2015 LHA. All rights reserved.
 <a href="http://jackbox.us"><h1>Jackbox</h1></a>
 
 ---
-<h2 style="font-family:Papyrus-Condensed">Modular Closures, Code Injectors, Re-Classings, and other coder morphins</h2>
+<h2 style="font-family:Papyrus">Modular Closures, Code Injectors, Re-Classings, and other programmer morphins</h2>
 ---
 The defining idea behind Jackbox is: If Ruby is like Play-Doh, with Jackbox we turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The main library function at this time centers around the concept of code injectors, the idea of re-classings, and the helper functions that bring them together to provide some new and interesting capabilities.  
 
@@ -1233,32 +1233,68 @@ __3) The Transformer Pattern.-__  For a specific example of what can be accompli
 
 __4) The Re-Classing Pattern.-__  Our base method #lets has one more interesting use which allows for an alternative way to refine classes.  We have termed this Re-Classing.  Look at the following code:
 
-    # define injectors
+    # Injector declaration
 
-    StringExtensions = injector :StringExtensions do
-      def to_s
-    		super + '++++'
+    SR1 = jack :StringRefinements do
+    	lets String do
+    		with singleton_class do
+    			alias _new new
+    			def new *args, &code
+    				super(*args, &code) + ' is a special string'
+    			end
+    		end
     	end
     end
 
+    class OurClass
+    	include SR1
 
-    # Jackbox Reclassing
-
-    lets String do 
-    	include StringExtensions
+    	def foo_bar
+    		String('foo and bar')
+    	end
     end
 
-    assert( String('boo').to_s == 'boo++++' )
+    c = OurClass.new
+    c.foo_bar.class.should == String
+    c.foo_bar.should == 'foo and bar is a special string'
 
-    describe :String do
-    	it 'should pass' do
-    	
-    		String('boo').to_s.should == 'boo++++'
-    		
-    	end 
+		SR2 = StringRefinements do 										# New Version
+			lets String do
+				def to_s
+					super + '****'
+				end
+			end
+		end
+
+		# c is still the same
+
+		c.foo_bar.should == 'foo and bar is a special string'
+		c.foo_bar.class.should == String
+
+
+		class OurOtherClass
+			include SR2																# Apply new version
+			# to another class
+			def foo_bar
+				String('foo and bar')
+			end
+		end
+
+		d = OurOtherClass.new
+		d.foo_bar.should == 'foo and bar'
+		d.foo_bar.to_s.should == 'foo and bar****'
+
+The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a>.  
+
+#### reclass? cls
+
+This helper verifies a certain class re-classing exists within the current namespace.  It returns a boolean.  Ex:
+
+    module One
+      if reclass? String
+        String('our string')
+      end
     end
-
-The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a>.              
 
 
 ---
