@@ -25,7 +25,20 @@
 <a id="jackbox" class="anchor" href="#jackbox" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-jackbox" href="#jackbox"></a><a href="http://jackbox.us">Jackbox</a>
 </h1><p></p>
 
-<p>The main library function at this time centers around the concept of code Injectors.  To make it easier to grasp the idea behind them, these can perhaps be thought of as a form of <strong>closures which can also serve as modules</strong>.  Most of all Injectors propose some additional interesting properties to the idea of a mix-in.  For instance, they give your code the ability to capture its surrounding context and mix it into an indiscriminate target.  They make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling <strong>some new code patterns.</strong>  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
+<hr>
+
+<h2>
+<a id="modular-closures-code-injectors-re-classings-and-other-programmer-morphins" class="anchor" href="#modular-closures-code-injectors-re-classings-and-other-programmer-morphins" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-modular-closures-code-injectors-re-classings-and-other-programmer-morphins" href="#modular-closures-code-injectors-re-classings-and-other-programmer-morphins"></a>Modular Closures, Code Injectors, Re-Classings, and other programmer morphins</h2>
+
+<hr>
+
+<p>The defining idea behind Jackbox is: If Ruby is like Play-Doh, with Jackbox we turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The main library function at this time centers around the concept of code injectors, the idea of re-classings, and the helper functions that bring them together to provide some new and interesting capabilities.  </p>
+
+<p>To make it easier to grasp, code injectors can perhaps be thought of as a form of <strong>closures which can also serve as modules</strong>.  These modular closures most of all propose some additional interesting properties to the idea of a mix-in.  For instance, they make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling <strong>some new code patterns</strong> of our own.  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They give your code the ability to capture its surrounding context and mix it into an indiscriminate target. They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  </p>
+
+<p>Re-classings on the other hand present an alternative way to refine a class.  They provide similar benefits to refinements with a different underpinning. Together with Jackbox helper functions and injectors, re-classings can be be refined multiple times.  Capabilities can be added and removed in blocks.  Moreover, these re-classings acquire introspecting abilities.  A re-class can be tested for existence, can tell you what injectors it uses, and finally can be overridden with a more relevant one.  </p>
+
+<p>Our guiding principle through out it all has been keeping new constructs to a minimum.  We do not aspire to be one of those libraries that add as many methods as one can possibly think of, but which in reality never get used because nobody has the time to read them all.  We take an outer minimalistic approach that in reality takes a lot more behind the scenes to make things work.  Simplicity takes a lot of work.</p>
 
 <h2>
 <a id="basic-methods" class="anchor" href="#basic-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-basic-methods" href="#basic-methods"></a>Basic Methods</h2>
@@ -74,7 +87,7 @@ Object.new.inspect
 <h4>
 <a id="with-obj-blk" class="anchor" href="#with-obj-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-with-obj-blk" href="#with-obj-blk"></a>#with obj, &amp;blk</h4>
 
-<p>There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work <strong>with</strong> both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it. </p>
+<p>There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work <strong>with</strong> both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it or the result of the last evaluation in the #with block.</p>
 
 <p>Here is some sample usage code:</p>
 
@@ -140,7 +153,7 @@ end
 <h4>
 <a id="lets-symnil-blk" class="anchor" href="#lets-symnil-blk" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-lets-symnil-blk" href="#lets-symnil-blk"></a>#lets sym=nil, &amp;blk</h4>
 
-<p>We could say, this is simple syntax sugar.  It adds readability to some constructs.  It allows the creation of local or global procs using a more function-like syntax. But #lets, also opens the door to a new coding pattern termed Re-Classing.  See below.  The important thing about #lets is that it always defines some method/proc/lambda.  Here are some examples:</p>
+<p>We could say, this is simple syntax sugar.  It adds readability to some constructs.  It allows the creation of local or global procs using a more function-like syntax. But #lets, also opens the door to a new coding pattern termed Re-Classing.  See below.  The important thing about #lets is that it always defines some lambda/proc/method.  It's use differs from that of #define_method in spirit, #lets is mostly for one liners. Here are some examples:</p>
 
 <p>To define local functions/lambdas. Define symbols in local scope:</p>
 
@@ -214,27 +227,6 @@ Target.new.bar
 # =&gt; bar
 
 # etc ...
-</code></pre>
-
-<p>Here is a more interesting example:</p>
-
-<pre><code>class ClosureExpose
-
-    some_value = 'something'
-
-    injector :capture do
-        define_method :val do
-            some_value
-        end
-    end
-end
-
-class SecondClass
-    inject ClosureExpose.capture
-end
-
-# the result
-SecondClass.new.val.should == 'something'
 </code></pre>
 
 <p><strong>INJECTORS HAVE PROLONGATIONS:</strong></p>
@@ -526,10 +518,10 @@ expect(obj.spm1).to eq(:result)               # yet my obj can use it --no probl
     end
 end
 
-class Client
-    inject some_facet
-end
-
+class Client                                  ################################
+  inject some_facet                           # Injector appplied            #
+end                                           #                              #
+                                              ################################
 Client.new.meth.should == :meth
 Client.new.foo_bar.should == 'a foo and a bar'      
 
@@ -555,7 +547,7 @@ Client.new.foo_bar.should ==                  # Different!!!                 #
                                               ################################ 
 </code></pre>
 
-<p>Injector Versioning together with injector local-binding allow the metamorphosis of injectors to fit the particular purpose at hand and keeping those local modifications isolated from the rest of your program making your code to naturally evolve with your program. Use it as an alternative to refinements.</p>
+<p>Injector Versioning together with injector local-binding allow the metamorphosis of injectors to fit the particular purpose at hand and keeping those local modifications isolated from the rest of your program making your code to naturally evolve with your program.</p>
 
 <h3>
 <a id="injector-introspection" class="anchor" href="#injector-introspection" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-injector-introspection" href="#injector-introspection"></a>Injector introspection</h3>
@@ -1337,33 +1329,71 @@ Client.solve
 
 <p><strong>4) The Re-Classing Pattern.-</strong>  Our base method #lets has one more interesting use which allows for an alternative way to refine classes.  We have termed this Re-Classing.  Look at the following code:</p>
 
-<pre><code># define injectors
+<pre><code># Injector declaration
 
-StringExtensions = injector :StringExtensions do
-  def to_s
-        super + '++++'
+SR1 = jack :StringRefinements do
+    lets String do
+        with singleton_class do
+            alias _new new
+            def new *args, &amp;code
+                super(*args, &amp;code) + ' is a special string'
+            end
+        end
     end
 end
 
+class OurClass
+    include SR1
 
-# Jackbox Reclassing
-
-lets String do 
-    include StringExtensions
+    def foo_bar
+        String('foo and bar')
+    end
 end
 
-assert( String('boo').to_s == 'boo++++' )
+c = OurClass.new
+c.foo_bar.class.should == String
+c.foo_bar.should == 'foo and bar is a special string'
 
-describe :String do
-    it 'should pass' do
+    SR2 = StringRefinements do                                      # New Version
+        lets String do
+            def to_s
+                super + '****'
+            end
+        end
+    end
 
-        String('boo').to_s.should == 'boo++++'
+    # c is still the same
 
-    end 
-end
+    c.foo_bar.should == 'foo and bar is a special string'
+    c.foo_bar.class.should == String
+
+
+    class OurOtherClass
+        include SR2                                                             # Apply new version
+        # to another class
+        def foo_bar
+            String('foo and bar')
+        end
+    end
+
+    d = OurOtherClass.new
+    d.foo_bar.should == 'foo and bar'
+    d.foo_bar.to_s.should == 'foo and bar****'
 </code></pre>
 
-<p>The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us"></a><a href="http://jackbox.us">http://jackbox.us</a>.              </p>
+<p>The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us"></a><a href="http://jackbox.us">http://jackbox.us</a>.  </p>
+
+<h4>
+<a id="reclass-cls" class="anchor" href="#reclass-cls" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-reclass-cls" href="#reclass-cls"></a>#reclass? cls</h4>
+
+<p>This helper verifies a certain class re-classing exists within the current namespace.  It returns a boolean.  Ex:</p>
+
+<pre><code>module One
+  if reclass? String
+    String('our string')
+  end
+end
+</code></pre>
 
 <hr>
 
@@ -1460,7 +1490,7 @@ Jester.value.should == 10
 <h2>
 <a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span class="octicon octicon-link"></span></a><a id="user-content-licensing" href="#licensing"></a>Licensing</h2>
 
-<p>Jackbox is currently free for anyone to <strong>use</strong>.
+<p>Jackbox single use and multi-use licenses are free.
 Copyright © 2014, 2015 LHA. All rights reserved.</p>
 
 <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
