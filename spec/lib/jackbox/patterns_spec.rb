@@ -1,4 +1,5 @@
 require "spec_helper"
+
 =begin rdoc
 	This file contains the specs for the GOF Decorator Pattern and 
 	Strategy Pattern use cases for injectors.
@@ -19,7 +20,8 @@ describe 'some use cases', :injectors do
 					1.50
 				end
 			end
-
+			
+			# debugger
 			injector :milk do
 				def cost
 					super() + 0.30
@@ -57,7 +59,7 @@ describe 'some use cases', :injectors do
 			end
 
 			cup = Coffee.new.enrich(milk).enrich(vanilla).enrich(vanilla)
-			cup.injectors.sym_list.should == [:milk, :vanilla, :vanilla]
+			cup.injectors.sym_list.should == [:vanilla, :vanilla, :milk]
 			cup.cost.should == 2.10
 			cup.should be_instance_of(Coffee)
 			
@@ -94,13 +96,13 @@ describe 'some use cases', :injectors do
 			end
 			
 			cup.enrich(vanilla)
-			cup.injectors.sym_list.should == [:milk, :vanilla, :vanilla]
+			cup.injectors.sym_list.should == [:vanilla, :vanilla, :milk]
 			cup.cost.should == 2.10
 			cup.appearance.should == 'extra red vanilla'
 			
 		end
 		
-		a 'bigger example' do
+		a 'bigger example using normal Injector inheritance' do
 		             
 			# some data
 
@@ -130,7 +132,7 @@ describe 'some use cases', :injectors do
 
 			DesktopDecorator = WidgetDecorator do
 				def render
-					dim '600px', '200px'
+					dim '600px', '200px'										# inherited
 					%{
 						<style>
 						#MyWidget{
@@ -146,7 +148,7 @@ describe 'some use cases', :injectors do
 
 			MobileDecorator = WidgetDecorator do
 				def render content
-					dim '200px', '600px'
+					dim '200px', '600px'										# inherited
 					%{
 						<style>
 						#MyWidget{
@@ -165,6 +167,8 @@ describe 'some use cases', :injectors do
 
 			browser = 'Safari'
 			@content = database_content
+			
+			# apply the decorators
 
 			my_widget = case browser
 			when match(/Safari|Firefox|IE/)
@@ -187,8 +191,144 @@ describe 'some use cases', :injectors do
 				}.split.join
 			)
 			 
+			WidgetDecorator(:implode)
+			
 		end
 
+		a 'different way of doing it using: JIT inheritance' do
+		             
+			# some data
+
+			def database_content
+				%{car truck airplane boat}
+			end 
+
+			# rendering helper controls
+
+			class MyWidgetClass
+				def initialize(content)
+					@content = content
+				end       
+
+				def render
+					"<div id='MyWidget'>#{@content}</div>"
+				end
+			end
+
+			
+			MainDecorator = injector :WidgetDecorator do
+				
+				attr_accessor :font, :width, :height       
+
+				def dim(width, heigth)
+					@width, @heigth = width, heigth
+				end
+				
+				def render
+					%{
+						<style>
+						#MyWidget{
+							font: 14px, #{@font};
+							width:#{@width};
+							height: #{@heigth}
+						}
+						</style>
+						#{super()}
+					}
+				end
+			end
+
+			# somewhere in a view
+
+			browser = 'Safari'
+			@content = database_content
+
+			my_widget = case browser
+			when match(/Safari|Firefox|IE/)
+				# debugger
+				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+					
+					def render															# override invoking JIT inheritance
+						dim '600px', '200px'									# normal inherited method call
+						@font = 'helvetica'
+
+						super()
+					end
+				end)
+
+			else
+				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+					
+					def render															# override invoking JIT inheritance
+						dim '200px', '600px'                  # normal inherited method call
+						@font ='arial'
+
+						super()
+					end
+				end)
+			end
+
+			expect(WidgetDecorator().ancestors).to eq([WidgetDecorator(), MainDecorator])
+
+			expect(                      
+				my_widget.render.split.join).to  eq(		# split.join used for comparison
+					%{  
+						<style>
+						#MyWidget {
+							font: 14px, helvetica; 
+							width:600px; 
+							height:200px 
+						}
+						</style>
+						<div id='MyWidget'>car truck airplane boat</div>
+					}.split.join
+			)
+
+			
+			# browser = 'mobile'
+			# @content = database_content
+			# 
+			# my_widget = case browser
+			# when match(/Safari|Firefox|IE/)
+			# 	# debugger
+			# 	MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+			# 		
+			# 		def render
+			# 			dim '600px', '200px'
+			# 			@font ='helvetica'
+			# 
+			# 			super()
+			# 		end
+			# 	end)
+			# else
+			# 	MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+			# 		def render
+			# 			dim '200px', '600px'
+			# 			@font ='arial'
+			# 
+			# 			super()
+			# 		end
+			# 	end)
+			# end
+			# expect(                      
+			# 
+			# 	my_widget.render.split.join).to  eq(		# split.join used for comparison
+			# 		%{  
+			# 			<style>
+			# 			#MyWidget {
+			# 				font: 14px, arial; 
+			# 				width:200px; 
+			# 				height:600px 
+			# 			}
+			# 			</style>
+			# 			<div id='MyWidget'>car truck airplane boat</div>
+			# 		}.split.join
+			# )
+			
+			WidgetDecorator(:implode)
+			 
+		end
+		
 	end
 	
 	describe 'strategy pattern.' do
@@ -396,15 +536,7 @@ describe 'some use cases', :injectors do
 			Client.solve
 			
 		end
-		
 	end
 	
-	# describe 'use in rails' do
-	# 	
-	# 	it 'allows replacing draper'
-	# 	it 'allows decorating anything not just models'
-	# 	
-	# end 
-
 end
 

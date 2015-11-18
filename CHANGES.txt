@@ -1,4 +1,44 @@
-0.9.5.9
+0.9.6.3  RC2
+
+Cleaned up inheritance, vmc, and patterns examples.
+
+. Got re-classes working with rspec 3.4
+. Changed the jack #inspect method. Cleaned up examples
+. Fixed singleton class duping and cloning issues
+. Concluded some VMC changes expanding its reach
+  . Fixed issue with method_missing blocking
+. Converted the order injectors get added and reported
+  . now they follow the Ruby lead with precedence from right to left
+. Introduced Just-In-Time Inheritance
+  . inheritance works by compiling ancestors just in time of when used
+. Extended inheritance examples to include more lifecycle events
+. Finalized the specification of Introspection
+. Reached a more refined implementation of equality
+. Added more inheritance examples and improved others
+. Fixed an issue with JIT inheritance overriding every other inclusion
+. Optimized  tag tracing and un-hosted injector deletion
+. Reworked some introspection examples
+. Added include inheritance example to patterns
+. Fixed some #with subtleties:
+  . include now works on modules
+  . temp fix to issue with 1.9 and 2.xx
+. Added Re-Classes and examples
+. Fixed a couple issues with re-classes and standard types
+. Added longer decorator examples illustrating their use with Web Technologies
+. Optimized some issues
+. Fixed wrong evaluation of blocks for Tags on include/extend
+. Fixed extend/inject call on injectors not evaluating correctly
+. Reworked Lets
+. Eliminated all un-necessary nil testing. 
+  . only left on :collapse/:silence directives and couple others.
+. Fixed some performance issues with Ruby 1.9.3 and Tag naming
+. Fixed #progenitor and #lineage
+. Fixed precedent
+. Cleaned up code and examples
+. Updated Readme
+
+
+0.9.5.9  RC1
 
 . Added a spec for Injector behavior under Inheritance
 . Fixed problem with same method name object level class ejection

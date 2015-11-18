@@ -380,7 +380,7 @@ describe Injectors, :injectors do
 				include Color
 			
 			end
-			Widget.injectors.sym_list.should == [:layout, :color]
+			Widget.injectors.sym_list.should == [:color, :layout]
 
 			expect{Widget.new.expand}.to_not raise_error
 			expect{Widget.new.tint}.to_not raise_error
@@ -418,7 +418,7 @@ describe Injectors, :injectors do
 			injector :vanilla 
 		
 			cup = Coffee.new.enrich(milk).enrich(vanilla)
-			cup.injectors.sym_list.should == [:milk, :vanilla]
+			cup.injectors.sym_list.should == [:vanilla, :milk]
 		
 		end
 
@@ -428,14 +428,14 @@ describe Injectors, :injectors do
 				inject injector :one
 				inject injector :two
 			end
-			SomeClass.injectors.sym_list.should == [:one, :two]
+			SomeClass.injectors.sym_list.should == [:two, :one]
 		
 		end
 		
 		the 'same is true at the class instance level' do
 			
 			# from above
-			SomeClassInstance.injectors.sym_list.should == [:class_instance_injector]
+			SomeClassInstance.injectors(:all).sym_list.should == [:class_instance_injector]
 			
 		end
 		
@@ -480,7 +480,7 @@ describe Injectors, :injectors do
 			end
 			
 			the 'functionality removed from a class INSTANCE
-			Note: when applied via the enrich keywork on the class' do
+			Note: when applied via the enrich keyword on the class' do
 
 				injector :part do
 					def connector
@@ -492,7 +492,7 @@ describe Injectors, :injectors do
 				Whole.extend part
 				
 				Whole.connector.should == 'connected'
-				Whole.injectors.sym_list.should == [:part]
+				Whole.injectors(:all).sym_list.should == [:part]
 				
 				# eject the part
 				
@@ -526,7 +526,7 @@ describe Injectors, :injectors do
 						end
 					end
 				end
-				Home.injectors.sym_list.should == [:layout, :materials ]
+				Home.injectors.sym_list.should == [:materials, :layout ]
 
 				# build
 				my_home = Home.new
@@ -602,7 +602,7 @@ describe Injectors, :injectors do
 				tester1.order(50).should match( /|tester1| label for 50/ )  # call decorated method extended to self 
 
 
-				$stdout.should_receive(:puts).with("|tester1| label for 30")
+				$stdout.should_receive(:puts).with( /|tester1| label for 30/ )
 				with tester1 do 																							# with self(tester1)
 					puts order 30																								# execute method
 					def receive weight																					# define singleton method
@@ -685,49 +685,49 @@ describe Injectors, :injectors do
 
 				the 'following class injection forms are all equivalent' do
 
-					injector :First do
+					injector :Base do
 						def meth
 							:meth
 						end
 					end
-					Injected.inject First()
+					Injected.inject Base()
 					Injected.new.meth.should == :meth  
 				
-					Injected.eject First()
+					Injected.eject Base()
 				end
 				the 'following class injection forms are all equivalent' do
 
-					Injected.inject First() do
+					Injected.inject Base() do
 						def meth
 							:meth
 						end
 					end
 					Injected.new.meth.should == :meth
 
-					Injected.eject First()
+					Injected.eject Base()
 				end 
 				the 'following class injection forms are all equivalent' do
 
-					injector( :First ){
+					injector( :Base ){
 						def meth
 							:meth
 						end
 					}
-					Injected.inject First()
+					Injected.inject Base()
 					Injected.new.meth.should == :meth
 
-					Injected.eject First()
+					Injected.eject Base()
 				end
 				the 'following class injection forms are all equivalent' do
 
-					Injected.inject injector( :First ){
+					Injected.inject injector( :Base ){
 						def meth
 							:meth
 						end
 					}
 					Injected.new.meth.should == :meth
 
-					Injected.eject First()
+					Injected.eject Base()
 				end
       end
 
@@ -735,49 +735,49 @@ describe Injectors, :injectors do
 				
 				the 'following instance enrichment forms are all equvalent' do
 
-					injector :second do
+					injector :base do
 						def meth
 							:meth
 						end
 					end
-					enrich second
+					enrich base
 					meth.should == :meth
 
-					eject second
+					eject base
 				end
 				the 'following instance enrichment forms are all equvalent' do
 
-					enrich injector :second do
+					enrich injector :base do
 						def meth
 							:meth
 						end
 					end
 					meth.should == :meth
 
-					eject second
+					eject base
 				end
 				the 'following instance enrichment forms are all equvalent' do
 
-					injector( :second ){
+					injector( :base ){
 						def meth
 							:meth
 						end
 					}
-					enrich second
+					enrich base
 					meth.should == :meth
 
-					eject second
+					eject base
 				end
 				the 'following instance enrichment forms are all equvalent' do
 
-					enrich injector( :second ){
+					enrich injector( :base ){
 						def meth
 							:meth
 						end
 					}
 					meth.should == :meth
 
-					eject second
+					eject base
 				end 
 				
 			end

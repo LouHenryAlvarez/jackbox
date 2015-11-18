@@ -1,14 +1,153 @@
 require "spec_helper"
 =begin rdoc
-	This file represents a new approach to refining a class using Jackbox modular closures.
+
+	This file represents a different approach to refining a class using Jackbox Modular Closures.
 	
 	lha
+
 =end
+
 
 # Jackbox Reclassings
 ############################################
 
 # RubyProf.start
+describe 're-classings' do
+
+	it 'refines classes within namespaces' do
+		
+		module Work
+			lets String do
+				def self.new(*args)
+					"+++#{super}+++"
+				end
+			end
+		end
+		
+		class WorkAholic
+			include Work
+			
+			def work_method
+				String('Men-At-Work')
+			end
+		end
+	
+		str = WorkAholic.new.work_method
+		str.should == '+++Men-At-Work+++'
+		
+		str = String('Men-At-Work')										# Regular Kernel version
+		str = 'Men-At-Work'
+		
+	end
+	
+	it 'works with Ruby Code Injectors' do
+		#
+		# Our first Injector
+		#
+		Sr1 = jack :StringRefinements do
+			lets String do
+				def self.new *args, &code
+					super(*args, &code) + ' is a special string'
+				end
+			end
+		end
+
+		class OurClass
+			include Sr1																	# include Tag
+
+			def foo_bar
+				String('foo and bar')
+			end
+		end
+
+		c = OurClass.new
+		
+		c.foo_bar.class.should == String
+		c.foo_bar.should == 'foo and bar is a special string'
+		expect{c.foo_bar.extra.should == :extra}.to raise_error(NoMethodError)
+
+		#
+		# A second injector in the mix
+		#
+		jack :Log do
+			require 'logger'
+			def to_log arg
+				(@log ||= Logger.new($stdout)).warn(arg)
+			end
+		end
+		
+		StringRefinements do
+			String() do
+				inject Log()
+				
+				def show
+					to_log self
+				end
+			end
+		end
+
+		c.foo_bar.class.should == String
+		c.foo_bar.should == 'foo and bar is a special string'
+		
+		$stdout.should_receive(:write).with(/foo and bar is a special string/).at_least(1) 
+
+		c.foo_bar.show
+
+		# 
+		# lets redfine our first String() 
+		# -- SR1 and SR2 are different injectable String()
+		# 
+		Sr2 = StringRefinements do 										# New String refinement
+			lets String do
+				inject Log()
+				
+				def self.new *args
+					super + '****'
+				end
+			end
+		end
+		
+		class OurOtherClass
+			include Sr2																# Apply new tag
+
+			def foo_bar
+				String('foo and bar')
+			end
+		end
+		
+		d = OurOtherClass.new
+		
+		d.foo_bar.class.should == String
+		d.foo_bar.should == 'foo and bar****'
+
+		expect{ d.foo_bar.show }.to raise_error(NoMethodError)
+		$stdout.should_receive(:write).with(/foo/).at_least(1) 
+		expect{ d.foo_bar.to_log 'foo' }.to_not raise_error
+		
+		# c is still the same
+		
+		c.foo_bar.class.should == String
+		c.foo_bar.should == 'foo and bar is a special string'
+		
+
+		# String is untouched
+		
+		String("foo").should == 'foo'
+		String.new("foo").should == 'foo'
+			
+	end
+end
+
+
+# ################################# IMPORTANT ########################################
+# 																																									 #
+# Although the above is for what reclassings are designed, in the following exmaples #
+# we test some of the more basic and ruby integration aspects of re-classings.       #
+# Note: reclassings used on a top level will hide any Kernel methods by the same     #
+# type name.  Their use case is like the above or in some name space.  See below.    #
+#                                                                                    #
+# ################################# IMPORTANT ########################################
+
 
 injector :StringExtensions do  										# define injector
   def to_s
@@ -16,8 +155,9 @@ injector :StringExtensions do  										# define injector
 	end
 end
 
-# debugger
-lets String do 																		# apply to class
+# Note: This reclassing hides Kernel.String() -- use
+# fully qualified name to access original version
+lets String do 																		# apply injector
 	include StringExtensions()
 end
 
@@ -35,7 +175,8 @@ describe :String do
 end
 
               
-# Another Reclassing
+# Another Top-level Reclassing
+# Note: same as above
 
 jack :ArrayExtensions do
 	def to_s
@@ -122,6 +263,7 @@ module M7
 	def foo_bar
 		Array(2)
 	end
+	
 end 
 
 class A6
@@ -142,9 +284,9 @@ end
 
 
 
-# Further Introspection
+# Introspection
 ##################################################
-# debugger
+
 assert( A6.new.foo_bar.injectors.by_name == [:NameSpacedArrayExtensions] )
 
 describe "introspection" do
@@ -152,11 +294,23 @@ describe "introspection" do
 	# introspecting on capabilities
 
 	it 'should allow injector introspection' do
-		# # top level re-class
+		
+		StringRefinements do
+			(reclass? String).should == true
+			
+			String() do
+				injectors.by_name.should == [:Log]
+			end
+		end
+		
+	end
+	
+	it 'should allow injector introspection' do
+		# top level re-class
 		Array() do
 			injectors.by_name.should == [:ArrayExtensions]
 		end
-		# debugger
+
 		Array(){injectors.by_name}.should == [:ArrayExtensions]
 		
 		# top level re-class instances
@@ -165,11 +319,13 @@ describe "introspection" do
 	end
 	
 	it 'works on namespaced reclassings' do
+		
 		module M7
-			# debugger
+
 			Array() do
 				injectors.by_name.should == [:NameSpacedArrayExtensions]
 			end
+			
 		end
 	end
 	
@@ -192,75 +348,6 @@ describe "introspection" do
 		
 	end
 	
-	it 'works' do
-		
-		# Injector declaration
-
-		jack :StringRefinements do
-			lets String do
-				with singleton_class do
-					alias _new new
-					def new *args, &code
-						super(*args, &code) + ' is a special string'
-					end
-				end
-			end
-		end
-
-		class OurClass
-			include StringRefinements()
-
-			def foo_bar
-				String('foo and bar')
-			end
-		end
-
-		c = OurClass.new
-		c.foo_bar.class.should == String
-		c.foo_bar.should == 'foo and bar is a special string'
-		expect{c.foo_bar.extra.should == :extra}.to raise_error(NoMethodError)
-
-		StringRefinements do
-			String() do
-				def extra
-					:extra
-				end
-			end
-		end
-
-		c.foo_bar.should == 'foo and bar is a special string'
-		c.foo_bar.class.should == String
-		c.foo_bar.extra.should == :extra
-
-		SR = StringRefinements do 										# New Version
-			lets String do
-				def to_s
-					super + '****'
-				end
-			end
-		end
-
-		# c is still the same
-
-		c.foo_bar.should == 'foo and bar is a special string'
-		c.foo_bar.class.should == String
-		c.foo_bar.extra.should == :extra
-
-
-		class OurOtherClass
-			include SR																# Apply new version
-			# to another class
-			def foo_bar
-				String('foo and bar')
-			end
-		end
-
-		d = OurOtherClass.new
-		d.foo_bar.should == 'foo and bar'
-		d.foo_bar.to_s.should == 'foo and bar****'
-		expect{ d.extra }.to raise_error(NoMethodError)
-			
-	end
 end
 
 

@@ -24,6 +24,7 @@ describe 'plyability of injection/ejection' do
 
 			injector :j1 do
 				def j1m1
+					:j1m1
 				end
 			end
 	
@@ -32,6 +33,7 @@ describe 'plyability of injection/ejection' do
 			# define function
 			j1 do
 				def j1m2
+					:j1m2
 				end
 			end 
 	
@@ -54,8 +56,8 @@ describe 'plyability of injection/ejection' do
 			# instance has injectors of class
 			a1.injectors.sym_list.should == [:j1]
 	
-			a1.j1m1.should == nil # no errors on call
-			a1.j1m2.should == nil # no errors on call
+			a1.j1m1.should == :j1m1 # no errors on call
+			a1.j1m2.should == :j1m2 # no errors on call
 	
 			# eject the class injector for this object only
 			a1.eject j1
@@ -68,8 +70,8 @@ describe 'plyability of injection/ejection' do
 			expect{ a1.j1m2 }.to raise_error(NoMethodError)
 	
 			# class#new still the same
-			A1.new.j1m1.should == nil # no errors
-			A1.new.j1m2.should == nil # no errors
+			A1.new.j1m1.should == :j1m1 # no errors
+			A1.new.j1m2.should == :j1m2 # no errors
 			
 		end
 		
@@ -106,8 +108,8 @@ describe 'plyability of injection/ejection' do
 			a1.injectors.sym_list.should == [:j1]
 	
 			# regain object function
-			a1.j1m1.should == nil # no errors
-			a1.j1m2.should == nil # no errors
+			a1.j1m1.should == :j1m1 # no errors
+			a1.j1m2.should == :j1m2 # no errors
 	
 			# class#new still errors
 			expect{ A1.new.j1m1 }.to raise_error(NoMethodError)
@@ -170,10 +172,10 @@ describe 'plyability of injection/ejection' do
 			a1.injectors.sym_list.should == [:j1]
 	
 			# no errors
-			a1.j1m1.should == nil
-			a1.j1m2.should == nil
-			A1.new.j1m1.should == nil # no errors
-			A1.new.j1m2.should == nil # no errors
+			a1.j1m1.should == :j1m1
+			a1.j1m2.should == :j1m2
+			A1.new.j1m1.should == :j1m1 # no errors
+			A1.new.j1m2.should == :j1m2 # no errors
 			
 		end
 		
@@ -193,8 +195,8 @@ describe 'plyability of injection/ejection' do
 			expect{ a1.eject j1 }.to raise_error(ArgumentError)
 			
 			# no errors for new objects of the class    # no class ejection at any point
-			A1.new.j1m1.should == nil # no errors
-			A1.new.j1m2.should == nil # no errors
+			A1.new.j1m1.should == :j1m1 # no errors
+			A1.new.j1m2.should == :j1m2 # no errors
 	
 			# re-inject once again
 			A1.inject j1                          			# this re-injection does not take effect
@@ -213,8 +215,8 @@ describe 'plyability of injection/ejection' do
 			a1.injectors.sym_list.should == [:j1]
 	
 			# working once again  
-			a1.j1m1.should == nil
-			a1.j1m2.should == nil
+			a1.j1m1.should == :j1m1
+			a1.j1m2.should == :j1m2
 	
 		end
 		
@@ -262,24 +264,24 @@ describe 'plyability of injection/ejection' do
 			A2.injectors.sym_list.should == [:j2, :j3]
 			a2.injectors.sym_list.should == [:j2, :j3]
 
-			a2.meth.should == :method
-
-			A2.eject j3
-			
 			a2.meth.should == :meth
-
-			A2.inject j3
-			
-			a2.meth.should == :method
 
 			A2.eject j2
 			
 			a2.meth.should == :method
 
+			A2.inject j2
+			
+			a2.meth.should == :meth
+
 			A2.eject j3
+			
+			a2.meth.should == :meth
+
+			A2.eject j2
 
 			expect{a2.meth}.to raise_error(NoMethodError)
-			expect{A2.eject j3}.to raise_error(ArgumentError)
+			expect{A2.eject j2}.to raise_error(ArgumentError)
 
 		end
 
@@ -289,31 +291,31 @@ describe 'plyability of injection/ejection' do
 
 			a3 = A2.new
 
-			a3.meth.should == :method
-
-			a3.eject j3
 			a3.meth.should == :meth
-
-			A2.inject j3																# no Class #update NO CHANGE
-			a3.meth.should == :meth
-
-			a3.enrich j3
-			a3.meth.should == :method
-
-			a3.eject j3
-			a3.meth.should == :meth
-
-			A2.send :update, j3 
-			
-			a3.injectors.sym_list.should == [:j2, :j3]  # gets inverted
-			a3.meth.should == :method
-
-			a3.eject j3
-
-			a3.meth.should == :meth
-			expect{a3.eject j3}.to raise_error(ArgumentError)
 
 			a3.eject j2
+			a3.meth.should == :method
+
+			A2.inject j2																# no Class #update NO CHANGE
+			a3.meth.should == :method
+
+			a3.enrich j2
+			a3.meth.should == :meth
+
+			a3.eject j2
+			a3.meth.should == :method
+
+			A2.send :update, j2 
+			
+			a3.injectors.sym_list.should == [:j2, :j3]  # gets inverted
+			a3.meth.should == :meth
+
+			a3.eject j2
+
+			a3.meth.should == :method
+			expect{a3.eject j2}.to raise_error(ArgumentError)
+
+			a3.eject j3
 
 			a3. injectors.should == []
 			expect{a3.meth}.to raise_error(NoMethodError)
@@ -376,6 +378,7 @@ class SpaceShip
 	inject FuelSystem(), Engines(), Capsule(), Landing()
 
 	def launch
+		# debugger
 		gas_tank fuel_lines burners ignition :go
 		self
 	end
@@ -487,7 +490,7 @@ describe 'multiple injector composition and decomposition' do
 
 		# sat regains some function
 		SpaceShip.injectors.sym_list.should == [:FuelSystem, :Engines, :Capsule, :Landing]
-		sat.injectors.sym_list.should == [:FuelSystem, :Landing, :Capsule]
+		sat.injectors.sym_list.should == [:Capsule, :FuelSystem, :Landing]
 		sat.o2.should == :oxigen
 		sat.fuel_lines( :good ).should == :fuel
 		sat.gear.should == 'wheels'
@@ -518,7 +521,7 @@ describe 'multiple injector composition and decomposition' do
 		flyer.gear.should == 'wheels'
 
 		# sat not affected because previously enriched at the object level
-		sat.injectors.sym_list.should == [:FuelSystem, :Landing, :Capsule]
+		sat.injectors.sym_list.should == [:Capsule, :FuelSystem, :Landing]
 		sat.o2.should == :oxigen
 		sat.fuel_lines( :good ).should == :fuel
 		sat.gear.should == 'wheels'
@@ -530,7 +533,7 @@ describe 'multiple injector composition and decomposition' do
 		SpaceShip.injectors.sym_list.should == [:Engines, :Landing]
 
 		# sat affected
-		sat.injectors.sym_list.should == [:Landing, :Capsule]
+		sat.injectors.sym_list.should == [:Capsule, :Landing]
 		expect{sat.ignition :on}.to raise_error(NoMethodError)
 		expect{sat.fuel_lines :off}.to raise_error(NoMethodError)
 		sat.o2.should == :oxigen
@@ -549,7 +552,7 @@ describe 'multiple injector composition and decomposition' do
 
 		# regains some function
 		SpaceShip.injectors.sym_list.should == [:Engines, :Landing]
-		flyer.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem]
+		flyer.injectors.sym_list.should == [:FuelSystem, :Engines, :Landing]
 		flyer.fuel_lines( :on ).should == :fuel
 		flyer.ignition( :on ).should == :spark
 		flyer.gear.should == 'wheels'
@@ -558,7 +561,7 @@ describe 'multiple injector composition and decomposition' do
 		expect{flyer.o2}.to raise_error(NoMethodError)
 		
 		# first vessel still same failures
-		sat.injectors.sym_list.should == [:Landing, :Capsule]
+		sat.injectors.sym_list.should == [:Capsule, :Landing]
 		expect{sat.ignition :on}.to raise_error(NoMethodError)
 		expect{sat.fuel_lines :on}.to raise_error(NoMethodError)
 		sat.o2.should == :oxigen
@@ -570,14 +573,14 @@ describe 'multiple injector composition and decomposition' do
 
 		# regains all function
 		SpaceShip.injectors.sym_list.should == [:Engines, :Landing]
-		flyer.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :Capsule]
+		flyer.injectors.sym_list.should == [:Capsule, :FuelSystem, :Engines, :Landing]
 		flyer.fuel_lines( :on ).should == :fuel
 		flyer.ignition( :on ).should == :spark
 		flyer.o2.should == :oxigen
 		flyer.gear.should == 'wheels'
 
 		# sat vessel still same failures
-		sat.injectors.sym_list.should == [:Landing, :Capsule]
+		sat.injectors.sym_list.should == [:Capsule, :Landing]
 		expect{sat.ignition :on}.to raise_error(NoMethodError)
 		expect{sat.fuel_lines :on}.to raise_error(NoMethodError)
 		sat.o2.should == :oxigen
@@ -590,7 +593,7 @@ describe 'multiple injector composition and decomposition' do
 		# flyer vessel un-affected
 		SpaceShip.injectors.sym_list.should == [:Engines, :Landing]
 		sat.injectors.sym_list.should == [:Landing]
-		flyer.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :Capsule]
+		flyer.injectors.sym_list.should == [:Capsule, :FuelSystem, :Engines, :Landing]
 		flyer.fuel_lines( :on ).should == :fuel
 		flyer.ignition( :on ).should == :spark
 		flyer.o2.should == :oxigen
@@ -605,13 +608,13 @@ describe 'multiple injector composition and decomposition' do
 		#####
 		# 10. Class Level injection from Ground Control
 		SpaceShip.inject FuelSystem()	
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem]
+		SpaceShip.injectors.sym_list.should == [:FuelSystem, :Engines, :Landing]
 		
 		# class level re-injection: affects all objects
 		# even if they have been re-injected at the object level 
 
 		# sat vessel regains some function
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem]
+		sat.injectors.sym_list.should == [:FuelSystem, :Landing]
 		sat.fuel_lines( :on ).should == :fuel
 		sat.gear.should == 'wheels'
 		
@@ -620,7 +623,7 @@ describe 'multiple injector composition and decomposition' do
 		expect{sat.hydration}.to raise_error(NoMethodError)
 		
 		# flyer vessel gains a backup!
-		flyer.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :FuelSystem, :Capsule]
+		flyer.injectors.sym_list.should == [:Capsule, :FuelSystem, :FuelSystem, :Engines, :Landing]
 		flyer.ignition( :on ).should == :spark
 		flyer.gas_tank( :full ).should == :gas
 		flyer.hydration.should == :water
@@ -629,17 +632,17 @@ describe 'multiple injector composition and decomposition' do
 		#####
 		# Injector directives
 		FuelSystem(:collapse)
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem]
+		SpaceShip.injectors.sym_list.should == [:FuelSystem, :Engines, :Landing]
 
 		# First vessel: fuel system is inoperative, everything else the same
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem]
+		sat.injectors.sym_list.should == [:FuelSystem, :Landing]
 		sat.fuel_lines( :on ).should == nil
 		expect{sat.ignition :off}.to raise_error(NoMethodError)
 		expect{sat.hydration}.to raise_error(NoMethodError)
 		sat.gear.should == 'wheels'
 
 		# Second vessel: fuel system also inoperative, the rest same
-		flyer.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :FuelSystem, :Capsule]
+		flyer.injectors.sym_list.should == [:Capsule, :FuelSystem, :FuelSystem, :Engines, :Landing]
 		flyer.gas_tank(:full).should == nil		
 		flyer.ignition( :on )
 		flyer.hydration.should == :water
@@ -648,15 +651,15 @@ describe 'multiple injector composition and decomposition' do
 		#####
 		# second directive 
 		FuelSystem(:rebuild)
+		SpaceShip.injectors.sym_list.should == [:FuelSystem, :Engines, :Landing]
 		
 		# everything back to previous state
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem]
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem]
+		sat.injectors.sym_list.should == [:FuelSystem, :Landing]
 		sat.fuel_lines( :on ).should == :fuel
 		sat.gear.should == 'wheels'
 		expect{sat.ignition :off}.to raise_error(NoMethodError)
 		expect{sat.hydration}.to raise_error(NoMethodError)
-		flyer.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :FuelSystem, :Capsule]
+		flyer.injectors.sym_list.should == [:Capsule, :FuelSystem, :FuelSystem, :Engines, :Landing]
 		flyer.gas_tank(:full).should == :gas		
 		flyer.ignition( :on ).should == :spark
 		flyer.hydration.should == :water
@@ -678,8 +681,9 @@ describe 'multiple injector composition and decomposition' do
 			end
 		end
 
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem]
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem]
+		SpaceShip.injectors.sym_list.should == [:FuelSystem, :Engines, :Landing]
+		sat.injectors.sym_list.should == [:FuelSystem, :Landing]
+		
 		sat.crash.should == :booohoooo
 		sat.fuel_lines( :on ).should == :fuel
 		expect{sat.ignition :off}.to raise_error(NoMethodError)
@@ -701,6 +705,7 @@ describe 'multiple injector composition and decomposition' do
 			include CrashAndBurn
 		end
 
+		# debugger
 		sat.crash_and_burn.should == "look ma' no teeth"
 
 		#####
@@ -710,64 +715,77 @@ describe 'multiple injector composition and decomposition' do
 			def automatic
 				'auto pilot'
 			end
-			def method_missing sym, *args, &code 								#  THIS NEVER EXECUTES!!!
+			def method_missing sym, *args, &code 	
 				'Going dauwn...'
 			end
 		end
 		
-		# object level injection: no go!
+		# object level enrich
 		sat.enrich Pilot()	
+		sat.enrich Engines()
 		
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem]
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem, :Pilot]
+		SpaceShip.injectors.sym_list.should == [:FuelSystem, :Engines, :Landing]
+		sat.injectors.sym_list.should == [:Engines, :Pilot, :FuelSystem, :Landing]
+		
 		sat.automatic.should == 'auto pilot'									
-		expect{sat.noMethod.should == 'Going dauwn...' }.to raise_error(NoMethodError)
+		sat.noMethod.should == 'Going dauwn...' 
 		sat.fuel_lines( :on ).should == :fuel
-		expect{sat.ignition :off}.to raise_error(NoMethodError)
-		expect{sat.hydration}.to raise_error(NoMethodError)
+		expect{sat.ignition( :off )}.to_not raise_error()
+		sat.ignition( :on ).should == :spark
+		expect{sat.hydration}.to_not raise_error()
+		sat.hydration.should == 'Going dauwn...'
 		sat.gear.should == 'wheels'
 		
-		# class level injection: no go!
+		# class level injection
 		SpaceShip.inject Pilot()	
 
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :Pilot]
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem, :Pilot, :Pilot]
+		SpaceShip.injectors.sym_list.should == [:Pilot, :FuelSystem, :Engines, :Landing]
+		sat.injectors.sym_list.should == [:Engines, :Pilot, :Pilot, :FuelSystem, :Landing]
+		
 		sat.automatic.should == 'auto pilot'
-		expect{sat.noMethod.should == 'Going dauwn...' }.to raise_error(NoMethodError)
+		sat.noMethod.should == 'Going dauwn...' 
 		sat.fuel_lines( :on ).should == :fuel
-		expect{sat.ignition :off}.to raise_error(NoMethodError)
-		expect{sat.hydration}.to raise_error(NoMethodError)
+		expect{sat.ignition :off}.to_not raise_error()
+		sat.ignition( :on ).should == :spark
+		expect{sat.hydration}.to_not raise_error()
+		sat.hydration.should == 'Going dauwn...'
 		sat.gear.should == 'wheels'
 		
 		#####
 		# Un-affected by directives
 		Pilot(:silence)
 		
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :Pilot]
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem, :Pilot, :Pilot]
+		SpaceShip.injectors.sym_list.should == [:Pilot, :FuelSystem, :Engines, :Landing]
+		sat.injectors.sym_list.should == [:Engines, :Pilot, :Pilot, :FuelSystem, :Landing]
+		
 		sat.automatic.should == nil
 		sat.fuel_lines( :on ).should == :fuel
-		expect{sat.ignition :off}.to raise_error(NoMethodError)
-		expect{sat.hydration}.to raise_error(NoMethodError)
+		expect{sat.ignition :off}.to_not raise_error()
+		sat.ignition( :on ).should == :spark
+		expect{sat.hydration}.to_not raise_error()
+		sat.hydration.should == 'Going dauwn...'
 		sat.gear.should == 'wheels'
 
-		expect{sat.boohoo}.to raise_error(NoMethodError)
-		expect{flyer.boohoo}.to raise_error(NameError)
+		expect{sat.boohoo}.to_not raise_error()
+		sat.boohoo.should == 'Going dauwn...'
 		
 		#####
 		# Un-affected by directives
 		Pilot(:rebuild)
 		
-		SpaceShip.injectors.sym_list.should == [:Engines, :Landing, :FuelSystem, :Pilot]
-		sat.injectors.sym_list.should == [:Landing, :FuelSystem, :Pilot, :Pilot]
+		SpaceShip.injectors.sym_list.should == [:Pilot, :FuelSystem, :Engines, :Landing]
+		sat.injectors.sym_list.should == [:Engines, :Pilot, :Pilot, :FuelSystem, :Landing]
+		
 		sat.automatic.should == 'auto pilot'
 		sat.fuel_lines( :on ).should == :fuel
-		expect{sat.ignition :off}.to raise_error(NoMethodError)
-		expect{sat.hydration}.to raise_error(NoMethodError)
+		expect{sat.ignition :off}.to_not raise_error()
+		sat.ignition( :on ).should == :spark
+		expect{sat.hydration}.to_not raise_error()
+		sat.hydration.should == 'Going dauwn...'
 		sat.gear.should == 'wheels'
 
-		expect{sat.boohoo}.to raise_error(NoMethodError)
-		expect{flyer.boohoo}.to raise_error(NameError)
+		expect{sat.boohoo}.to_not raise_error()
+		sat.boohoo.should == 'Going dauwn...'
 		
 	end
 	
@@ -799,7 +817,7 @@ describe 'multiple injector composition and decomposition' do
 					puts '++++++++--------------++++++++++'
 					host.instance_eval {  
 						def link_to_ships
-
+							'8...................8'
 						end
 					}
 
@@ -822,7 +840,7 @@ describe 'multiple injector composition and decomposition' do
 			end
 			expect{
 
-				Building.link_to_ships
+				Building.link_to_ships.should == '8...................8'
 
 			}.to_not raise_error
 
@@ -843,15 +861,15 @@ describe 'multiple injector composition and decomposition' do
 					end
 				end
 
-				class Base
+				class First
 					include BA
 					def moth
 					end
 				end
 
-				Base.new.meth
-				Base.new.mith
-				Base.new.moth
+				First.new.meth
+				First.new.mith
+				First.new.moth
 
 				class Second
 					def math
@@ -896,15 +914,15 @@ describe 'multiple injector composition and decomposition' do
 		it "does work this way however" do
 			
 			expect{
-		
+					
 				injector :Includer
-		
+					
 				Includer do
 					def far
 					end
 					inject Includer()													# this includes a new copy of the original
 				end                                         
-		
+					
 			}.to_not raise_error()
 		
 		end

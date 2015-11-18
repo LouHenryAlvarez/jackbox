@@ -7,16 +7,16 @@ describe "the introspection api in further detail" do
 
 	describe :injectors do
 		
-	  # . Name.injectors == [j,......]
-	  # . Name.injectors.by_name == [:name, ......]
-	  # . Name.injectors.sym_list == [:name, ......]
-	  # . Name.injectors.collect_by_name(:name) == [j,......]  (default method)
-	  #   . same as Name.injectors :name
-	  # . Name.injectors.all_by_sym(:name) == [j,......]  (default method)
-	  # . Name.injectors.find_by_name(:name) == j
-	  # . Name.injectors.#Enumerable...
-    
 		describe "base injectors call" do
+    
+		  # . Name.injectors == [j,......]
+		  # . Name.injectors.by_name == [:name, ......]
+		  # . Name.injectors.sym_list == [:name, ......]
+		  # . Name.injectors.collect_by_name(:name) == [j,......]  (default method)
+		  #   . same as Name.injectors :name
+		  # . Name.injectors.all_by_sym(:name) == [j,......]  (default method)
+		  # . Name.injectors.find_by_name(:name) == j
+		  # . Name.injectors.#Enumerable...
 			
 			before do
 				class InjectorContainer
@@ -47,13 +47,6 @@ describe "the introspection api in further detail" do
 
 			  # . Name.injectors.by_name == [:name, ......]
 		
-				# class InjectorContainer
-				# 	injector :function
-				# 	injector :style
-				# 
-				# 	inject function, style
-				# end
-	
 				expect(InjectorContainer.injectors.by_name).to all( be_an(Symbol))
 				expect(InjectorContainer.injectors.by_name).to eql([:function, :style])
 				# alias
@@ -63,16 +56,11 @@ describe "the introspection api in further detail" do
 	
 			the 'injectors.collect_by_name returns a list of injector objects matching the name' do
 	
-				# class InjectorContainer
-				# 	injector :function
-				# 	injector :style
-				# 
-				# 	inject function, style
-				# end
+			  # . Name.injectors.collect_by_name(:name) == [j,......]  (default method)
 
 				ic = InjectorContainer.new
 				ic.enrich InjectorContainer.style
-				ic.injectors.by_name.should == [:function, :style, :style]
+				ic.injectors.by_name.should == [:style, :function, :style]
 		
 				# returns [Injector.name == :style, Injector.name == :style] only !!
 				ic.injectors.collect_by_name(:style).should all(be_an(Injector).and have_attributes(:name => :style))
@@ -83,18 +71,13 @@ describe "the introspection api in further detail" do
 	
 			the 'injectors.find_by_name call returns one item of class Injector by name <sym>' do
 		
-				# class InjectorContainer
-				# 	injector :function
-				# 	injector :style
-				# 
-				# 	inject function, style
-				# end
+			  # . Name.injectors.find_by_name(:name) == j
 
 				ic = InjectorContainer.new
 				ic.enrich InjectorContainer.style
 	
 				# result
-				ic.injectors.by_name.should == [:function, :style, :style]
+				ic.injectors.by_name.should == [:style, :function, :style]
 				ic.injectors.find_by_name(:style).should be_an(Injector).and( have_attributes(:name => :style))  # the last one !!!
 		
 				# also aliased
@@ -104,12 +87,7 @@ describe "the introspection api in further detail" do
 	
 			the 'default calls injectors :name/injectors :name, :othername, ... get resolved to the previous methods' do
 		
-				# class InjectorContainer
-				# 	injector :function
-				# 	injector :style
-				# 
-				# 	inject function, style
-				# end
+			  # . Name.injectors.#Enumerable...
 
 				ic = InjectorContainer.new
 				ic.enrich InjectorContainer.style
@@ -122,11 +100,114 @@ describe "the introspection api in further detail" do
 		
 		end
 
+
+		describe "#injectors(:all) call" do
+
+			before do
+				injector :Example1
+				injector :Example2
+				Object.inject Example1()
+			end
+			
+			after do
+				Example1(:implode)
+				Example2(:implode)
+			end
+
+			it 'returns all the injectors in the ancestor chain of an object' do
+
+				# Object.eject *Object.injectors rescue []  # clear all injectors from other tests
+
+				Hash.inject Example2()
+
+				Hash.new.injectors(:all).should all(be_an(Injector))
+				Hash.new.injectors(:all).should eql [Example2(), Example1()]  # from Object, and Hash
+
+				# as opposed to simple #injectors call
+				
+				Hash.new.injectors.should eql [Example2()] # with no :all option
+
+			end
+
+			it 'with any class' do
+
+				# Object.eject *Object.injectors          	# clear all injectors from other tests
+
+				class AnyClass
+					inject Example2()
+				end
+
+				AnyClass.injectors(:all).should all(be_an(Injector))
+				AnyClass.injectors(:all).should eql [Example2(), Example1()]
+
+				# as opposed to simple #injectors call
+				
+				AnyClass.new.injectors.should eql [Example2()]
+
+			end
+
+			it 'returns all the injectors in the ancestors chain of a module' do
+
+				module AnyModule
+					
+					inject Example2() do
+						include injector :Example3  		# compond injector
+					end
+					
+				end
+
+				AnyModule.injectors(:all).should all(be_an(Injector))
+				AnyModule.injectors(:all).should eql [Example2(), Example3()]
+				
+				# as opposed to simple #injectors call
+				
+				AnyModule.injectors.should eql [Example2()]
+
+			end
+
+			it 'returns all the injectors in the ancestors chain of a Injector' do
+
+				Example1 do
+					
+					include injector :Example2 do
+						include injector :Example3					# triple compound injector
+					end
+					
+				end
+
+				Example1().injectors(:all).should all(be_an(Injector)) 
+				Example1().injectors(:all).should eql [Example2(), Example3()]
+
+				# as opposed to simple #injectors call
+				
+				Example1().injectors.should eql [Example2()]
+
+			end
+
+			it 'allows the rest of the api on the entire list' do
+
+				Example1 do
+					
+					include injector :Example2 do
+						include injector :Example3					# triple compound injector
+					end
+					
+				end
+
+				Example1().injectors(:all).by_name.should == [:Example2, :Example3] 
+				Example1().injectors(:all).collect_by_name(:Example3).should all(be_an(Injector).and have_attributes(:name => :Example3))
+				Example1().injectors(:all).find_by_name(:Example2).should == Example2()
+
+			end
+		end
+
+
 		describe '#injectors at the class singleton level' do
 
-			the 'injectors applied at the class INSTANCE level show only on the class not the object instances' do
+			the 'injectors applied at the CLASS instance level, ie: using extend on the class, show up only on the CLASS instance not 
+			its object instances and this only after using the :all directive like above' do
 
-				injector :class_injector do
+				injector :class_Instance_injector do
 					def new *args
 						puts "--done--"
 						super(*args)
@@ -137,25 +218,28 @@ describe "the introspection api in further detail" do
 					# ...
 				end
 
-				InjectorUser.extend class_injector
+				# extend the class singleton
+
+				InjectorUser.extend class_Instance_injector					
+
+				# run tests
+
+				InjectorUser.injectors.size.should == 0		# not using the :all directive
+
+				InjectorUser.injectors(:all).size.should == 1
+				InjectorUser.injectors(:all).should all(be_an(Injector).and have_attributes(:name => :class_Instance_injector))
+
+				# on the class instance
 
 				$stdout.should_receive(:puts).with("--done--")
+				
 				iu = InjectorUser.new
-
-				InjectorUser.injectors.size.should == 1
-				InjectorUser.injectors.should all(be_an(Injector).and have_attributes(:name => :class_injector))
-
-				if iu.respond_to? :injectors								# done to run this file independent of the others
-					iu.injectors.should be_empty
-				else
-					expect{
-						iu.injectors
-					}.to raise_error(NoMethodError)
-				end
+				expect(iu.injectors).to be_empty
+				expect(iu.injectors(:all)).to be_empty
 
 			end
 
-			the 'injector list for classes lists CLASS instance injectors first then OBJECT instance injectors' do
+			the ':all injector list for classes lists CLASS instance injectors first and then OBJECT instance injectors' do
 
 				injector :two
 				injector :one
@@ -165,108 +249,36 @@ describe "the introspection api in further detail" do
 
 				# result
 
-				Array.injectors.sym_list.should == [:one, :two]
-
+				Array.injectors(:all).sym_list.should == [:one, :two]
+				
+				Array.new.injectors.sym_list.should == [:two] 	# :one is member of Array.singleton_class 
+																												# and does not become part of Array.instances
 			end
 
 		end
-
-		describe "#injectors(:all) call" do
-
-			injector :Example1
-			injector :Example2
-
-			it 'returns all the injectors in the ancestor chain of an object' do
-
-				Object.eject *Object.injectors rescue []  # clear all injectors from other tests
-
-				Object.inject Example1()
-				Hash.inject Example2()
-
-				Hash.new.injectors(:all).should all(be_an(Injector))
-				Hash.new.injectors(:all).map(&:spec).should eql [Example2(), Example1()]
-
-				# as opposed to simple #injectors call
-				Hash.new.injectors.map(&:spec).should eql [Example2()]
-
-			end
-
-			it 'returns all the injectors in the ancestors chain of a class' do
-
-				# Object.eject *Object.injectors          	# clear all injectors from other tests
-
-				class Aclass
-					inject Example2()
-				end
-
-				Aclass.injectors(:all).should all(be_an(Injector))
-				Aclass.injectors(:all).map(&:spec).should eql [Example2(), Example1()]
-
-				# as opposed to simple #injectors call
-				Aclass.new.injectors.map(&:spec).should eql [Example2()]
-
-			end
-
-			it 'returns all the injectors in the ancestors chain of a module' do
-
-				module Amodule
-					inject Example2() do
-						include injector :Gone
-					end
-				end
-
-				Amodule.injectors(:all).should all(be_an(Injector))
-				Amodule.injectors(:all).map(&:spec).should eql [Example2(), Gone()]
-
-				# as opposed to simple #injectors call
-				Amodule.injectors.map(&:spec).should eql [Example2()]
-
-			end
-
-			it 'returns all the injectors in the ancestors chain of a Injector' do
-
-				injector :Example1 do
-					include injector :Example2 do
-						include injector :Gone
-					end
-				end
-
-				Example1().injectors(:all).should all(be_an(Injector)) 
-				Example1().injectors(:all).map(&:spec).should eql [Example1(), Example2(), Gone()]
-
-				# as opposed to simple #injectors call
-				Example1().injectors.map(&:spec).should eql [Example2()]
-
-			end
-
-			it 'allows the rest of the api on the entire list' do
-
-				Example1().injectors(:all).by_name.should == [:Example1, :Example2, :Gone] 
-				Example1().injectors(:all).collect_by_name(:Gone).should all(be_an(Injector).and have_attributes(:name => :Gone))
-				Example1().injectors(:all).find_by_name(:Example2).name.should == :Example2
-
-			end
-		end
-
 	end
+
 
 	describe :history do
 
-		jack :Histample                  
+		
+		jack :Histample
+		             
 
 		it 'does not show original jack' do 
 			expect(Histample().history.first).to eq(nil)
 		end 
 		
-		it "shows additional jacks after extended/included" do
+		it "shows additional jacks once hosted, i.e.: after extend/include" do
 			
-			extend(Histample(), Histample())
+			extend(Histample(), Histample())					# host two items
 			
-			injectors.should == Histample().history
+			injectors.should == Histample().history		# equal at this point
 
 			expect(Histample().history.size).to eq(2)
-			expect(Histample().history.last).to eql(Histample())
-			expect(Histample().history.last).to_not eq(Histample().spec)
+			expect(Histample().history.last).to eql(injectors.last)
+			expect(Histample().history.first).to eq(injectors.first)
+			expect(injectors.size).to eq(2)
 			
 			eject *injectors
 			
@@ -280,13 +292,6 @@ describe "the introspection api in further detail" do
 
 			expect(Histample().history.slice(0)).to be_instance_of(Injector)
 			expect(Histample().history.slice(1)).to be_instance_of(Injector) 
-			expect(Histample().history.slice(0)).to eq(Histample())
-			expect(Histample().history.slice(1)).to eq(Histample()) 
-			
-			# values are different than spec
-			
-			expect(Histample().history.slice(0)).not_to eq(Histample().spec)
-			expect(Histample().history.slice(1)).not_to eq(Histample().spec) 
 			
 			eject Histample(), Histample()
 			
@@ -296,37 +301,33 @@ describe "the introspection api in further detail" do
 			
 			extend(Histample(), Histample())
 			
+			injectors.should == Histample().history
+
 			expect(Histample().history.size).to eq(2)
-			expect(Histample().history.last).to eql(Histample())
-			expect(Histample().history.last).to_not eq(Histample().spec)
+			expect(injectors.size).to eq(2)
 			
 			eject *injectors
 			
 			expect(injectors).to be_empty  							# target injectors
-			
-			expect(Histample().history.size).to eq(0)    # Injector history
-			expect(Histample().history.first).to eq(nil)
-			expect(Histample().history.last).to eq(nil)
+			expect(Histample().history).to be_empty			# Injector history
 			
 		end
 		
-		it 'swallows un-hosted elements other than original' do
+		it 'swallows un-hosted elements other than original one' do
 			
 			Histample() #un-hosted Histample 
 			Histample() #un-hosted Histample
 			
-			expect(Histample().history.first).to eq(nil)
 			expect(Histample().history.size).to eq(0)
-			expect(Histample().history.last).to eq(nil)
 			
 		end
 		
-		it 'shows additional items upon inspection' do
+		it 'shows hosted items upon inspection' do
 
 			extend Histample()
 			
+			expect(Histample().history.inspect).to match(/\[\(\|Histample\|.+\)\]/)
 			expect(Histample().history.size).to eq(1)
-			expect(Histample().history.inspect).to match(/\[\(.+\|Histample\|\)\]/)
 			
 			eject Histample()
 			
@@ -337,26 +338,46 @@ describe "the introspection api in further detail" do
 			it 'points to the previous injector in the history' do
 
 				extend Histample(), Histample()
-
+				
+				# Given that
 				injectors.should == Histample().history
 				
+				# Then 
 				expect(Histample().history.last.precedent).to equal(Histample().history.first)
 				expect(Histample().history.last.pre).to equal(injectors.first)
 				expect(injectors.last.precedent).to equal(Histample().history.first)
 				expect(injectors.last.pre).to equal(injectors.first)
+				
+				eject *injectors
+				
+			end
+			
+			it 'has spec as the first precedent' do
+				
+				extend Histample(), Histample()
+				
+				injectors.should == Histample().history
+				
 				expect(Histample().history.first.precedent).to equal(Histample().spec)
 				expect(injectors.first.precedent).to equal(Histample().spec)
-				expect(Histample().spec.pre).to eq(nil) 
 				
 				eject *injectors
 
 			end
+			
+			# but then... aka: its a circular list
 
-			it 'has <nil> as the precedent to spec' do
-        
-				expect(Histample().precedent).to equal(Histample().spec)
-				expect(Histample().spec.pre).to eq(nil) 
-				expect(Histample().pre.pre).to eq(nil)
+			it 'has the latest version as the precedent to spec' do
+				
+				extend Histample(), Histample()
+				
+				injectors.should == Histample().history
+				
+				expect(Histample().history.first.precedent).to equal(Histample().spec)
+				expect(Histample().precedent.pre.pre).to equal(Histample().spec)
+				expect(Histample().spec.pre).to eq(Histample().history.last) 
+				
+				eject *injectors
 				
 			end
 			
@@ -377,65 +398,80 @@ describe "the introspection api in further detail" do
 			expect(Progample().history).to be_empty
 			expect(Progample().progenitor).to equal(Progample().spec)
 
+			# apply the injector
+			
 			extend Progample(), Progample()       
 			
 			expect(Progample().history.size).to eq(2)
+			
+			
+			# both generated form spec
+			
 			expect(Progample().history.first.progenitor).to equal(Progample().spec)
 			expect(Progample().history.last.progenitor).to equal(Progample().spec)
 
-			suppress_warnings do
+
+			# create a tag
+			
+			suppress_warnings do # used because of rspec
 				ProgenitorsTag = Progample()
 			end
 
 			expect(Progample().history.size).to eq(3)
+			
 			expect(Progample().history.first.progenitor).to equal(Progample().spec)
-			expect(Progample().history.slice(1).progenitor).to equal(Progample().spec)
+			expect(Progample().history.last).to equal(ProgenitorsTag)
 			expect(Progample().history.last.progenitor).to equal(Progample().spec)
+			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)
 
+
+			# apply the tag
+			
 			extend ProgenitorsTag
 
 			expect(Progample().history.size).to eq(4)
-			expect(Progample().history.last).to equal(injectors.last)
+			expect(Progample().history.last).to equal(injectors.first)
 			 
 			expect(Progample().history.last.progenitor).to equal(ProgenitorsTag) 
-			expect(Progample().history.last.progenitor).to equal(Progample().history.slice(2)) 
-			expect(Progample().history.slice(2).progenitor).to equal(Progample().spec)
-			expect(Progample().history.slice(1).progenitor).to equal(Progample().spec)
 			expect(Progample().history.first.progenitor).to equal(Progample().spec)
-			expect(Progample().spec.progenitor).to equal(nil)
-			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)
-			expect(ProgenitorsTag.progenitor.progenitor).to equal(nil)
 
-			# eject *injectors
+		end
+		
+		it 'points the last progenitor to nil' do
+			
+			expect(Progample().spec.progenitor).to equal(nil)
 
 		end
 
-		it 'should still pass' do
+		it 'works the same with soft tags' do
 
 			suppress_warnings do
 				ProgenitorsTag = Progample()
 			end
 
 			expect(Progample().history.size).to eq(1)
-			expect(Progample().history.slice(0)).to equal(ProgenitorsTag)
 
-			Progample(:tag) { 'some code'}       			# soft tag
+
+			# soft tag
+			# debugger
+			Progample(:tag) { 'some code'}       			
 
 			expect(Progample().history.size).to eq(2)
-			expect(Progample().history.first).to equal(ProgenitorsTag)
-			expect(Progample().history.last).to eq(Progample())
+
+			# progenitors are the same
+			
 			expect(Progample().history.first.progenitor).to eq(Progample().spec)
 			expect(Progample().history.last.progenitor).to eq(Progample().spec)
 			expect(Progample().history.first.progenitor.progenitor).to eq(nil)
 			expect(Progample().history.last.progenitor.progenitor).to eq(nil)
-			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)
-			expect(ProgenitorsTag.progenitor.progenitor).to equal(nil)
 
+			# tags call
+			
 			expect(Progample().tags.size).to eq(2)
 
 		end
 
-		it 'should pass' do
+		it 'carries on the metaphor with injectors are shared from other objects' do
       
 			suppress_warnings do
 				ProgenitorsTag = Progample()
@@ -446,20 +482,13 @@ describe "the introspection api in further detail" do
 			end
 			
 			class ProgenitorTester2
-				include *ProgenitorTester1.injectors
+				include *ProgenitorTester1.injectors   # copying injectors from second class
 			end
 			
 			expect(ProgenitorTester2.injectors.first.progenitor).to equal(ProgenitorTester1.injectors.first)
 			expect(ProgenitorTester1.injectors.first.progenitor).to equal(ProgenitorsTag)
 			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)  
 			
-			with ProgenitorTester1 do
-				eject *injectors
-			end
-			
-			expect(ProgenitorTester2.injectors.first.progenitor).to equal(ProgenitorsTag)
-			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)  
-
 		end
 		
 	end 
@@ -511,101 +540,197 @@ describe "the introspection api in further detail" do
 		end
 			 
 		# For now this is how equality is defined
-		describe 'equality' do
+		describe 'equality and inequality' do
 			
 			it 'allows comparison between injectors' do
 				
+				# equality
+				##################################
 				E().should == E()
-				E().should_not == E().spec
+				E().should == E().spec
 				
 				E(:tag).should == E()
-				ETag1 = E()
-				ETag1.should == E()
-				
+				if ETag1 = E()
+					ETag1.should == E()
+				end
 				extend E()
 				injectors.first.should == E()
 				
+				
+				# ** definition **
 				E() do
-					def foo                   # ** definition **
+					def foo                   
 					end
 				end     
-				
+				# ** definition **
+
+
+				# inequality
+				##################################
 				E().should == E()
 				ETag1.should_not == E()
 				injectors.first.should_not == E()
-				E(:tag).should == E()
 				
+				E(:tag).should == E()
 				E().should_not == F()
 				
 			end
 			
 		end
 		
-		describe 'difference', :diff do
+		describe :diff do
 		
 			it 'shows the difference between injectors' do
-			  
-				E().diff.should_not be_empty
-				# because
-				E().should_not == E().spec      # like above        
-		
-		
+
+				E().diff.class.should be(Array)
+
+				# equality in the converse expression
 				##################################
-				E().diff.should_not be_loaded
-				# because
-				E().diff.join.should be_empty
-				E().diff.delta.should_not be_empty
-		
-		
-				##################################
+				# debugger
 				E().diff(E()).should be_empty  	
+
 				# because
 				E().should == E()               # like above
 				
+				
+			  # unless changed E should be == E().pre or E().spec
+				##################################
+				E().diff.should be_empty
+
+				# because
+				E().diff.should == E().diff(E().pre)        
+				E().pre.should equal( E().spec )
+				# and
+				E().should == E().spec      # like above
+		
+		
+				# unless there is a delta it cannot be loaded?
+				##################################
+				E().diff.should_not be_loaded
+
+				# because
+				E().diff.delta.should be_empty
+		
+
+				# tags are the same
+				##################################
 				ETag2 = E()
 				
-		
-				##################################
 				E().diff(ETag2).should be_empty
 				ETag2.diff(E()).should be_empty
+
 				# because 
-				ETag2.should == E() 						# like above
+				ETag2.should == E() 						
+				E().should == ETag2 						# like above
 				
+			end
+				
+			it 'differs once a definition is present' do
+				
+				# a tag to compare
+				##################################
+				ETag3 = E()
+
+
+				# ** definition **
 				E do
-					def foo 									# ** definition **
+					def foo 									
 					end
 				end
-				
-		
-				######################################
-				E().diff(ETag2).should_not be_empty
+				# ** definition **
+
+
+				# E is changed so...
+				####################################
+				E().diff(ETag3).should_not be_empty
+
 				# because
-			  ETag2.should_not == E()        # like above
-				
-				E().diff(ETag2).delta.should == [:foo]
-				E().diff(ETag2).should be_loaded
-				# because
-				E().diff(ETag2).join.should == [:method_missing]
+			  ETag3.should_not == E() 
 				# and
-				E().diff(ETag2).delta.should == [:foo]
+				E().diff(ETag3).delta.should == [:foo]
+				
+				
+				# Still not loaded
+				##################################
+				E().diff(ETag3).should_not be_loaded
+
+				# because
+				E().diff(ETag3).join.should == []
+				# even though
+				E().diff(ETag3).delta.should == [:foo]
 		             
-		
+
+				# conversely
 				######################################
-				E().diff.should be_loaded
-				# because 
 				E().diff.join.should == [:foo]
-				E().diff.delta.should == [:method_missing]
-				# because
-				E().diff.should all( eql(E()) )		# eql? does not take method differences
-				# and 
-				E().diff.map(&:instance_methods).should == [[:foo], [:method_missing]]  
-				# because
-				E().instance_methods.should == [:foo, :method_missing]
-				E().progenitor.instance_methods.should == [:foo]
+				# and
+				E().diff.delta.should == []
+
+				# because 
+				E().diff.should_not be_loaded
+				# and
+				E().diff.should == [[:foo], []] 
+				 
 				# being that
+				E().diff.should eq( E().diff(E().progenitor) )
 				E().progenitor.should equal(E().spec)
 				
 			end
+			
+			it 'works with more methods' do
+			
+				# a tag to compare
+				##################################
+				ETag4 = E()
+
+
+				# ** definition **
+				E do
+					def foo 									
+					end
+					def bar
+					end
+				end
+				# ** definition **
+
+
+				#
+				##################################
+				E().diff(ETag4).join.should == []
+				E().diff(ETag4).delta.should == [:foo, :bar]
+				E().diff.join.should == [:foo, :bar]
+				E().diff.delta.should == []
+				
+				# being that
+				E().diff.should eq( E().diff( E().progenitor) )
+				E().progenitor.should equal( E().spec )
+				
+			end
+			
+			it 'creates injectors for inclusion' do
+				
+				# a tag to compare
+				##################################
+				ETag5 = E()
+
+
+				# ** definition **
+				E do
+					def foo 									
+					end
+					def bar
+					end
+				end
+				# ** definition **
+
+
+				E().diff.should be_empty
+				E().diff.join.should_not be_empty
+				E().diff.delta.should be_empty
+				E().diff.delta.injector.should_not eq(E().diff.join.injector)
+				
+			end
+			
 		end
 	
 	end

@@ -320,6 +320,7 @@ describe 'Injector versioning:', :injectors do
 	    ###################################
 
 	    o.basic(1).should == 2                      # basic.1 
+			# debugger
 	    o.compound.should == 11                     # compound.1 --local injector binding
 
 	    ###################################

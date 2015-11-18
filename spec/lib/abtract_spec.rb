@@ -39,16 +39,16 @@ describe Abstract do
 		
 		end #describe Abstract
 		it 'should not afect later descendants' do
-			class First
+			class Top
 				extend Abstract
 			end
-			expect{First.new}.to raise_error(NoMethodError)
-			class Second < First
+			expect{Top.new}.to raise_error(NoMethodError)
+			class Middle < Top
 			end
-			expect{Second.new}.to_not raise_error
-			class Third < Second
+			expect{Middle.new}.to_not raise_error
+			class Bottom < Middle
 			end
-			expect{Third.new}.to_not raise_error
+			expect{Bottom.new}.to_not raise_error
 		end
 	
 	end

@@ -16,19 +16,23 @@ Copyright © 2014, 2015 LHA. All rights reserved.
 <a href="http://jackbox.us"><h1>Jackbox</h1></a>
 
 ---
-<h2 style="font-family:Papyrus">Modular Closures, Code Injectors, Re-Classings, and other programmer morphins</h2>
----
-The defining idea behind Jackbox is: If Ruby is like Play-Doh, with Jackbox we turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The main library function at this time centers around the concept of code injectors, the idea of re-classings, and the helper functions that bring them together to provide some new and interesting capabilities.  
+<h2 style="font-family:Impact">Ruby Modular Closures, Code Injectors, Re-Classes and other programmer morphins</h2>
 
-To make it easier to grasp, code injectors can perhaps be thought of as a form of **closures which can also serve as modules**.  These modular closures most of all propose some additional interesting properties to the idea of a mix-in.  For instance, they make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling **some new code patterns** of our own.  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They give your code the ability to capture its surrounding context and mix it into an indiscriminate target. They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. Finally, they introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below.  
+The defining thought behind Jackbox is a single and powerful one: If Ruby is like Play-Doh, with Jackbox we want to turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The library functions at this time take this idea and materialize it around the concepts of code injectors, re-classes, the application of versioning to runtimes, and a just-in-time inheritance model that together with the helper functions that bring them together, provide some new and interesting capabilities.  
 
-Re-classings on the other hand present an alternative way to refine a class.  They provide similar benefits to refinements with a different underpinning. Together with Jackbox helper functions and injectors, re-classings can be be refined multiple times.  Capabilities can be added and removed in blocks.  Moreover, these re-classings acquire introspecting abilities.  A re-class can be tested for existence, can tell you what injectors it uses, and finally can be overridden with a more relevant one.  
+To make it easier to grasp, code injectors can perhaps be thought of as a form of **Modular Closures©** or of **closures which can also serve as modules**.  These modular closures most of all propose some additional properties to the idea of a mix-in.  For instance, they make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling **some new code patterns** of our own.  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They give your code the ability to capture its surrounding context and mix it into an indiscriminate target. They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. 
 
-Our guiding principle through out it all has been keeping new constructs to a minimum.  We do not aspire to be one of those libraries that add as many methods as one can possibly think of, but which in reality never get used because nobody has the time to read them all.  We take an outer minimalistic approach that in reality takes a lot more behind the scenes to make things work.  Simplicity takes a lot of work.
+Re-classes on the other hand present an alternative way to refine a class.  They provide similar benefits to refinements with a different underpinning. Together with Jackbox code injectors and helper functions, re-classes can be refined multiple times.  Capabilities can be added and removed in blocks.  Moreover, these re-classes acquire introspecting abilities.  A re-class can be tested for existence, can tell you what injectors it uses, and finally can be overridden with a more relevant one. 
+
+Following on this we introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below. Runtimes can morph their capabilities as they learn about themselves, and they can do so in blocks as granular or as coarse as needed.  These blocks can be updated, ejected, silenced, or re-injected with more function. This versioning also provides a form of inheritance.  We have called this Versioned Inheritance and it allows newer versions to inherit from previous ones, be tagged and labeled, and this way be capable of reuse.  All this is further enhanced by the ability to resolve methods in more ways than regular Ruby modules can through the use of the VMC (Virtual Method Cache). See below.
+
+Finally, we also present for the first time in our history the concept of Just-In-Time Inheritance.  This is a feature which allows the introduction of an ancestor hierarchy similar to what you find in Ruby classes just as it is needed by your code.  With it you can override previous members of a tag and expect to have access to its super members as part of the call, just like you would with classes.  But, this inheritance is all going on in the mix-in, the modular closure.  Families of injectors can be built with the use of this and the previous versioned inheritance, and can be readily applicable to any target.
+
+We have chosen to keep the code obfuscated for now, to protect our intellectual property.  But, as our business model evolves we will be considering open sourcing it.  Our guiding principle through out it all has been keeping new constructs to a minimum.  We take an outer minimalistic approach that in reality takes a lot more behind the scenes to make things work.  Simplicity takes a lot.  We hope that all this work is to your liking.  
 
 Basic Methods
 --------------------------
-There are some basic methods to Jackbox.  These are just rudimentary helpers, which in effect are a form of syntax sugar for every day things.  But, behind their apparent sugar coating lie some powerful capabilities as shown the deeper you delve into Jackbox.  For more on them read the following sections, but their preliminary descriptions follow here:
+There are some basic methods to Jackbox.  These are just rudimentary helpers, which in effect appear to be a form of syntax sugar for every day things.  But, behind their apparent sugar coating lie some additional capabilities as shown the deeper you delve into Jackbox.  For more on them read the following sections, but their preliminary descriptions follow here:
 
 #### #decorate :sym, &blk 
 This method allows for decorations to be placed on a single method, be it an instance or class method without too much fuss. One important thing about #decorate is that it works like #define_method, but in addition, it also makes possible the use of Ruby's #super within the body of the decorator.  It really presents a better alternative and can be used instead of #alias\_method\_chain.
@@ -66,7 +70,7 @@ It also works like so:
 
 
 #### #with obj, &blk 
-There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it or the result of the last evaluation in the #with block.
+There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it, or the result of the last evaluation in the #with block.
 
 Here is some sample usage code:
 
@@ -128,7 +132,7 @@ Use it with **#decorate** on singleton classes like this:
 
     
 #### #lets sym=nil, &blk 
-We could say, this is simple syntax sugar.  It adds readability to some constructs.  It allows the creation of local or global procs using a more function-like syntax. But #lets, also opens the door to a new coding pattern termed Re-Classing.  See below.  The important thing about #lets is that it always defines some lambda/proc/method.  It's use differs from that of #define_method in spirit, #lets is mostly for one liners. Here are some examples:
+We could say, this is simple syntax sugar.  It adds readability to some constructs.  It allows the creation of local or global procs using a more friendly syntax. But #lets, also opens the door to a new coding pattern termed Re-Classes.  See below.  The important thing about #lets is that it always defines some lambda/proc/method.  It's use differs from that of #define_method in spirit, aside it use with respect to re-classes, #lets is mostly for one liners.  Here are some examples:
 
 To define local functions/lambdas. Define symbols in local scope:
 
@@ -155,7 +159,7 @@ Can be used to define a special values or pseudo-immutable strings:
 
 Injectors
 ----------
-Injectors are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that has properties of both a closure and a module.  They can also be thought of as an **extended closure** if you will or as a special kind of module if you want.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors, as well as elaborate on some of the other properties of injectors. But, it is essential to understand there are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: 
+Injectors are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that has properties of both a closure and a module.  They can also be thought of as an **extended closure** if you will or as a special kind of mix-in if you want.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Injectors, as well as elaborate on some of the other properties of injectors. But, it is essential to understand there are some syntactical differences to Injectors with respect to regular modules.  We will show them first, with some examples: 
 
 **INJECTORS ARE DECLARED IN THE FOLLOWING WAYS:**
 
@@ -171,7 +175,7 @@ Injectors are the main tool in Jackbox at the time of this writing. These again 
     facet :Name                                    # capitalized method, using alias #facet 
 
 
-Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, their behavior under inheritance, and perhaps injector directives. 
+Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, their behavior under inheritance, and also injector directives. 
 
     # somewhere in your code
     include Injectors
@@ -220,9 +224,11 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
       end
 
     end
+    
+These prolongations become versions when they are applied or when they are tagged.  See Tagging.
 
 #### #injector :sym
-This is a global function.  It defines an object of type Injector with the name of symbol.  Use it when you want to generate an Injector object for later use.  The symbol can then be used as a handle to the injector whenever you need to prolong the injector by adding methods to it or apply it to another object. Additionally, this symbol plays a role in defining the injector's scope.  Injectors with capitalized names like :Function, :Style, etc have a global scope.  That is they are available throughout the program:
+This is a global function.  It defines an object of type Injector with the name of symbol.  Use it when you want to generate an Injector object for later use.  The symbol can then be used as a handle to the injector whenever you need to prolong the injector by adding methods to it or apply it to another object to create a version. Additionally, this symbol plays a role in defining the injector's scope.  Injectors with capitalized names like :Function, :Style, etc have a global scope.  That is they are available throughout the program:
 
     class A
       injector :Function
@@ -248,9 +254,9 @@ On the other hand Injectors with a lower case name are only available __from__ t
       include AA.form
     end
 
-    # This is perfectly valid with injectors  
+    # This is also perfectly valid with injectors  
 
-For all this to happen Jackbox also introduces some additional Ruby constructs, namely the keywords #inject and #enrich.  These can be thought as simply new corollaries to #include and #extend. In fact they can be used interchangeably.  If you're working with injectors you may want to use them instead depending on context to make clear your intent.
+For all this to happen Jackbox also introduces some additional Ruby constructs, namely the keywords #inject and #enrich.  These can be thought as simply new corollaries to #include and #extend. In fact they can be used interchangeably.  If you're working with injectors you may want to use them instead depending on context to make clear your intent.  Also inject is public while include is not.
 
 #### #include/inject *jack
 This method is analogous to ruby's #include but its use is reserved for Injectors.  The scope of this method is the same as the scope of #include, and its intended use like include's is for class definitions. Use it to "include" an Injector into a receiving class.  Takes multiple injectors.
@@ -388,7 +394,7 @@ The use of Tags is central to the concept of Injector Versioning.  Tagging happe
       end
     end
 
-Version1 and Version2 are two different hard versions/tags/names of the same Injector.  There are also soft tags (see below).  
+Version1 and Version2 are two different hard versions/tags of the same Injector.  They introduce a more formal incantation of injector versioning and also pave the way for Versioned Inheritance as described in the introduction.  More on this below.  Aside from these hard tags, there are also soft tags (see below).  
 
 ### Local Binding
 
@@ -434,15 +440,15 @@ Before we move on, we also want to give some further treatment to injector local
     ####################################################
     
     
-### Method Virtual Cache
+### Virtual Method Cache (VMC)
 
-When you are working with an Injector in irb/pry it is often easier to just add methods to the injector without actually having to re-apply the injector to the the target to see the result.  This is just what the Jackbox method virtual cache is for among other things.  Here is what the code looks like:
+When you are working with an Injector in irb/pry it is often easier to just add methods to the injector without actually having to re-apply the injector to the the target to see the result.  This is just what the Jackbox Virtual Method Cache is for among other things.  Here is what the code looks like:
 
-    # Facet definition
+    # definition
     facet :SpecialMethods
     
     class MyClass
-      include SpecialMethods
+      include SpecialMethods                      # application with no methods
     end
     
     obj = MyClass.new
@@ -455,7 +461,31 @@ When you are working with an Injector in irb/pry it is often easier to just add 
     
     expect(obj.spm1).to eq(:result)               # yet my obj can use it --no problem
     
-The key idea here is that the method virtual cache is the same for all versions of the Injector and all its applications.  If we redefine those methods they also get redefined for all versions.  To actually lock the method versions you must apply the Injector.
+The key idea here is that the virtual method cache is the same for all versions of the Injector and all its applications.  If we redefine those VMC methods they are also redefined for all versions.  To actually lock the method versions into place you must apply the Injector with the methods defined in it that you want the version to have.  The VMC also provides extended method resolution to the modular closure mix-in.  To understand what we mean by that take a look at following code:
+
+    class Client
+      include jack :J1
+    end
+    J1 do
+    	def n1m1
+    	end
+      include facet :K1
+    end
+    K1 do
+    	def n2m1
+    	end
+      include facet :L1
+    end
+    L1 do
+      def n3m1
+      end
+    end
+
+    Client.new.n1m1
+    Client.new.n2m1
+    Client.new.n3m1
+    
+Think of how this would be different with regular modules.  For this to happen using regular Ruby modules K1 and L1 should have to be defined and included prior to their inclusion into our client.  And no it is not just a matter of moving the include to the beginning of each container.
 
 #### #define\_method sym, &blk
 There is one more interesting property to method definition on Injectors however. The use of #define\_method to re-define methods in any prolongation updates the entire injector and all its versions.  This also preserves a fundamental tenet of injectors: take some local context, enclose it, and use the injector to introduce it to some indiscriminate target, and additionally has some other uses as we'll see with in our description of patterns and injector composition.  
@@ -639,6 +669,79 @@ The #pro method is a little different.  It gets the version from which a particu
 
 For more on this see the rspec files.     
 
+### Injector Equality and Difference 
+
+Injectors can be compared.  This allows further introspection capabilities which can be used to determine if a certain piece of code possesses a certain block of capabilities, test if those are equal to some other component's capabilities, or test what the difference is.  It only follows that if injectors can be applied and withdrawn from any target we should be able to test for their similarities to other injectors.  Injector difference tests for the actual delta between injectors and returns and array with those differences.  Here is how equality is defined:
+
+    # equality
+    ######################################
+    E().should == E()
+    E().should == E().spec
+
+    E(:tag).should == E()
+    if ETag1 = E()
+    	ETag1.should == E()
+    end
+    extend E()
+    injectors.first.should == E()
+
+
+    # ** definition **
+    E() do
+    	def foo                   
+    	end
+    end     
+    # ** definition **
+
+
+    # inequality
+    ######################################
+    E().should == E()
+    ETag1.should_not == E()
+    injectors.first.should_not == E()
+
+    E(:tag).should == E()
+    E().should_not == F()
+
+
+Here is how difference is defined:
+
+    # Injector#diff returns an Array
+    ######################################
+    E().diff.class.should be(Array)
+
+
+    # equality in the converse expression
+    ######################################
+    E().diff(E()).should be_empty  	
+
+    # because
+    E().should == E()         # like above
+
+
+    # unless changed E()== E().pre or E().spec
+    ######################################
+    E().diff.should be_empty
+
+    # because
+    E().diff.should == E().diff(E().pre)        
+    E().pre.should equal( E().spec )
+    # and
+    E().should == E().spec    # like above
+
+
+    # unless there is a delta it cannot be loaded?
+    ######################################
+    E().diff.should_not be_loaded
+
+    # because
+    E().diff.delta.should be_empty
+
+    # ....
+    
+    
+Again, for more on this see the rspec files.
+
 ### Injector composition
 The composition of multiple injectors into an object can be specified as follows:
 
@@ -728,14 +831,14 @@ More importantly though is the following:
     	end                                     
     end                                       
 
-    TapePlayer = player do                        # version Tag
-    	def play                                      # inherirts :sound
+    TapePlayer = player do                        # TapePlayer Tag
+    	def play                                    # --inherirts #sound
     		return 'Tape playing...' + sound()                          
     	end                                     
     end                                       
 
-    CDPlayer = player do                          # another version Tag
-    	def play                                      # also inherits sound
+    CDPlayer = player do                          # CDPlayer Tag
+    	def play                                    # --also inherits #sound
     		return 'CD playing...' + sound()
     	end
     end
@@ -747,30 +850,84 @@ More importantly though is the following:
     		play
     	end
     end
-
-    class JukeBox < BoomBox                       # regular class inheritance
-    	inject CDPlayer
-    end
-
-    BoomBox.new.on.should == 'Tape playing...Lets make some music'
-    JukeBox.new.on.should == 'CD playing...Lets make some music'
     
-    jack :speakers
+    # ...
 
-    Bass = speakers do                            # adding composition   
-    	def sound                               
-    		super + '...boom boom boom...'        
-    	end                                     
-    end                                       
-    JukeBox.inject Bass
-
-    JukeBox.new.on.should == 'CD playing...Lets make some music...boom boom boom...'
     
 From all this, the important thing to take is that injectors provide a sort of versioned inheritance.  The version inherits all of the pre-existing methods from the injector and freezes that function.  We can either Tag/Name it of simply include/extend into a target but the function is frozen at that time.  Tags cannot be modified or more clearly shouldn't be modified.  Classes retain the frozen version of the injector until the time an update is made.  Of course, there is always #define\_method.   For more on all this see, the Rspec examples.
 
+### JIT inheritance
+
+This flavor of the inheritance model allows our modular closures to have similar properties to the inheritance of classes.  With it you can expect to have access to its super members as part of the call, just like you would with classes. In addition to the inheritance resulting from versioning, JIT inheritance presents a more complete scenario adding color to the picture painted by code injectors.  The key takeaway here is this: Code Injectors are mix-ins that share a similar inheritance model with classes. You can version them to gain access to versioned inheritance or you can override its members to access an ancestor chain comprised of all previous tags.  As always we will use some example code to illustrate:
+
+    # 
+    # Our Modular Closure
+    # 
+    Tag1 = jack :Tagger do
+    	def m1
+    		1
+    	end
+	
+    	def m2
+    		:m2
+    	end
+    end
+
+    # 
+    # Normal Versioned Injector inheritance
+    # 
+    Tagger do
+    	def other  					
+    		'other'						# -- same ancestors as before
+    	end 								
+    end
+
+    expect(Tagger().ancestors).to eql( [Tagger()] )
+
+    # test it
+
+    o  = Object.new.extend(Tagger())
+
+    # inherited
+    o.m1.should == 1
+    o.m2.should == :m2
+
+    # current
+    o.other.should == 'other'
+
+
+    #
+    # JIT inheritance
+    # 
+    Tag2 = Tagger do
+    	def m1							# The :m1 override invokes JIT inheritance
+    		super + 1					# -- Tag1 is summoned into ancestor chain
+    	end 								# -- allows the use of super
+	
+    	def m3							
+    		'em3'
+    	end
+    end
+
+    # test it
+
+    p = Object.new.extend(Tag2)
+
+    # JIT inherited
+    p.m1.should == 2
+
+    # regular inheritance
+    p.m2.should == :m2
+    p.m3.should == 'em3'
+    p.other.should == 'other'
+
+    expect(Tagger().ancestors).to eql( [Tagger(), Tag1] )
+    expect(Tag2.ancestors).to eql( [Tag2, Tag1] )
+
+For more on this please see the rspec files in the project page or on the gem itself.
 
 ---
-But, this is the basic idea here.  An extended closure which can be used as a mix-in, prolonged to add function, and versioned and renamed to fit the purpose at hand. Using this approach Jackbox also goes on to solve the Decorator Pattern problem in the Ruby language.  
+But, this is the basic idea here.  An extended closure which can be used as a mix-in, prolonged to add function, and versioned, tagged, and inherited to fit the purpose at hand. Using this approach Jackbox also goes on to solve the Decorator Pattern problem in the Ruby language.  
 
 ---
 
@@ -873,71 +1030,10 @@ Here it is removed after an #inject at the class level:
     expect{Home.new.fractal}.to raise_error
 
 	
-The code for these examples makes use of the #eject method which is also opens the door to some additional functionality provided by injectors.  See the Strategy Pattern just below this.  
+The code for these examples makes use of the #eject method which is also opens the door to some additional functionality provided by injectors.  See the Strategy Pattern just below this. It is important to keep in mind that ejection is "permanent" (not really, can always be re-injected) and that is more of its intent.  For temporary withdrawal of an injector you should use injector directives as shown below.
 
 #### #eject *sym
-This method ejects injector function from a single object or class.  It is in scope on any classes injected or enriched by an injector.  For other forms of injector withdrawal see the next sections as in addition to this method, there are other ways to control code presence in targets through the use of Injector Directives.  See below.  For more on this also see the rspec examples.
-
-### Injector Equality and Difference 
-
-Injectors can be compared.  This allows for further introspection capabilities which could be used to determine if a certain piece of code possesses a block of capabilities, test if those are equal to some other component's capabilities, or test what the difference is.  It only follows that if injectors can be applied and withdrawn from any target we should be able to test for their similarities to other injectors.  Here is how equality is defined:
-
-    # Equality
-    
-    E().should == E()
-    E().should_not == E().spec
-
-    E(:tag).should == E()
-    ETag1 = E()
-    ETag1.should == E()
-
-    extend E()
-    injectors.first.should == E()
-
-    E() do
-    	def foo                   # ** definition **
-    	end
-    end     
-
-    E().should == E()
-    ETag1.should_not == E()
-    injectors.first.should_not == E()
-    E(:tag).should == E()
-
-    E().should_not == F()
-    
-Here is how difference is defined:
-
-    # Difference
-
-    E().diff.should_not be_empty
-    # because
-    E().should_not == E().spec      # like above        
-
-
-    ##################################
-    E().diff.should_not be_loaded
-    # because
-    E().diff.join.should be_empty
-    E().diff.delta.should_not be_empty
-
-
-    ##################################
-    E().diff(E()).should be_empty  	
-    # because
-    E().should == E()               # like above
-
-    ETag2 = E()
-
-
-    ##################################
-    E().diff(ETag2).should be_empty
-    ETag2.diff(E()).should be_empty
-    # because 
-    ETag2.should == E() 						# like above
-
-
-Again, for more on this see the rspec files.
+This method ejects injector function from a single object or class.  It is in scope on any classes injected or enriched by an injector.  Its effect is that of completely removing one of our modular closures from the ancestor chain.  Once this is done method calls on the injector will came back with an error.  There are other ways to control code presence in targets through the use of Injector Directives.  See below.  For more on this also see the rspec examples.
 
 ### Injector Directives
 Once you have an injector handle you can also use it to issue directives to the injector.  These directives can have a profound effect on your code.
@@ -1140,6 +1236,8 @@ Just like hard tags above but a name is not needed:
         :foooooooo
       end
     end
+    
+Accessible through Injector#tags (an Array).  Also available **injector#tags.hard** and **injector#tags.soft**.
 
 ---
 ### Patterns of a Different Flavor
@@ -1233,62 +1331,59 @@ __3) The Transformer Pattern.-__  For a specific example of what can be accompli
 
 __4) The Re-Classing Pattern.-__  Our base method #lets has one more interesting use which allows for an alternative way to refine classes.  We have termed this Re-Classing.  Look at the following code:
 
-    # Injector declaration
-
-    SR1 = jack :StringRefinements do
-    	lets String do
-    		with singleton_class do
-    			alias _new new
-    			def new *args, &code
-    				super(*args, &code) + ' is a special string'
-    			end
-    		end
-    	end
-    end
-
-    class OurClass
-    	include SR1
-
-    	def foo_bar
-    		String('foo and bar')
-    	end
-    end
-
-    c = OurClass.new
-    c.foo_bar.class.should == String
-    c.foo_bar.should == 'foo and bar is a special string'
-
-		SR2 = StringRefinements do 										# New Version
+		module Work
 			lets String do
-				def to_s
-					super + '****'
+				def self.new(*args)
+					"+++#{super}+++"
 				end
 			end
 		end
-
-		# c is still the same
-
-		c.foo_bar.should == 'foo and bar is a special string'
-		c.foo_bar.class.should == String
-
-
-		class OurOtherClass
-			include SR2																# Apply new version
-			# to another class
-			def foo_bar
-				String('foo and bar')
+		
+		class WorkAholic
+			include Work
+			
+			def work_method
+				String('Men-At-Work')
 			end
 		end
+	
+		str = WorkAholic.new.work_method              # Our String re-class
+		str.should == '+++Men-At-Work+++'
 
-		d = OurOtherClass.new
-		d.foo_bar.should == 'foo and bar'
-		d.foo_bar.to_s.should == 'foo and bar****'
+		str = String.new('men-at-work')               # Regular String
+		str = 'men-at-work'
+		
+		str = String('Men-At-Work')										# Regular Kernel version
+		str = 'Men-At-Work'
+		
 
-The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a>.  
+The important thing to remember here is that #String() is a method now. We can redefine it, name-space it, test for its presence, etc.  We can also use it to redefine the re-class's methods.  
 
-#### reclass? cls
+    jack :Log do
+    	require 'logger'
 
-This helper verifies a certain class re-classing exists within the current namespace.  It returns a boolean.  Ex:
+    	def to_log arg
+    		(@log ||= Logger.new($stdout)).warn(arg)
+    	end
+    end
+
+    String() do
+    	inject Log()
+	
+    	def show
+    		to_log self
+    	end
+    end
+    
+    str = String('don't leave a trace')
+    str.show                                      # doh!!
+    
+
+For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a>.  
+
+#### #reclass?(klass)
+
+This helper verifies a certain re-class exists within the current namespace.  It returns a boolean.  Ex:
 
     module One
       if reclass? String
@@ -1298,7 +1393,7 @@ This helper verifies a certain class re-classing exists within the current names
 
 
 ---
-For more information and additional examples see the rspec examples on this project.  There you'll find a long list of nearly __200__ rspec examples and code showcasing some additional features of Jackbox Injectors along with some additional descriptions.
+For more information and additional examples see the rspec examples on this project.  There you'll find a long list of over __200__ rspec examples and code showcasing some additional features of Jackbox Injectors along with some additional descriptions.
 
 ---
 ## Additional Tools
@@ -1343,7 +1438,7 @@ With Prefs you can add persistent properties to a class.  These properties persi
     Jester.reset :value
     Jester.value.should == 10 
   
-There is also command line utility called **jackup** that simply allows users to bring their projects into a *"Jackbox level"*.  It inserts the right references and turns the targeted project into a bundler gem if it isn't already one also adding a couple of rake tasks.
+There is also command line utility called **jackup** that simply allows users to bring projects up to a *"Jackbox level"*.  It inserts the right references and turns the targeted project into a bundler gem if it isn't already one also adding a couple of rake tasks.
 
 ## Availability
 

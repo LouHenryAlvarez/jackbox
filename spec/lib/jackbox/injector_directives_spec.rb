@@ -264,3 +264,49 @@ to re-inject them into every object they modify' do
 	end
 
 end
+
+describe 'more interesting uses' do
+	
+	it 'allows the following' do
+		
+		facet :PreFunction do
+			def pre_function
+				puts '++++++++++'
+			end
+		end
+		
+		facet :PosFunction do
+			def pos_function
+				puts '=========='
+			end
+		end
+		
+		class Model
+			
+			inject PreFunction(:silence)
+			inject PosFunction(:silence) 
+			
+			def meth arg
+				pre_function
+				puts arg * arg
+				pos_function
+			end
+		end
+		
+		obj = Model.new
+		
+		$stdout.should_receive(:puts).with(4)
+		obj.meth( 2 )
+		
+		PreFunction(:active)
+		PosFunction(:active)
+
+		$stdout.should_receive(:puts).with('++++++++++')
+		$stdout.should_receive(:puts).with(4)
+		$stdout.should_receive(:puts).with('==========')
+		obj.meth( 2 )
+
+	end
+	
+	
+end
