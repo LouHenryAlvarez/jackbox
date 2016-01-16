@@ -102,7 +102,7 @@ describe 'some use cases', :injectors do
 			
 		end
 		
-		a 'bigger example using normal Injector inheritance' do
+		a 'bigger example using normal Injector inheritance on web rendering' do
 		             
 			# some data
 
@@ -268,7 +268,7 @@ describe 'some use cases', :injectors do
 				end)
 			end
 
-			expect(WidgetDecorator().ancestors).to eq([WidgetDecorator(), MainDecorator])
+			# expect(WidgetDecorator().ancestors).to eq([WidgetDecorator(), MainDecorator])
 
 			expect(                      
 				my_widget.render.split.join).to  eq(		# split.join used for comparison
@@ -285,45 +285,45 @@ describe 'some use cases', :injectors do
 			)
 
 			
-			# browser = 'mobile'
-			# @content = database_content
-			# 
-			# my_widget = case browser
-			# when match(/Safari|Firefox|IE/)
-			# 	# debugger
-			# 	MyWidgetClass.new(@content).enrich(WidgetDecorator() do
-			# 		
-			# 		def render
-			# 			dim '600px', '200px'
-			# 			@font ='helvetica'
-			# 
-			# 			super()
-			# 		end
-			# 	end)
-			# else
-			# 	MyWidgetClass.new(@content).enrich(WidgetDecorator() do
-			# 		def render
-			# 			dim '200px', '600px'
-			# 			@font ='arial'
-			# 
-			# 			super()
-			# 		end
-			# 	end)
-			# end
-			# expect(                      
-			# 
-			# 	my_widget.render.split.join).to  eq(		# split.join used for comparison
-			# 		%{  
-			# 			<style>
-			# 			#MyWidget {
-			# 				font: 14px, arial; 
-			# 				width:200px; 
-			# 				height:600px 
-			# 			}
-			# 			</style>
-			# 			<div id='MyWidget'>car truck airplane boat</div>
-			# 		}.split.join
-			# )
+			browser = 'mobile'
+			@content = database_content
+			
+			my_widget = case browser
+			when match(/Safari|Firefox|IE/)
+				# debugger
+				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+					
+					def render
+						dim '600px', '200px'
+						@font ='helvetica'
+			
+						super()
+					end
+				end)
+			else
+				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+					def render
+						dim '200px', '600px'
+						@font ='arial'
+			
+						super()
+					end
+				end)
+			end
+			expect(                      
+			
+				my_widget.render.split.join).to  eq(		# split.join used for comparison
+					%{  
+						<style>
+						#MyWidget {
+							font: 14px, arial; 
+							width:200px; 
+							height:600px 
+						}
+						</style>
+						<div id='MyWidget'>car truck airplane boat</div>
+					}.split.join
+			)
 			
 			WidgetDecorator(:implode)
 			 
@@ -436,107 +436,209 @@ describe 'some use cases', :injectors do
 
 	describe "further Jackbox Injector workflows" do
 		
-		it "allows adding decorators with function to be defined at later statge" do
+		describe 'Delayed Decorator pattern'do
+			it "allows adding decorators with function to be defined at later statge" do
 			
-			class Widget
-				def cost
-					1
+				class Widget
+					def cost
+						1
+					end
 				end
-			end
-			w = Widget.new
+				w = Widget.new
 			
-			injector :decorator
-			w.enrich decorator, decorator, decorator, decorator
+				injector :decorator
+				w.enrich decorator, decorator, decorator, decorator
 			
-			# user input
-			bid = 3.5 
+				# user input
+				bid = 3.5 
 
-			# define function
-			decorator do
-				# Global define
-				define_method :cost do
-					super() + bid
+				# define function
+				decorator do
+					# Global define
+					define_method :cost do
+						super() + bid
+					end
 				end
+			
+				w.cost.should == 15
+			
 			end
-			
-			w.cost.should == 15
-			
 		end
 		
- 		it "allows for the following workflow using super" do
+		describe 'Super pattern (no its not a superlative pattern)' do
+	 		it "allows self-terminating recursion workflow using super" do
 
-			jack :Superb
+				jack :Superb
 
-			Superb do
-				def process string, additives, index
-					str = string.gsub('o', additives.slice!(index))
-					super(string, additives, index) + str rescue str
+				Superb do
+					def process string, additives, index
+						str = string.gsub('o', additives.slice!(index))
+						super(string, additives, index) + str rescue str
+					end
+					extend Superb(), Superb(), Superb()
+				end   
+
+				Superb().process( 'food ', 'aeiu', 0 ).should == 'fuud fiid feed faad '
+				Superb(:implode)
+
+			end
+		end
+		
+		describe 'Solutions Pattern' do
+			it 'allows trying several solutions in workflow using soft tags' do  
+
+				###########################################################################
+				# For a specific example of what can be accomplished using this workflow  #
+				# please refer to the examples directory under transformers spec          #
+				#                                                                         #
+				# #########################################################################
+			
+				jack :Solution
+
+				Solution( :tag ) do
+					def solution
+						1
+					end
 				end
-				extend Superb(), Superb(), Superb()
-			end   
+				Solution( :tag ) do
+					def solution
+						2
+					end
+				end
+				Solution( :tag ) do
+					def solution
+						3
+					end
+				end
+			
 
-			Superb().process( 'food ', 'aeiu', 0 ).should == 'fuud fiid feed faad '
-			Superb(:implode)
+				class Client
+					inject Solution()
+				
+					def self.solve
+						Solution().tags.each { |e|
+							update e 
+							puts new.solution rescue nil
+						}                              
+					
+						# or...
+					
+						solutions = Solution().tags.each
+						begin
+							update solutions.next
+							puts solved = new().solution()
+						end until solved
+						solved
+					end
+				
+				end
 
+				$stdout.should_receive(:puts).with(1)
+				$stdout.should_receive(:puts).with(2)
+				$stdout.should_receive(:puts).with(3)
+				$stdout.should_receive(:puts).with(1)
+			
+				Client.solve
+			
+			end
 		end
 
-		it 'allows for the following strategy workflow using soft tags' do  
-
-			###########################################################################
-			# For a specific example of what can be accomplished using this workflow  #
-			# please refer to the examples directory under transformers spec          #
-			#                                                                         #
-			# #########################################################################
-			
-			jack :Solution
-
-			Solution( :tag ) do
-				def solution
-					1
+		describe "jiti as decorators with internal base" do
+			before do
+				JD1 = trait :jd do
+					def m1
+						1
+					end
+				end
+				JD2 = jd do
+					def m1
+						super + 2
+					end
 				end
 			end
-			Solution( :tag ) do
-				def solution
-					2
-				end
-			end
-			Solution( :tag ) do
-				def solution
-					3
-				end
-			end
-			
+			it 'works like normal decorators' do
 
-			class Client
-				inject Solution()
+				o = Object.new
+				o.enrich JD2, JD1
+				o.m1.should == 3
 				
-				def self.solve
-					Solution().tags.each { |e|
-						update e 
-						puts new.solution rescue nil
-					}                              
-					
-					# or...
-					
-					solutions = Solution().tags.each
-					begin
-						update solutions.next
-						puts solved = new().solution()
-					end until solved
-					solved
-				end
+				p = Object.new
+				p.enrich JD1, JD2
+				p.m1.should == 1
 				
 			end
-
-			$stdout.should_receive(:puts).with(1)
-			$stdout.should_receive(:puts).with(2)
-			$stdout.should_receive(:puts).with(3)
-			$stdout.should_receive(:puts).with(1)
 			
-			Client.solve
-			
+			it 'raise errors on decorator collusions' do
+				
+				expect{
+					
+					r = Object.new
+					r.enrich JD1, JD1
+					r.m1.should == 1
+				
+				}.to raise_error(ArgumentError)
+				expect{
+					
+					q = Object.new
+					q.enrich JD2, JD2
+					q.m1.should == 5
+				
+				}.to raise_error(ArgumentError)
+				
+			end
 		end
+		
+		describe "jiti as decorators on external base" do
+			before do
+				JD1 = trait :jd do
+					def m1
+						super + 1
+					end
+				end
+				JD2 = jd do
+					def m1
+						super + 2
+					end
+				end
+				class JDClass
+					def m1
+						1
+					end
+				end
+			end
+			
+			it 'can work like normal decorators' do
+
+				o = JDClass.new
+				o.enrich JD2, JD1
+				o.m1.should == 5
+				
+				p = JDClass.new
+				p.enrich JD1, JD2
+				p.m1.should == 5
+
+			end
+			
+			it 'raises errors on decorator collusions' do
+				
+				expect{
+					
+					r = JDClass.new
+					r.enrich JD1, JD1
+					r.m1.should == 3
+				
+				}.to raise_error(ArgumentError)
+				expect{
+					
+					q = JDClass.new
+					q.enrich JD2, JD2
+					q.m1.should == 6
+
+				}.to raise_error(ArgumentError)
+				
+			end
+		end
+
 	end
-	
 end
 

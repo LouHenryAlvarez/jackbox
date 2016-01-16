@@ -39,27 +39,6 @@ describe Jackbox, 'jackbox library', :library do
 		
 		end
 		
-		it 'allows decorating the same method multiple times' do
-
-			class T
-				def bar
-					'bar '
-				end
-			end
-			class T
-				decorate :bar do 																# <- GETS CLOBERED 
-					super() + 'none '
-				end
-			end
-			class T
-				decorate :bar do
-					super() + 'and then some'
-				end
-			end
-			expect{T.new.bar.should == 'bar and then some'}.to_not raise_error 
-
-		end			
-		
 		it 'is available at the object instance level during execution' do
 
 			class One
@@ -80,98 +59,57 @@ describe Jackbox, 'jackbox library', :library do
 		
 		end
 		
+		it 'also works like so' do
+		
+			Object.decorate :to_s do
+				super() + " is your object"
+			end
+			Object.new.to_s.should match(/is your object/)
+		
+		end
+
 		it 'allows ruby_c objects and singleton classes to be decorated as well' do
 
-			STDOUT.should_receive(:puts).with("Changing directory...")
-			
-			Dir.singleton_class.instance_eval do
-				decorate :chdir do |*args|
-					puts 'Changing directory...'
-					super(*args)
-				end
+			Dir.singleton_class.decorate :chdir do |*args|
+				puts 'Changing directory...'
+				super(*args)
 			end
+			
+			STDOUT.should_receive(:puts).with("Changing directory...")
 			Dir.chdir('.').should == 0
-			Dir.singleton_class.instance_eval { undecorate :chdir }
+			
+			Dir.metaclass.undecorate :chdir
 
+			STDOUT.should_not_receive(:puts).with("Changing directory...")
+			Dir.chdir('.').should == 0
+			
 		end
 		
 		it 'raises an error when decorating singleton classes without returning them properly' do
 
 			expect {
 				
-				class File
+				class File 											# MUST USE #singleton_class or #metaclass
 					class << self
 						decorate :chown do |*args| end
 					end
 				end
 				
-			}.to raise_error
+			}.to raise_error(UserError)
+
 			expect {
 				
 				class File
-					singleton_class.instance_eval do  # MUST USE #singleton_class or #metaclass
-						decorate :chown do |*args| end
+					metaclass.decorate :chown do |*args| 
+						puts 'Changing ownership...'
+						super(*args)
 					end
 				end
+				
+				File.metaclass.undecorate :chown
 				
 			}.to_not raise_error		
 				
-		end
-		
-		the 'decoration can be rolled back' do
-			
-			class F
-				def bar
-					'bar '
-				end
-			end
-			class F
-				decorate :bar do
-					super() + 'the unforseen'
-				end
-			end
-			F.new.bar.should == 'bar the unforseen'	
-			class F
-				# remove_method :bar
-				undecorate :bar
-			end
-			F.new.bar.should == 'bar '		 
-			
-		end
-		
-		this 'roll-back works on singleton_class also' do
-			
-			class G
-				class << self
-					def moo
-						'moooo'
-					end
-				end
-			end
-			class G
-				singleton_class.instance_eval do
-					decorate :moo do
-						super() + ' maaaa'
-					end
-				end
-			end
-			G.moo.should == 'moooo maaaa'
-			class G
-				singleton_class.instance_eval do
-					undecorate :moo
-				end
-			end
-			G.moo.should == 'moooo'
-			
-		end			
-		
-		it 'also works like so' do
-			
-			Object.decorate :inspect do
-				super() + " is your object"
-			end
-			Object.new.inspect.should =~ /is your object/
-			
 		end
 
 		it 'does not work on undefined methods' do
@@ -185,7 +123,7 @@ describe Jackbox, 'jackbox library', :library do
 					:boo
 				end
 			end
-			}.to raise_error
+			}.to raise_error(NameError)
 		end
 		
 		it 'is not intended to work on plain modules' do
@@ -212,7 +150,7 @@ describe Jackbox, 'jackbox library', :library do
 				
 				B.new.off.should == 'offon'			#fails!!
 				
-			}.to raise_error
+			}.to raise_error(RSpec::Expectations::ExpectationNotMetError)
 			
 		end
 		
@@ -241,33 +179,177 @@ describe Jackbox, 'jackbox library', :library do
 				
 				Bj.new.off.should == 'offon'			#fails!!
 				
-			}.to raise_error
+			}.to raise_error(RSpec::Expectations::ExpectationNotMetError)
 			
 		end
 		
-		it 'does work on self-extended injectors/modules' do
+		it 'does work on injector/module metaclass' do
 			
-			include Injectors
-
 			injector :tester
 
 			tester do
 				extend self																									# extend self
 																																		# Note: you cannot self enrich an injector
 				def order weight
-					lets manus =->(){"manus for #{weight}"}
-					manus[]
+					lets price =->(weight){ 10 * weight }
+					"price for #{weight} is #{price[weight]}"
 				end
 			end
-			tester.order(50).should == 'manus for 50'											# call method extended to self
+			tester.order(50).should == 'price for 50 is 500'							# call method extended to self
 
 
 			tester do
 				decorate :order do |num|																		# decorate the same method
-					self.to_s + super(num)
+					"#{self} says: " + super(num) + ' dollars'
 				end	
 			end
-			tester.order(50).should =~ /^|manus| for 50/ 				# call decorated method extended to self 
+			tester.order(50).should match(/^\(|tester|.+\) says: price for 50 is 500 dollars/) 				# call decorated method extended to self 
+			
+			# undecorate
+			
+			tester.undecorate :order
+			tester.order(30).should == 'price for 30 is 300'
+		end
+		
+	end
+
+	describe 'redecoration' do
+		
+		before do
+			class T
+				def bar
+					'bar '
+				end
+			end
+			class U
+				def bar
+					'bar'
+				end
+			end
+		end
+		
+		it 'allows decorating the same method multiple times' do
+
+			class T
+				decorate :bar do 																# <- GETS CLOBERED 
+					super() + 'none '
+				end
+			end
+			class T
+				decorate :bar do
+					super() + 'and then some'
+				end
+			end
+			expect{T.new.bar.should == 'bar and then some'}.to_not raise_error 
+
+		end			
+		
+		it 'also works on instances' do
+			
+			u = U.new
+			
+			u.decorate :bar do
+				'large ' + super()
+			end
+			
+			u.bar.should == 'large bar'
+			
+			u.decorate :bar do
+				'small ' + super()
+			end
+			
+			u.bar.should == 'small bar'
+			
+		end
+		
+
+	end
+	
+	describe 'undecoration' do
+		
+		the 'decoration can be rolled back' do
+
+			class F
+				def bar
+					'bar '
+				end
+			end
+			class F
+				decorate :bar do
+					super() + 'the unforseen'
+				end
+			end
+			F.new.bar.should == 'bar the unforseen'	
+			class F
+				undecorate :bar
+			end
+			F.new.bar.should == 'bar '		 
+
+		end
+
+		this 'roll-back works on singleton_class also' do
+
+			class G
+				class << self
+					def moo
+						'moooo'
+					end
+				end
+			end
+			class G
+				singleton_class.instance_eval do
+					decorate :moo do
+						super() + ' maaaa'
+					end
+				end
+			end
+			G.moo.should == 'moooo maaaa'
+			class G
+				singleton_class.instance_eval do
+					undecorate :moo
+				end
+			end
+			G.moo.should == 'moooo'
+
+		end			
+
+		it 'also works like so' do
+
+			Object.decorate :to_s do
+				super() + " is your object"
+			end
+			Object.new.to_s.should match(/is your object/)
+
+			# undecorate
+
+			Object.undecorate :to_s
+			Object.new.to_s.should_not match(/is your object/)
+
+		end
+		
+		it 'also works on object instances' do
+			
+			class Base
+				def foo
+					'foo'
+				end
+			end
+			
+			o = Base.new
+			o.decorate :foo do
+				super() + 'oof'
+			end
+			o.foo.should == 'foooof'
+
+			o.decorate :foo do
+				super() + 'foo'
+			end
+			o.foo.should == 'foofoo'
+			
+			# undecorate
+			
+			o.undecorate :foo
+			o.foo.should == 'foo'
 			
 		end
 		
@@ -312,6 +394,7 @@ describe Jackbox, 'jackbox library', :library do
 		end
 
 		it 'should not forbid the following' do
+			
 			# does work at the instance level
 			expect {
 				
@@ -319,7 +402,7 @@ describe Jackbox, 'jackbox library', :library do
 					lets(:foo){ 'foo bar'}
 				}
 				
-			}.to_not raise_error(Jackbox::UserError)
+			}.to_not raise_error
 			
 		end
 		
@@ -331,7 +414,7 @@ describe Jackbox, 'jackbox library', :library do
 			
 			expect{
 				make[:nothing]
-			}.to raise_error
+			}.to raise_error(TypeError)
 			
 		end
 	end
@@ -367,51 +450,51 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
-		it 'allows passing instance variables' do
+		it 'allows the following' do
 			
-			STDOUT.should_receive(:puts).with('in One#foo with arg tester')
-			STDOUT.should_receive(:puts).with('in One#foo with arg mester')
-			STDOUT.should_receive(:puts).with('in One#foo with arg in Two#faa with arg me')
-			
-			class One
-				def foo(arg)
-					'in One#foo with arg ' + arg
+			a = Object.new
+			with a do
+				def m1
 				end
 			end
-			class Two
-				
-				def faa arg='nothing'
-					'in Two#faa with arg ' + arg
+			b = Object.new 
+			with b do
+				def m1
 				end
-
-				def fii
-					@tester = 'tester'
-					@mester = 'mester'
-				
-					with One.new, @tester, @mester do  |*args|
-						args.each { |e| puts foo e }
-						puts foo faa 'me'
-					end
-				end
-				
 			end
-			Two.new.fii
+			
+			with a, b do
+				m1
+			end
+			
 		end
 		
 		it 'raises an error if used with no block' do
+			
 			expect{with Object.new}.to raise_error(LocalJumpError)
+			
 		end
 		
 		it 'raises an error if used on self' do
 			expect{
 				
 				with self do
-					
+					# ...
 				end
 				
 			}.to raise_error(ArgumentError)
 		end
 		
+		describe "with and include" do
+			it "should raise error" do
+				expect{
+					with Object.new do
+						include Module.new
+					end
+				}.to raise_error(NoMethodError)
+			end
+		end
+
 		it 'works with decorate on an object multiple times' do
 			
 			class Object
@@ -431,7 +514,26 @@ describe Jackbox, 'jackbox library', :library do
 			end
 			o.foo.should == 'foo'
 			o.moo.should == 'moo'
+			
 		end	
+		
+		it 'works with method_missing' do
+			
+			o = Object.new
+			def o.method_missing sym, *args, &code
+				:mm
+			end
+			#existing mm
+			o.crap.should == :mm
+			
+			with o do
+				crap.should == :mm
+			end
+			
+			# still working
+			o.crap.should == :mm
+			
+		end
 	
 	end
 	
@@ -505,6 +607,14 @@ describe Jackbox, 'jackbox library', :library do
 					throw :signal
 				end
 			}.to throw_symbol(:signal)
+			
+		end
+		
+		it 'is porous to warnings' do
+			
+			with Object.new do
+				warn 'test warning'  # it works (check standard output)
+			end
 			
 		end
 		

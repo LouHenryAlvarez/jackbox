@@ -269,13 +269,13 @@ describe 'more interesting uses' do
 	
 	it 'allows the following' do
 		
-		facet :PreFunction do
+		jack :PreFunction do
 			def pre_function
 				puts '++++++++++'
 			end
 		end
 		
-		facet :PosFunction do
+		jack :PosFunction do
 			def pos_function
 				puts '=========='
 			end
@@ -307,6 +307,4 @@ describe 'more interesting uses' do
 		obj.meth( 2 )
 
 	end
-	
-	
 end

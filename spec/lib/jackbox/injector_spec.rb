@@ -839,6 +839,32 @@ describe Injectors, :injectors do
 				
 			end
 			
+			it 'ejects inherited tags' do
+				
+				EjectionTag1 = jack :ejection_test do
+					def m1
+						2
+					end
+				end
+				
+				EjectionTag2 = ejection_test do
+					def m1
+						super + 2										# override --jit inheritance
+					end
+				end
+				
+				o = Object.new.enrich EjectionTag2
+				o.m1.should == 4
+				# o.metaclass.ancestors.to_s.should match(/EjectionTag2.*EjectionTag1/)
+				
+				o.eject EjectionTag2
+				expect{o.m1}.to raise_error(NoMethodError)
+				o.metaclass.ancestors.to_s.should_not match(/EjectionTag2/)
+				o.metaclass.ancestors.to_s.should_not match(/EjectionTag2.*EjectionTag1/)
+				o.metaclass.ancestors.to_s.should_not match(/EjectionTag1/)
+				
+			end
+
 		end
 	end
 

@@ -1,6 +1,12 @@
-0.9.6.3  RC2
+0.9.6.4  RC3
 
-Cleaned up inheritance, vmc, and patterns examples.
+. jiti rules
+. broke down *some* of the long examples to please those who complained 
+  (this was originally done because it was easier for testing injector life-cycles)
+. 
+
+
+0.9.6.3  RC2
 
 . Got re-classes working with rspec 3.4
 . Changed the jack #inspect method. Cleaned up examples
@@ -97,8 +103,6 @@ Cleaned up inheritance, vmc, and patterns examples.
 . Started work on optimizations
 . Added sym_for object method to Module class
 . Solved automatic tag tracing
-. Override module_eval to work with functor(&code)
-  . added functor definition
 . Added the notion of equality to Injectors
 . Reworked examples to:
   . comply with new equality operators

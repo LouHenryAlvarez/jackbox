@@ -172,14 +172,14 @@ describe 'what Prefs does' do
 	end
 
 	it 'should also allow classes to be used' do
-		class C
+		class PrefC
 			extend Prefs
 
 			pref :boo => "something"
 		end
-	  C.boo.should == 'something'
-		lambda{C.boo=(3)}.should_not raise_error
-		lambda{C.new.boo}.should raise_error(NoMethodError)
+	  PrefC.boo.should == 'something'
+		lambda{PrefC.boo=(3)}.should_not raise_error
+		lambda{PrefC.new.boo}.should raise_error(NoMethodError)
 	end
 
 	it 'should be possible to reset the prefs to their defaults' do

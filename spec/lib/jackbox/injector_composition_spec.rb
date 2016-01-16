@@ -334,21 +334,21 @@ describe 'plyability of injection/ejection' do
 		x = EjectionTester.new
 		x.injectors.sym_list.should == [:ejected]
 
-		x.extend Ejected
+		x.extend ejected
 		x.injectors.sym_list.should == [:ejected, :ejected]
 
-		x.eject Ejected
+		x.eject ejected
 		x.injectors.sym_list.should == [:ejected]
 		x.eject ejected
 		x.injectors.sym_list.should == []
 
 		# debugger
 		expect{
-			x.eject Ejected
+			x.eject ejected
 		}.to raise_error(ArgumentError)
 
 		EjectionTester.injectors.sym_list.should == [:ejected]
-		EjectionTester.eject ejected
+		EjectionTester.eject Ejected
 		EjectionTester.injectors.sym_list.should == []
 
 		expect{

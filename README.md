@@ -18,17 +18,17 @@ Copyright © 2014, 2015 LHA. All rights reserved.
 ---
 <h2 style="font-family:Impact">Ruby Modular Closures, Code Injectors, Re-Classes and other programmer morphins</h2>
 
-The defining thought behind Jackbox is a single and powerful one: If Ruby is like Play-Doh, with Jackbox we want to turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The library functions at this time take this idea and materialize it around the concepts of code injectors, re-classes, the application of versioning to runtimes, and a just-in-time inheritance model that together with the helper functions that bring them together, provide some new and interesting capabilities.  
+The defining thought behind Jackbox is a simple one: If Ruby is like Play-Doh, with Jackbox we want to turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The library functions at this time take this idea and materialize it around the concepts of code injectors, re-classes, the application of versioning to runtimes, and a just-in-time inheritance model that together with the helper functions that bring them together, provide some new and interesting capabilities.  
 
 To make it easier to grasp, code injectors can perhaps be thought of as a form of **Modular Closures©** or of **closures which can also serve as modules**.  These modular closures most of all propose some additional properties to the idea of a mix-in.  For instance, they make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling **some new code patterns** of our own.  They instrument control over (code presence) the presence of injector code in targets with mechanisms involving injector ejection and directives.  They give your code the ability to capture its surrounding context and mix it into an indiscriminate target. They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. 
 
 Re-classes on the other hand present an alternative way to refine a class.  They provide similar benefits to refinements with a different underpinning. Together with Jackbox code injectors and helper functions, re-classes can be refined multiple times.  Capabilities can be added and removed in blocks.  Moreover, these re-classes acquire introspecting abilities.  A re-class can be tested for existence, can tell you what injectors it uses, and finally can be overridden with a more relevant one. 
 
-Following on this we introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below. Runtimes can morph their capabilities as they learn about themselves, and they can do so in blocks as granular or as coarse as needed.  These blocks can be updated, ejected, silenced, or re-injected with more function. This versioning also provides a form of inheritance.  We have called this Versioned Inheritance and it allows newer versions to inherit from previous ones, be tagged and labeled, and this way be capable of reuse.  All this is further enhanced by the ability to resolve methods in more ways than regular Ruby modules can through the use of the VMC (Virtual Method Cache). See below.
+Following on this we introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Injector Versioning below. Runtimes can morph their capabilities as they learn about themselves, and they can do so in blocks as granular or as coarse as needed.  These blocks can be updated, ejected, silenced, or re-injected with more function. This versioning also provides a form of inheritance.  We have called this Versioned Inheritance and it allows newer versions to inherit from previous ones, be tagged and labeled, and this way be capable of reuse.  All this is further enhanced by the ability to resolve methods through the use of the VMC (Virtual Method Cache). See below.
 
 Finally, we also present for the first time in our history the concept of Just-In-Time Inheritance.  This is a feature which allows the introduction of an ancestor hierarchy similar to what you find in Ruby classes just as it is needed by your code.  With it you can override previous members of a tag and expect to have access to its super members as part of the call, just like you would with classes.  But, this inheritance is all going on in the mix-in, the modular closure.  Families of injectors can be built with the use of this and the previous versioned inheritance, and can be readily applicable to any target.
 
-We have chosen to keep the code obfuscated for now, to protect our intellectual property.  But, as our business model evolves we will be considering open sourcing it.  Our guiding principle through out it all has been keeping new constructs to a minimum.  We take an outer minimalistic approach that in reality takes a lot more behind the scenes to make things work.  Simplicity takes a lot.  We hope that all this work is to your liking.  
+We have chosen to keep the code obfuscated for now because we are a small company who needs to protect our intellectual property.  But, as our business model evolves we will be considering open sourcing it.  We take great pride in providing significant value at minimal cost.  Our guiding principle through out it all has been keeping new constructs to a minimum.  We took an outer minimalistic approach requiring a lot more behind the scenes.  Simplicity takes work.  We hope that all this work is to your liking.
 
 Basic Methods
 --------------------------
@@ -1285,7 +1285,7 @@ __2) The Super Pattern.-__ No.  This is not a superlative kind of pattern.  Simp
     Superb().process( 'food ', 'aeiu', 0 ).should == 'fuud fiid feed faad '
     Superb(:implode)                                 
 
-__3) The Transformer Pattern.-__  For a specific example of what can be accomplished using this workflow please refer to the rspec directory under the transformers spec.  Here is the basic flow:
+__3) The Solutions Pattern.-__  For a specific example of what can be accomplished using this workflow please refer to the rspec directory under the transformers spec.  Here is the basic flow:
 
     jack :Solution
 
@@ -1329,7 +1329,7 @@ __3) The Transformer Pattern.-__  For a specific example of what can be accompli
 
     Client.solve
 
-__4) The Re-Classing Pattern.-__  Our base method #lets has one more interesting use which allows for an alternative way to refine classes.  We have termed this Re-Classing.  Look at the following code:
+__4) The Re-Class Pattern.-__  Our base method #lets has one more interesting use which allows for an alternative way to refine classes.  We have termed this Re-Classing.  Look at the following code:
 
 		module Work
 			lets String do
