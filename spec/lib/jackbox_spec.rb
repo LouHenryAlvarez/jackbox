@@ -154,9 +154,9 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
-		it 'is not intended for plain injectors either' do
+		it 'is not intended for plain traits either' do
 			
-			Aj = injector :aj do
+			Aj = trait :aj do
 				def off
 					'off'
 				end
@@ -183,13 +183,13 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
-		it 'does work on injector/module metaclass' do
+		it 'does work on trait/module metaclass' do
 			
-			injector :tester
+			trait :tester
 
 			tester do
 				extend self																									# extend self
-																																		# Note: you cannot self enrich an injector
+																																		# Note: you cannot self enrich an trait
 				def order weight
 					lets price =->(weight){ 10 * weight }
 					"price for #{weight} is #{price[weight]}"

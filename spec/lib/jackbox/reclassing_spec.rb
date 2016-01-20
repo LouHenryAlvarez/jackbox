@@ -56,7 +56,7 @@ describe 're-classes' do
 			end
 
 			#
-			# A second injector in the mix
+			# A second trait in the mix
 			#
 			jack :Log do
 				require 'logger'
@@ -171,14 +171,14 @@ describe 're-classes' do
 
 		# introspecting on capabilities
 		
-		it 'should allow injector introspection' do
+		it 'should allow trait introspection' do
 
 			StringRefinements do
 				(reclass? String).should == true
 
 				if reclass? String
 					String() do
-						injectors.by_name.should == [:Log]
+						traits.by_name.should == [:Log]
 					end
 				else
 					lets String do
@@ -199,7 +199,7 @@ describe 're-classes' do
 		
 		end
 
-		it 'should allow injector introspection' do
+		it 'should allow trait introspection' do
 			
 			lets Array do
 				inject jack :ArrayExtensions do
@@ -211,13 +211,13 @@ describe 're-classes' do
 			
 			# re-class
 			Array() do
-				injectors.by_name.should == [:ArrayExtensions]
+				traits.by_name.should == [:ArrayExtensions]
 			end
 		
-			Array(){injectors.by_name}.should == [:ArrayExtensions]
+			Array(){traits.by_name}.should == [:ArrayExtensions]
 		
 			# re-class instances
-			Array(1).injectors.by_name == [:ArrayExtensions]
+			Array(1).traits.by_name == [:ArrayExtensions]
 			
 			Array(2).to_s.should == '[nil, nil]--boo'
 		

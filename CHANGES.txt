@@ -1,9 +1,39 @@
-0.9.6.4  RC3
+0.9.6.5  RC3
 
-. jiti rules
-. broke down *some* of the long examples to please those who complained 
-  (this was originally done because it was easier for testing injector life-cycles)
-. 
+. Established The Rules of JITI
+. Changed the focus from Injector based to a Trait metaphor. 
+. Fixed inheritance problem with multiple same tag ancestors.
+. Masked out external module intrusion
+  . Ironed out some problems with external ancestor masking
+  . can only base it on external modules
+  . but cannot intrude further down the chain
+. Cleaned up and split up inheritance examples.
+. All Tests passing
+  . broke down *some* of the long examples to please those who complained 
+  (this was originally done because it was easier for testing trait life-cycles)
+. Resolved JITI Decorators to error out in case of colluding ancestors
+. Refactored #decorate once more
+. Trimmed down directory structure
+. Cleaned up examples and code
+. FIXED issues with VMC under Ruby 1.9 and 2.0 related to flat_map underlying flatten bug
+. Changed "fixed" a couple of #metaclass issues where:
+  . #root was getting defined multiple times
+  . errors were preventing the class from being returned
+  . also changed how the #metaclass? test is done 
+. Moved basic #dup and #clone to Object to avoid constant redefinitions
+. Based Injector on Abstract to avoid normal instantiation
+. Done fixing some issues with the #with construct:
+  . was obliterating target definitions of #method_missing on return.  Now uses #decorate
+  . #decorate was suppressing to many warnings with long #suppress_warnings block
+  . now handles #with a, b, c ... do
+  . dropped *params to #with
+. Fixed an issue with Equality
+. Fixed #undecorate for object instances
+. Brought in some re-class fixes
+. Changed ReadMe
+. Fixed ejection of inherited tags
+  . when you eject the original all inherited tags go with it
+. Cleaned up comments
 
 
 0.9.6.3  RC2

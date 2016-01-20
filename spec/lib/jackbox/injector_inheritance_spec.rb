@@ -28,7 +28,7 @@ describe "ancestor chains" do
 
     # LifeCycle Start
 
-		injector :Parent															# capitalized method
+		trait :Parent															# capitalized method
 		
 		class Child
 			include Parent()
@@ -54,7 +54,7 @@ describe "ancestor chains" do
 		Child.ancestors.to_s.should match( /Child, Object.*BasicObject/ )
 
 
-		# Note: cannot update empty injector
+		# Note: cannot update empty trait
 		expect{ Child.send :update, Child.parent }.to raise_error(NoMethodError) 
 
 
@@ -96,7 +96,7 @@ describe "Injector Inheritance" do
 
 	it 'carries current methods onto Injector Versions/Tags' do
 
-		# Define injector
+		# Define trait
 		
 		jack :bounce
 
@@ -190,12 +190,12 @@ describe "Injector Inheritance" do
 
 	it "allows a just-in-time inheritance policy" do
 	
-		injector :Tagger
+		trait :Functionality
 		
 		# 
 		# Our Modular Closure
 		# 
-		Tag1 = Tagger do
+		Tag1 = Functionality do
 			def m1
 				1
 			end
@@ -206,24 +206,24 @@ describe "Injector Inheritance" do
 		end
 		
 		expect(Tag1.ancestors).to eql( [Tag1] )
-		expect(Tagger().ancestors).to eql( [Tagger()] )
+		expect(Functionality().ancestors).to eql( [Functionality()] )
 
 
 		# 
 		# Normal Injector inheritance
 		# 
-		Tagger do
+		Functionality do
 			def other  					# No overrides No inheritance
 				'other'						# -- same ancestors as before
-			end 								# -- normal injector inheritance
+			end 								# -- normal trait inheritance
 		end
 		
 		# test it
 
 		expect(Tag1.ancestors).to eql( [Tag1] )
-		expect(Tagger().ancestors).to eql( [Tagger()] )
+		expect(Functionality().ancestors).to eql( [Functionality()] )
 		
-		o  = Object.new.extend(Tagger())
+		o  = Object.new.extend(Functionality())
 		
 		# inherited
 		o.m1.should == 1
@@ -236,7 +236,7 @@ describe "Injector Inheritance" do
 		#
 		# JIT inheritance
 		# 
-		Tag2 = Tagger do
+		Tag2 = Functionality do
 			def m1														# The :m1 override invokes JIT inheritance
 				super + 1												# -- Tag1 is added as ancestor
 			end 															# -- allows the use of super
@@ -249,7 +249,7 @@ describe "Injector Inheritance" do
 		# test it
 		
 		expect(Tag2.ancestors).to eq([Tag2])
-		expect(Tagger().ancestors).to eq([Tagger()])
+		expect(Functionality().ancestors).to eq([Functionality()])
 		
 		p = Object.new.extend(Tag2)
 		
@@ -261,7 +261,7 @@ describe "Injector Inheritance" do
 		p.m3.should == 'em3'
 		p.other.should == 'other'
 
-		Tagger(:implode)
+		Functionality(:implode)
 		
 	end
 	
@@ -275,7 +275,7 @@ describe "Injector Inheritance" do
 
 end
 
-describe "the behavior of injectors under class inheritance" do
+describe "the behavior of traits under class inheritance" do
 	
 	before do
 		
@@ -285,7 +285,7 @@ describe "the behavior of injectors under class inheritance" do
 			D = Class.new(C)
 			E = Class.new(D)
 			
-	    injector :j
+	    trait :j
 
 	    C.inject j { 																	# #m1 pre-defined at time of injection
 	      def m1
@@ -293,7 +293,7 @@ describe "the behavior of injectors under class inheritance" do
 	      end
 	    }
 
-	    injector :k
+	    trait :k
 
 	    C.inject k do 																# #m2 pre-defined at injection
 	      def m2
@@ -322,8 +322,8 @@ describe "the behavior of injectors under class inheritance" do
 	
 	it 'works on a first level' do
 		
-    C.injectors.sym_list.should == [:k, :j]
-    C.new.injectors.sym_list.should == [:k, :j]
+    C.traits.sym_list.should == [:k, :j]
+    C.new.traits.sym_list.should == [:k, :j]
     c = C.new
 
 		# New Objects
@@ -353,8 +353,8 @@ describe "the behavior of injectors under class inheritance" do
     class D < C													# methods are inherited from j and k
     end
 
-    D.injectors(:all).sym_list.should == [:k, :j]					
-    D.new.injectors(:all).sym_list.should == [:k, :j]					
+    D.traits(:all).sym_list.should == [:k, :j]					
+    D.new.traits(:all).sym_list.should == [:k, :j]					
 		d = D.new
 		
 		# New Objects
@@ -370,7 +370,7 @@ describe "the behavior of injectors under class inheritance" do
 	
 	end
 	
-	example 'injectors on second level' do
+	example 'traits on second level' do
 	
 		####################################
     # Preamble
@@ -385,8 +385,8 @@ describe "the behavior of injectors under class inheritance" do
 				'foooo'
 			end
 		}
-    D.injectors(:all).sym_list.should == [:j, :k, :j]
-    D.new.injectors(:all).sym_list.should == [:j, :k, :j]
+    D.traits(:all).sym_list.should == [:j, :k, :j]
+    D.new.traits(:all).sym_list.should == [:j, :k, :j]
     d = D.new
 
 		# New Objects
@@ -426,10 +426,10 @@ describe "the behavior of injectors under class inheritance" do
         'fuu'
       end
     end
-    C.injectors.sym_list.should == [:k, :j]
-    C.new.injectors.sym_list.should == [:k, :j]
-    D.injectors.sym_list.should == [:j]
-    D.new.injectors.sym_list.should == [:j]
+    C.traits.sym_list.should == [:k, :j]
+    C.new.traits.sym_list.should == [:k, :j]
+    D.traits.sym_list.should == [:j]
+    D.new.traits.sym_list.should == [:j]
     d = D.new
 
 		# New Objects
@@ -484,10 +484,10 @@ describe "the behavior of injectors under class inheritance" do
 		# 	update k 				# providing k is in scope
 		# end
 		
-    C.injectors.sym_list.should == [:k, :j]
-    C.new.injectors.sym_list.should == [:k, :j]
-    D.injectors.sym_list.should == [:j]
-    D.new.injectors.sym_list.should == [:j]
+    C.traits.sym_list.should == [:k, :j]
+    C.new.traits.sym_list.should == [:k, :j]
+    D.traits.sym_list.should == [:j]
+    D.new.traits.sym_list.should == [:j]
 		d = D.new
 		
 		# New Objects
@@ -539,12 +539,12 @@ describe "the behavior of injectors under class inheritance" do
 		####################################
     class E < D													# methods are inherited from j at C, D and k update at C
     end
-    C.injectors.sym_list.should == [:k, :j]
-    C.new.injectors.sym_list.should == [:k, :j]
-    D.injectors.sym_list.should == [:j]
-    D.new.injectors.sym_list.should == [:j]
-    E.injectors.sym_list.should == []
-    E.new.injectors.sym_list.should == []
+    C.traits.sym_list.should == [:k, :j]
+    C.new.traits.sym_list.should == [:k, :j]
+    D.traits.sym_list.should == [:j]
+    D.new.traits.sym_list.should == [:j]
+    E.traits.sym_list.should == []
+    E.new.traits.sym_list.should == []
 
 		d = D.new
 		e = E.new
@@ -660,12 +660,12 @@ describe "the behavior of injectors under class inheritance" do
 			#######################################
 	    C.eject :j                                    # eject j from C
 
-	    C.new.injectors.sym_list.should == [:k]
-	    C.injectors.sym_list.should == [:k]
-	    D.new.injectors.sym_list.should == [:j]
-	    D.injectors.sym_list.should == [:j]
-	    E.new.injectors.sym_list.should == []
-	    E.injectors.sym_list.should == []
+	    C.new.traits.sym_list.should == [:k]
+	    C.traits.sym_list.should == [:k]
+	    D.new.traits.sym_list.should == [:j]
+	    D.traits.sym_list.should == [:j]
+	    E.new.traits.sym_list.should == []
+	    E.traits.sym_list.should == []
 
 			# New Objects
 	    expect{ C.new.m1.should == 'foo'}.to raise_error(NoMethodError)  # m1 errors out on C
@@ -688,12 +688,12 @@ describe "the behavior of injectors under class inheritance" do
 			########################################
 	    C.eject :k                                    # eject the only k
 
-	    C.new.injectors.sym_list.should == []
-	    C.injectors.sym_list.should == []
-	    D.new.injectors.sym_list.should == [:j]
-	    D.injectors.sym_list.should == [:j]
-	    E.new.injectors.sym_list.should == []
-	    E.injectors.sym_list.should == []
+	    C.new.traits.sym_list.should == []
+	    C.traits.sym_list.should == []
+	    D.new.traits.sym_list.should == [:j]
+	    D.traits.sym_list.should == [:j]
+	    E.new.traits.sym_list.should == []
+	    E.traits.sym_list.should == []
 
 			# New Objects
 	    expect{ C.new.m1.should == 'foo'}.to raise_error(NoMethodError) 
@@ -716,12 +716,12 @@ describe "the behavior of injectors under class inheritance" do
 			########################################
 	    D.eject :j                                    # eject j from D: the only one remaining
 	    																							# -- everything should revert back to class level
-	    C.injectors.sym_list.should == []
-	    C.new.injectors.sym_list.should == []
-	    D.injectors.sym_list.should == []
-	    D.new.injectors.sym_list.should == []
-	    E.injectors.sym_list.should == []
-	    E.new.injectors.sym_list.should == []
+	    C.traits.sym_list.should == []
+	    C.new.traits.sym_list.should == []
+	    D.traits.sym_list.should == []
+	    D.new.traits.sym_list.should == []
+	    E.traits.sym_list.should == []
+	    E.new.traits.sym_list.should == []
 
 			# New Objects
 	    expect{ C.new.m1.should == 'foo'}.to raise_error(NoMethodError) # no actual #foo on class 
@@ -750,7 +750,7 @@ describe "the behavior of injectors under class inheritance" do
 
 			# Define a blanck Injector
 
-			injector :j1
+			trait :j1
 
 			# Apply to hierarchy while defining
 
@@ -807,7 +807,7 @@ describe "the behavior of injectors under class inheritance" do
 
 			# Define a blank Injector
 
-			injector :j2
+			trait :j2
 
 			# Apply full definition to an ancestor
 
@@ -880,10 +880,10 @@ describe "the behavior of injectors under class inheritance" do
 
 			# Define a Blank Injector
 
-			injector :j3
+			trait :j3
 
 
-			# Apply the blank injector
+			# Apply the blank trait
 
 			C3.inject j3													
 

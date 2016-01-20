@@ -4,7 +4,7 @@ require "spec_helper"
 	VIRTUAL METHOD CACHE
 	
 	Virtual methods are methods that have not beeen applied as part of any injection as of yet.  They are not part of a version, execpt for the current one.
-	In as such, they are common to all injectors, and can service any of them.  They stop being virtual when they become part of an injector application.
+	In as such, they are common to all traits, and can service any of them.  They stop being virtual when they become part of an trait application.
 =end
 include Injectors
 
@@ -155,7 +155,7 @@ describe "VMC (Virtual Method Cache)" do
 		  def j1																			# they becomen part of the
 				:j1
 		  end 																				# following application of 
-		end 																					# this injector
+		end 																					# this trait
 		
 		K1 do
 		  def k1
@@ -163,7 +163,7 @@ describe "VMC (Virtual Method Cache)" do
 		  end
 		end
 		J1 do
-		  inject K1()															# injector application!
+		  inject K1()															# trait application!
 		end
 		
 		L1 do
@@ -172,7 +172,7 @@ describe "VMC (Virtual Method Cache)" do
 			end
 		end
 		K1 do
-			inject L1()															# injector application
+			inject L1()															# trait application
 		end
 		
 		M1() do
@@ -239,7 +239,7 @@ describe "VMC (Virtual Method Cache)" do
 		
 	end
 
-	it 'works accross compound injectors' do
+	it 'works accross compound traits' do
 
 			jack :S1
 
@@ -261,10 +261,10 @@ describe "VMC (Virtual Method Cache)" do
 				end
 			end
 			
-			S1().s2.s3.s4       													# injector pipeline!
+			S1().s2.s3.s4       													# trait pipeline!
 
 
-			# Apply the injectors
+			# Apply the traits
 
 			class CompoundContainer
 				include S1()
@@ -302,9 +302,9 @@ describe "VMC (Virtual Method Cache)" do
 
 		expect{
 			
-		 	injector :J1
-		 	injector :J2
-		 	injector :J3
+		 	trait :J1
+		 	trait :J2
+		 	trait :J3
 
 			class AA1
 			end
@@ -336,9 +336,9 @@ describe "VMC (Virtual Method Cache)" do
 
 		expect{
 			
-			injector :K1
-			injector :K2
-			injector :K3
+			trait :K1
+			trait :K2
+			trait :K3
 
 			K1 do
 			  include K2() do
@@ -368,9 +368,9 @@ describe "VMC (Virtual Method Cache)" do
 
 		expect{
 			
-			injector :M1
-			injector :M2
-			injector :M3
+			trait :M1
+			trait :M2
+			trait :M3
 
 			M1 do
 				include M2() do

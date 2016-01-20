@@ -2,29 +2,29 @@ require "spec_helper"
 
 include Injectors
 
-describe 'Injector versioning:', :injectors do
-# subsequent redefinitions of methods constitute another version of the injector.  Injector 
+describe 'Injector versioning:', :traits do
+# subsequent redefinitions of methods constitute another version of the trait.  Injector 
 # versioning is the term used to identify a feature in the code that produces an artifact of injection which contains a 
-# certain set of methods and their associated outputs and represents a snapshot of that injector up until the point it 
-# gets applied to an object.  From, that point on the object contains only that version of methods from that injector, and 
-# any subsequent overrides to those methods are only members of the "prolongation" of the injector and do not become part 
+# certain set of methods and their associated outputs and represents a snapshot of that trait up until the point it 
+# gets applied to an object.  From, that point on the object contains only that version of methods from that trait, and 
+# any subsequent overrides to those methods are only members of the "prolongation" of the trait and do not become part 
 # of the object of injection unless some form of reinjection occurs. Newer versions of methods only become part of newer 
 # objects or newer injections into existing targets'
 	
-	describe 'injector versioning and its relationship to object instances' do
+	describe 'trait versioning and its relationship to object instances' do
 	
-		the 'injector versioning uses a snapshot of the injector`s existing methods up to the point of injection' do
-		# using only that version of	methods as the object of injection.  AA4ny overrides to methods in any subsequent injector prolongations 
-		# do not take effect in this target.  AA4ny new methods added to the injector do become available to the target, although
+		the 'trait versioning uses a snapshot of the trait`s existing methods up to the point of injection' do
+		# using only that version of	methods as the object of injection.  AA4ny overrides to methods in any subsequent trait prolongations 
+		# do not take effect in this target.  AA4ny new methods added to the trait do become available to the target, although
 		# may contain internal references to newer versions of the target methods. This ensures to keep everyting working correctly.'
 		
 			#___________________
-			# injector declaration
-			injector :My_injector
+			# trait declaration
+			trait :My_trait
 
 	    #___________________
-	    # injector first prolongation
-	    My_injector do 															
+	    # trait first prolongation
+	    My_trait do 															
 	      def bar
 	        :a_bar                                  # version bar.1
 	      end
@@ -34,12 +34,12 @@ describe 'Injector versioning:', :injectors do
 	    end
 	
 			object1 = Object.new
-	    object1.enrich My_injector()                # apply the injector --first snapshot
+	    object1.enrich My_trait()                # apply the trait --first snapshot
 	    object1.bar.should == :a_bar                # pass the test
 
 	    #__________________
-	    # injector second prolongation
-	    My_injector do 																			
+	    # trait second prolongation
+	    My_trait do 																			
 	      def bar
 	        :some_larger_bar                        # version bar.2 ... re-defines bar
 	      end
@@ -49,7 +49,7 @@ describe 'Injector versioning:', :injectors do
 	    end
     
 			object2 = Object.new
-	    object2.enrich My_injector()                # apply the injector --second snapshot
+	    object2.enrich My_trait()                # apply the trait --second snapshot
 	    object2.bar.should == :some_larger_bar
 
 	    # result
@@ -66,7 +66,7 @@ describe 'Injector versioning:', :injectors do
 			
 			#_________________
 			# re-injection
-			enrich My_injector()																	# re-injection on any object instance
+			enrich My_trait()																	# re-injection on any object instance
 			bar.should == :some_larger_bar												# bar.2 now available
 			
 			expect{some_other_function}.to_not raise_error				# some_other_function.1 is present
@@ -77,7 +77,7 @@ describe 'Injector versioning:', :injectors do
 			
 			o = Object.new
 			
-			injector :some_methods do
+			trait :some_methods do
 				def meth arg
 					arg
 				end
@@ -103,19 +103,19 @@ describe 'Injector versioning:', :injectors do
 
 	end
 	
-	describe "injector versioning and its relationship to classes" do
-	# similar to object level versioning in that it uses a snapshot of the injector`s existing methods up to the point of injection, using only 
+	describe "trait versioning and its relationship to classes" do
+	# similar to object level versioning in that it uses a snapshot of the trait`s existing methods up to the point of injection, using only 
 	# that version of methods as the object of injection.  But, unlike object level versioning, because class injection is static, reinjection 
 	# does not change the class unless we use the Strategy Pattern which completely changes the class's strategy of methods" 
 		
-		the "class injector versioning is similar to object injector versioning" do
+		the "class trait versioning is similar to object trait versioning" do
 			
 			#___________________
-			# injector declaration:
-			injector :Versions 
+			# trait declaration:
+			trait :Versions 
 
 	    #___________________
-	    # injector first prolongation
+	    # trait first prolongation
 	    Version1 = Versions do
 	      def meth arg                              # version meth.1
 	        arg ** arg
@@ -127,7 +127,7 @@ describe 'Injector versioning:', :injectors do
 	    end
 
 	    #_________________
-	    # injector second prolongation                              
+	    # trait second prolongation                              
 	    Version2 = Versions do
 	      def meth arg1, arg2                       # version meth.2 ... redefines meth.1
 	        arg1 * arg2
@@ -142,7 +142,7 @@ describe 'Injector versioning:', :injectors do
 	    # result
 	    #############################
 	    Two.new.meth(2,4).should == 8               # meth.2 
-	                                                            # two different injector versions
+	                                                            # two different trait versions
 	    One.new.meth(3).should == 27                # meth.1
 	    #############################
 	    #
@@ -162,7 +162,7 @@ describe 'Injector versioning:', :injectors do
 			
 		end
 		
-		the 'way to class level injector updates is through the Strategy Pattern' do
+		the 'way to class level trait updates is through the Strategy Pattern' do
 					 
 			# DO NOT want to necessarily update older clients of the class
 			# but possible if needed
@@ -170,7 +170,7 @@ describe 'Injector versioning:', :injectors do
 			class One
 				eject Version1													# eject version 1
 			
-				inject Version2													# re-inject with prolonged injector -- can be any version
+				inject Version2													# re-inject with prolonged trait -- can be any version
 			end
 			One.new.meth(4,5).should == 20							# meth.2 now available!!
 			
@@ -205,7 +205,7 @@ describe 'Injector versioning:', :injectors do
 			
 			class Freak
 				
-				injector :freaky
+				trait :freaky
 				freaky do
 					def twitch
 						'_-=-_-=-_-=-_-=-_'
@@ -255,11 +255,11 @@ describe 'Injector versioning:', :injectors do
 		end
 	end
 
-	describe "utility of injector versioning: " do
+	describe "utility of trait versioning: " do
 		
 		it 'allows to easily override methods without affecting other parts of your program' do
 			
-			J1 = injector :j do
+			J1 = trait :j do
 				def meth(arg)
 					arg
 				end
@@ -285,11 +285,11 @@ describe 'Injector versioning:', :injectors do
 			
 		end
 		
-		the "local binding of injectors" do
+		the "local binding of traits" do
 
 	    #_____________________
-	    # injector declaration
-	    VersionOne = injector :functionality do
+	    # trait declaration
+	    VersionOne = trait :functionality do
 	      def basic arg                             # version basic.1
 	        arg * 2
 	      end
@@ -300,7 +300,7 @@ describe 'Injector versioning:', :injectors do
 
 
 	    #_____________________
-	    # injector prolongation
+	    # trait prolongation
 	    VersionTwo = functionality do
 	      def basic arg                             # basic.2 ... basic.1 redefined
 	        arg * 3
@@ -321,7 +321,7 @@ describe 'Injector versioning:', :injectors do
 
 	    o.basic(1).should == 2                      # basic.1 
 			# debugger
-	    o.compound.should == 11                     # compound.1 --local injector binding
+	    o.compound.should == 11                     # compound.1 --local trait binding
 
 	    ###################################
 	    # This ensures #compound.1 keeps bound

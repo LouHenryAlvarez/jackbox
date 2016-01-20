@@ -4,10 +4,10 @@ include Injectors
 
 describe 'Injector Directives: ' do
 	
-	describe "<injector> :implode, the entire injector and all instances eliminated.  Produces different results than 
-	ejecting individual injectors, or from using <injector> :collapse and then restored using <injector> :rebuild" do
+	describe "<trait> :implode, the entire trait and all instances eliminated.  Produces different results than 
+	ejecting individual traits, or from using <trait> :collapse and then restored using <trait> :rebuild" do
 	
-		an 'example of complete injector implosion' do
+		an 'example of complete trait implosion' do
 		
 			class Model
 				def feature
@@ -15,7 +15,7 @@ describe 'Injector Directives: ' do
 				end
 			end
 
-			injector :extras do
+			trait :extras do
 				def feature
 					super() + ' plus some extras'
 				end
@@ -43,20 +43,20 @@ describe 'Injector Directives: ' do
 			
 		end
 
-		describe 'difference between injector ejection/implosion' do
+		describe 'difference between trait ejection/implosion' do
 
 			the 'Injector reconstitution after ejection is possible through reinjection
-			but reconstitution after injector implosion is NOT AVAILABLE' do
+			but reconstitution after trait implosion is NOT AVAILABLE' do
 
 				# code defined
 				class Job
-					injector :agent do
+					trait :agent do
 						def call
 						end
 					end
 					inject agent
 				end
-				Job.injectors.sym_list.should == [:agent]
+				Job.traits.sym_list.should == [:agent]
 
 				# normal use
 				expect{Job.new.call}.to_not raise_error
@@ -106,12 +106,12 @@ describe 'Injector Directives: ' do
 	end
 end
 
-describe '<injector> :collapse.  Injectors can be silenced. This description produces similar results to 
-the previous except that further injector method calls DO NOT raise an error they just quietly return nil' do
+describe '<trait> :collapse.  Injectors can be silenced. This description produces similar results to 
+the previous except that further trait method calls DO NOT raise an error they just quietly return nil' do
 	
 	the 'case with objects' do
 
-		injector :copiable do
+		trait :copiable do
 			def object_copy
 				'a dubious copy'
 			end
@@ -133,7 +133,7 @@ the previous except that further injector method calls DO NOT raise an error the
 	the 'case with classes' do
 
 		class SomeClass
-			injector :code do
+			trait :code do
 				def tester
 					'boo'
 				end
@@ -168,7 +168,7 @@ the previous except that further injector method calls DO NOT raise an error the
 			end
 		end				
 		
-		injector :somecode do 																				# share member name with container
+		trait :somecode do 																				# share member name with container
 			def fun
 				super + ' and more fun'
 			end
@@ -177,23 +177,23 @@ the previous except that further injector method calls DO NOT raise an error the
 		bc = BumperCar.new.enrich(somecode).enrich(somecode)					# decorator pattern
 		bc.fun.should == 'this is fun and more fun and more fun'
 	
-		somecode :collapse																						# collapse the injector
+		somecode :collapse																						# collapse the trait
 		
 		bc.fun.should == 'this is fun'																# class memeber foo intact
 	                                                                    
-		# eject all injectors                                             
-		bc.injectors.sym_list.each { |ij| bc.eject ij }								# same as before
+		# eject all traits                                             
+		bc.traits.sym_list.each { |ij| bc.eject ij }								# same as before
 		bc.fun.should == 'this is fun' 
 
 	end
 end
 
-describe '<injector> :rebuild.  Quieted injectors restored without having
+describe '<trait> :rebuild.  Quieted traits restored without having
 to re-inject them into every object they modify' do
 	
 	the 'case with objects' do
 
-		injector :reenforcer do
+		trait :reenforcer do
 			def thick_walls
 				'=====  ====='
 			end
@@ -217,7 +217,7 @@ to re-inject them into every object they modify' do
 	the 'case with classes' do
 	
 		class SomeBloatedObject
-			injector :ThinFunction do
+			trait :ThinFunction do
 				def perform
 					'do the deed'
 				end
@@ -234,14 +234,14 @@ to re-inject them into every object they modify' do
 	
 	end
 
-	the 'rebuild reconstructs the entire injector and all applications' do
+	the 'rebuild reconstructs the entire trait and all applications' do
 
 		class BumperCar
 			def fun
 				'this is fun'
 			end
 		end
-		injector :othercode do 																				# share memeber name with container
+		trait :othercode do 																				# share memeber name with container
 			def fun
 				super + ' and more fun'
 			end
@@ -250,7 +250,7 @@ to re-inject them into every object they modify' do
 		bc = BumperCar.new.enrich(othercode).enrich(othercode)				# decorator pattern
 		bc.fun.should == 'this is fun and more fun and more fun'
 
-		othercode :silence																						# declare injector silence
+		othercode :silence																						# declare trait silence
 		
 		bc.fun.should == 'this is fun'																# class member un-affected
 		
@@ -258,7 +258,7 @@ to re-inject them into every object they modify' do
 		bc.fun.should == 'this is fun and more fun and more fun'			# restores all decorations !!!
 		
 		# restore the original
-		bc.injectors.sym_list.each { |ij| bc.eject ij }								# same as before
+		bc.traits.sym_list.each { |ij| bc.eject ij }								# same as before
 		bc.fun.should == 'this is fun' 
 
 	end

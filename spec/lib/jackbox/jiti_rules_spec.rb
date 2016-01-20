@@ -7,7 +7,7 @@ describe 'jit inheriatnce' do
 		# 
 		# Injector
 		# 
-		injector :Tagger
+		trait :Tagger
 
 		suppress_warnings do
 
@@ -24,7 +24,7 @@ describe 'jit inheriatnce' do
 			Tagger do
 				def other  					# No overrides No inheritance
 					'other'						# -- same ancestors as before
-				end 								# -- normal injector inheritance
+				end 								# -- normal trait inheritance
 			end
 
 			Tag2 = Tagger do
@@ -78,7 +78,7 @@ describe 'jit inheriatnce' do
 
 	end
 
-	it 'keeps the main injector in sync with the last tag' do
+	it 'keeps the main trait in sync with the last tag' do
 
 		o = Object.new.extend Tag3
 		p = Object.new.extend Tagger()
@@ -470,7 +470,7 @@ describe 'jiti external basing' do
 		#
 		# Injector
 		# 
-		injector :Tagger
+		trait :Tagger
 
 		suppress_warnings do
 
@@ -535,7 +535,7 @@ describe 'jiti external basing' do
 
 	end
 
-	it 'also keeps the main injector in sync with the last tag' do
+	it 'also keeps the main trait in sync with the last tag' do
 
 		o = Object.new.extend(Tag3)
 		o.m1.should == 6

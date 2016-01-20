@@ -2,12 +2,12 @@ require "spec_helper"
 
 =begin rdoc
 	This file contains the specs for the GOF Decorator Pattern and 
-	Strategy Pattern use cases for injectors.
+	Strategy Pattern use cases for traits.
 =end
 
 include Injectors
 
-describe 'some use cases', :injectors do 
+describe 'some use cases', :traits do 
 
 	describe 'GOF Decortors is one use of this codebase. Traditionally this is only partially solved in Ruby through PORO 
 	decorators or the use of modules with the problems of loss of class identity for the former 
@@ -22,12 +22,12 @@ describe 'some use cases', :injectors do
 			end
 			
 			# debugger
-			injector :milk do
+			trait :milk do
 				def cost
 					super() + 0.30
 				end
 			end
-			injector :vanilla do
+			trait :vanilla do
 				def cost
 					super() + 0.15
 				end
@@ -59,7 +59,7 @@ describe 'some use cases', :injectors do
 			end
 
 			cup = Coffee.new.enrich(milk).enrich(vanilla).enrich(vanilla)
-			cup.injectors.sym_list.should == [:vanilla, :vanilla, :milk]
+			cup.traits.sym_list.should == [:vanilla, :vanilla, :milk]
 			cup.cost.should == 2.10
 			cup.should be_instance_of(Coffee)
 			
@@ -96,7 +96,7 @@ describe 'some use cases', :injectors do
 			end
 			
 			cup.enrich(vanilla)
-			cup.injectors.sym_list.should == [:vanilla, :vanilla, :milk]
+			cup.traits.sym_list.should == [:vanilla, :vanilla, :milk]
 			cup.cost.should == 2.10
 			cup.appearance.should == 'extra red vanilla'
 			
@@ -122,7 +122,7 @@ describe 'some use cases', :injectors do
 				end
 			end
 
-			injector :WidgetDecorator do
+			trait :WidgetDecorator do
 				attr_reader :width, :height       
 
 				def dim(width, heigth)
@@ -216,7 +216,7 @@ describe 'some use cases', :injectors do
 			end
 
 			
-			MainDecorator = injector :WidgetDecorator do
+			MainDecorator = trait :WidgetDecorator do
 				
 				attr_accessor :font, :width, :height       
 
@@ -351,12 +351,12 @@ describe 'some use cases', :injectors do
 			  end
 			end
 
-			injector :Sweedish do
+			trait :Sweedish do
 				def brew
 					@strategy = 'sweedish-'
 				end
 			end
-			injector :French do
+			trait :French do
 				def brew
 					@strategy ='french-'
 				end
@@ -377,12 +377,12 @@ describe 'some use cases', :injectors do
 		
 		this 'can be further enhanced by mixing it with the above decorator pattern' do
 
-			injector :Russian do
+			trait :Russian do
 				def brew
 					@strategy = super.to_s + 'vodka-'
 				end
 			end
-			injector :Scotish do
+			trait :Scotish do
 				def brew
 					@strategy = super.to_s + 'wiskey-'
 				end
@@ -400,7 +400,7 @@ describe 'some use cases', :injectors do
 		a new one' do
 			
 			class Tea < Coffee  # Tea is a type of coffee ;~Q)
-				injector :SpecialStrategy do
+				trait :SpecialStrategy do
 					def brew
 						@strategy = 'special'
 					end
@@ -446,7 +446,7 @@ describe 'some use cases', :injectors do
 				end
 				w = Widget.new
 			
-				injector :decorator
+				trait :decorator
 				w.enrich decorator, decorator, decorator, decorator
 			
 				# user input

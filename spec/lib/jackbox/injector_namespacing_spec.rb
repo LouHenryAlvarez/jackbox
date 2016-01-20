@@ -1,34 +1,34 @@
 require "spec_helper"
 =begin rdoc
 	
-	Name spacing of injectors
+	Name spacing of traits
 	Author: LHA
 
 
 
-	Description of the difference between the different namespacing options of injectors:
+	Description of the difference between the different namespacing options of traits:
 	 
-	injector :Main
+	trait :Main
 				vs.
-	injector :main
+	trait :main
 
 	module X
-		injector :Some_Injector
+		trait :Some_Injector
 							vs.
-		injector :some_injector
+		trait :some_trait
 	end
 
 	class Y
-		injector :Other_Injector
+		trait :Other_Injector
 							vs.
-		injector :other_injector
+		trait :other_trait
 	end
 
 =end
 
 ###########################
-injector :Major
-injector :minor            
+trait :Major
+trait :minor            
 ###########################
 
 # upper case vs lower case: semantically equivalent
@@ -73,8 +73,8 @@ end
 
 ###############################
 module X
-	injector :Maxi																	# use sparringly
-	injector :mini
+	trait :Maxi																	# use sparringly
+	trait :mini
 end
 ################################
 
@@ -144,9 +144,9 @@ end
 # Should follow the same line
 # 
 class Y
-	injector :Other_Injector
+	trait :Other_Injector
 						# vs.
-	injector :other_injector
+	trait :other_trait
 end
 # 
 # No example needed!!
@@ -156,12 +156,12 @@ end
 
 
 # Tied to the idea of Injector Name Spaces is the one of Injector Version Naming/Tagging.  In order to make is easier to
-# work with injector versions there is a need to tag/name the different versions for later use.
-describe 'injector Tagging/Naming and its relationship to Injector Versioning' do
+# work with trait versions there is a need to tag/name the different versions for later use.
+describe 'trait Tagging/Naming and its relationship to Injector Versioning' do
 	
 	there 'is way to tag/name a particular version for later reuse' do
 
-		injector :Bar
+		trait :Bar
 		
 		Tag = Bar do
 			def foo_bar
