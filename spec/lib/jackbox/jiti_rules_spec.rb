@@ -4,14 +4,17 @@ describe 'jit inheriatnce' do
 
 	before do
 		
-		# 
-		# Injector
-		# 
-		trait :Tagger
-
 		suppress_warnings do
 
-			Tag1 = Tagger do
+			# 
+			# Trait
+			# 
+			trait :Functionality
+
+			# 
+			# Works like class inheritance
+			# 
+			Tag1 = Functionality do
 				def m1
 					1
 				end
@@ -21,13 +24,13 @@ describe 'jit inheriatnce' do
 				end
 			end
 
-			Tagger do
+			Functionality do
 				def other  					# No overrides No inheritance
 					'other'						# -- same ancestors as before
 				end 								# -- normal trait inheritance
 			end
 
-			Tag2 = Tagger do
+			Tag2 = Functionality do
 				def m1														# The :m1 override invokes JIT inheritance
 					super + 1												# -- Tag1 is added as ancestor
 				end 															# -- allows the use of super
@@ -41,7 +44,7 @@ describe 'jit inheriatnce' do
 				inject Tag2
 			end
 
-			Tag3 = 	Tagger() do
+			Tag3 = 	Functionality() do
 				def m1
 					super * 2 											# second override to #m1 
 				end                   						# -- Tag2 added as ancestor
@@ -67,30 +70,18 @@ describe 'jit inheriatnce' do
 
 		end
 
-		Tagger(:implode)
+		Functionality(:implode)
 
 	end
 
-	it 'works like class inheritance' do
+	it 'works under boejct extension' do
 
 		o = Object.new.extend Tag3
 		o.m1.should == 4
 
 	end
 
-	it 'keeps the main trait in sync with the last tag' do
-
-		o = Object.new.extend Tag3
-		p = Object.new.extend Tagger()
-
-		# test it
-
-		o.m1.should == 4
-		p.m1.should == 4
-
-	end
-
-	it 'also works under inclusion' do
+	it 'also works under class inclusion' do
 
 		#
 		# Under Inclusion
@@ -108,7 +99,7 @@ describe 'jit inheriatnce' do
 		aa6.m2.should == :m2
 		aa6.other.should == 'other'
 
-		Tagger().tags.should == [Tag1, Tag2, Tag3]
+		Functionality().tags.should == [Tag1, Tag2, Tag3]
 
 	end
 
@@ -130,16 +121,28 @@ describe 'jit inheriatnce' do
 		aa7.m2.should == :m2
 		aa7.other.should == 'other'
 
-		Tagger().tags.should == [Tag1, Tag2, Tag3]
+		Functionality().tags.should == [Tag1, Tag2, Tag3]
 
 	end
 
-	it 'allows rebasing methods cancelling that method genetics but keeping the rest' do 
+	it 'keeps the main trait in sync with the last tag' do
+
+		o = Object.new.extend Tag3
+		p = Object.new.extend Functionality()
+
+		# test it
+
+		o.m1.should == 4
+		p.m1.should == 4
+
+	end
+
+	it 'allows rebasing individual methods' do 
 
 		# 
 		# Another prolongation: back to basics
 		# 
-		Tag4 = Tagger() do
+		Tag4 = Functionality() do
 			def m1														# another override but no call to #super
 				:m1															# -- just simple override
 			end 															# -- could be tagged if needed
@@ -161,11 +164,11 @@ describe 'jit inheriatnce' do
 
 		# Total Tags
 
-		Tagger().tags.should == [Tag1, Tag2, Tag3, Tag4]
+		Functionality().tags.should == [Tag1, Tag2, Tag3, Tag4]
 
 	end
 
-	it 'still holds on to earlier Tag definitions' do
+	it 'still holds on to earlier tag definitions' do
 
 		# 
 		# Test previous Tags are unaffected !!
@@ -197,7 +200,7 @@ describe 'jit inheriatnce' do
 		#
 		# VMC (Virtual Method Cache) method
 		#
-		Tagger() do
+		Functionality() do
 			def m4							
 				:m4
 			end
@@ -232,7 +235,7 @@ describe 'jit inheriatnce' do
 			end
 		end
 
-		Tag5 = Tagger(Mod1) do
+		Tag5 = Functionality(Mod1) do
 
 			include Mod1											# alternatively
 
@@ -266,7 +269,7 @@ describe 'jit inheriatnce' do
 		# On the fly overrides
 		# 
 		obj = Object.new.extend(
-			Tagger {
+			Functionality {
 				def m1
 					super + 3											# on top of Tag1, Tag2, Tag3
 				end
@@ -285,7 +288,7 @@ describe 'jit inheriatnce' do
 
 		# other prolongation
 
-		Object.new.extend(Tagger(){
+		Object.new.extend(Functionality(){
 			def m3
 				super * 2
 			end
@@ -293,13 +296,13 @@ describe 'jit inheriatnce' do
 
 	end
 
-	it "does not allow ancestor intrussion" do
+	it "blocks external ancestor intrusion enforcing internal trait consistency" do
 
 		#########################################
 		# Masks Ancestor intrussion
 		# 
 
-		Tag6 = Tagger do
+		Tag6 = Functionality do
 			def m1														# Injector has internal base
 				1
 			end
@@ -311,7 +314,7 @@ describe 'jit inheriatnce' do
 			end
 		end
 
-		Tag7 = Tagger(Mod1) do 						# Mod1 attempts to intrude on base
+		Tag7 = Functionality(Mod1) do 						# Mod1 attempts to intrude on base
 
 			include Mod1
 
@@ -326,7 +329,7 @@ describe 'jit inheriatnce' do
 		# jit inherited
 		o.m1.should == 2										# no such luck!!
 
-		p = Object.new.extend(Tagger())
+		p = Object.new.extend(Functionality())
 		# jit inherited
 		p.m1.should == 2										# no such luck!!
 
@@ -336,9 +339,9 @@ describe 'jit inheriatnce' do
 
 	end
 
-	it 'allow overriding methods further down the tree' do
+	it 'allows overriding methods further down the tree' do
 
-		Tag8 = Tagger do
+		Tag8 = Functionality do
 		  def m1
 		    1
 		  end
@@ -346,12 +349,12 @@ describe 'jit inheriatnce' do
 		    2
 		  end
 		end
-		Tag9 = Tagger do
+		Tag9 = Functionality do
 		  def m1
 		    'm1'
 		  end 								# skipped #m2
 		end
-		Tag10 = Tagger do
+		Tag10 = Functionality do
 		  def m1
 		    super * 2
 		  end
@@ -370,16 +373,16 @@ describe 'jit inheriatnce' do
 
 	end
 
-	it 'allows rebasing methods at any level' do
+	it 'allows rebasing (start fresh) methods at any level' do
 
-		Tag11 = Tagger do
+		Tag11 = Functionality do
 			def m1
 				1																# rebase Tag3
 			end
 		end
 
 		class AA11
-			inject Tagger() do
+			inject Functionality() do
 				def m1
 					super + 1											# override
 				end
@@ -391,14 +394,14 @@ describe 'jit inheriatnce' do
 		AA11.new.m1.should == 2
 
 
-		Tag12 = Tagger do
+		Tag12 = Functionality do
 			def m1
 				5																# rebase m1 again
 			end
 		end
 
 		class BB11
-			inject Tagger() do
+			inject Functionality() do
 				def m1
 					super * 2											# new override
 				end
@@ -412,16 +415,16 @@ describe 'jit inheriatnce' do
 
 	end
 
-	it 'takes Injector Directives' do
+	it 'slloed Injector Directives likr sll traits' do
 
-		Tag13 = Tagger do
+		Tag13 = Functionality do
 			def m1
 				1
 			end
 		end
 
 		class AA12
-			inject Tagger() do
+			inject Functionality() do
 				def m1
 					super + 1
 				end
@@ -431,14 +434,14 @@ describe 'jit inheriatnce' do
 		AA12.new.m1.should == 2
 
 
-		Tag14 = Tagger do
+		Tag14 = Functionality do
 			def m1
 				5									# rebase m1
 			end
 		end
 
 		class BB12
-			inject Tagger() do
+			inject Functionality() do
 				def m1
 					super * 2				# new override
 				end
@@ -449,12 +452,12 @@ describe 'jit inheriatnce' do
 
 		# test directives
 
-		Tagger(:silence)
+		Functionality(:silence)
 
 		AA12.new.m1.should == nil										# both bases affected
 		BB12.new.m1.should == nil
 
-		Tagger(:active)
+		Functionality(:active)
 
 		AA12.new.m1.should == 2											# both bases restored
 		BB12.new.m1.should == 10
@@ -470,20 +473,26 @@ describe 'jiti external basing' do
 		#
 		# Injector
 		# 
-		trait :Tagger
+		trait :Functionality
 
 		suppress_warnings do
 
-			module Base1												# EXTERNAL BASE!!
+			module Base1												# EXTERNAL BASEs!!
 				def m1
 					2
+				end
+			end
+
+			module Base2
+				def m1
+					3
 				end
 			end
 
 			# 
 			# Similar to Above
 			# 
-			Tag1 = Tagger(Base1) do
+			Tag1 = Functionality(Base1) do
 
 				# include Base1										# alternatively
 
@@ -492,7 +501,7 @@ describe 'jiti external basing' do
 				end
 			end
 
-			Tag2 = Tagger do
+			Tag2 = Functionality do
 				def m1														# The :m1 override invokes JIT inheritance
 					super + 1												# -- Tag1 is added as ancestor
 				end 															# -- allows the use of super
@@ -502,7 +511,7 @@ describe 'jiti external basing' do
 				end
 			end
 
-			Tag3 = 	Tagger() do
+			Tag3 = 	Functionality() do
 				def m1
 					super * 2 											# second override to #m1 
 				end                   						# -- Tag2 added as ancestor
@@ -524,11 +533,11 @@ describe 'jiti external basing' do
 
 		end
 
-		Tagger(:implode)
+		Functionality(:implode)
 
 	end
 
-	it 'allows initial external basing' do
+	it 'works with initial external basing' do
 
 		o = Object.new.extend(Tag3)
 		o.m1.should == 6										# from Base1 thru Tag3
@@ -540,14 +549,14 @@ describe 'jiti external basing' do
 		o = Object.new.extend(Tag3)
 		o.m1.should == 6
 
-		p = Object.new.extend(Tagger())
+		p = Object.new.extend(Functionality())
 		p.m1.should == 6
 
 	end
 
-	it 'carries on as usual' do
+	it 'follows the other normal rules' do
 
-		Tag15 = Tagger do
+		Tag15 = Functionality do
 			def m1
 				super() * 2											# on top of Tag3
 			end
@@ -561,31 +570,22 @@ describe 'jiti external basing' do
 
 	end
 
-	it 'allows base substitution but keeps the Injector inheritance casing' do
+	it 'allows external base substitution --keeps the Trait Injector shell/casing' do
 
-		module Base2
-			def m1
-				3
-			end
-		end
-
-		q = Object.new.extend(Tagger(Base2))	# on top or Tag3 thru Tag2....
+		q = Object.new.extend(Functionality(Base2))	# on top or Tag3 thru Tag2....
 		q.m1.should == 8
 
 	end
 
-	it 'also injects other ancestor function but keeps inheritance casing' do
+	it 'also allows other external base function' do
 
 		module Base2
-			def m1
-				4
-			end
 			def m4
 				'new'
 			end
 		end
 
-		Tag16 = Tagger(Base2) do
+		Tag16 = Functionality(Base2) do
 			def m1
 				super / 2
 			end
@@ -596,57 +596,57 @@ describe 'jiti external basing' do
 
 		p = Object.new.extend(Tag16)
 
-		p.m1.should == 5										# external rebase and thru Tag16, Tag3 and Tag2
+		p.m1.should == 4										# external rebase and thru Tag16, Tag3 and Tag2
 		p.m2.should == :m2
 		p.m4.should == 'new'								# new function
 
 	end
 
-	it 'can mixes in both strategies' do
+	it 'enforces internal basing once applied --blocks further external intrusion (like above)' do
 
-		Tag17 = Tagger(Base2) do
+		Tag17 = Functionality(Base2) do
 			def m2 
 				6																# rebase #m2
 			end
 		end
 
-		o = Object.new.extend(Tagger())
-		o.m1.should == 10										# Base2 thru Tag3 casing
+		o = Object.new.extend(Functionality())
+		o.m1.should == 8										# Base2 thru Tag3 casing
 		o.m2.should == 6										# new #m2
 
-		Tagger() do
+		Functionality() do
 			def m1
 				super + 1												# on top of Tag17
 			end
 		end
 		
-		p = Object.new.extend Tagger()
-		p.m1.should == 11
+		p = Object.new.extend Functionality()
+		p.m1.should == 9
 
 		module Base3
 			def m1
 				0																# new base
 			end
 			def m3														
-				:m3															# mutee by internal basing
+				:m3															# muted by internal basing
 			end
 		end
 
-		p = Object.new.extend(Tagger(Base3))
+		p = Object.new.extend(Functionality(Base3))
 		p.m1.should == 3
 		p.m2.should == 6
 		p.m3.should == 'em3em3'
 
 		q = Object.new.extend(
-			Tagger() do
+			Functionality() do
 				def m1
-					2															# internal rebse
+					2															# internal rebase
 				end
 			end)
 		q.m1.should == 2
 		q.m2.should == 6
 		
-		Tag18 = Tagger()
+		Tag18 = Functionality()
 		
 		module Base4
 			def m1
@@ -654,7 +654,7 @@ describe 'jiti external basing' do
 			end
 		end
 		
-		r = Object.new.extend(Tagger(Base4))
+		r = Object.new.extend(Functionality(Base4))
 		r.m1.should == 2
 		r.m2.should == 6
 

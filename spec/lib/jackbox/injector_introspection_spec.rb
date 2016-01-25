@@ -607,7 +607,6 @@ describe "the introspection api in further detail" do
 				
 				
 			  # unless changed 
-				##################################
 				E().diff.should be_empty
 
 				# because
@@ -622,7 +621,6 @@ describe "the introspection api in further detail" do
 		
 
 				# tags are the same
-				##################################
 				ETag2 = E()
 				
 				E().diff(ETag2).should be_empty
@@ -636,56 +634,84 @@ describe "the introspection api in further detail" do
 				
 			it 'differs once a definition is present' do
 				
-				E().diff.class.should be(Array)
+		    # difference
+		    ##################################
 
-				# a tag to compare
-				##################################
-				ETag3 = E()
+		    #diff(ver=nil)  --( The argument ver=nil defaults to the previous version )
 
-
-				# if E() definitions **
-				E do
-					def foo 									
-					end
-				end
+		      E().diff.class.should be(Array)
 
 
-				# E is changed so...
-				####################################
-				E().diff(ETag3).should_not be_empty
+		    #diff.empty?  --( Is the delta empty? The join could still exist (see below). )
 
-				# because
-			  ETag3.should_not == E() 
-				# and
-				E().diff(ETag3).delta.should == [:foo]
-				
-				# is not loaded
-				##################################
-				E().diff(ETag3).should_not be_loaded
+		      E().diff.should be_empty
 
-				# because
-				E().diff(ETag3).join.should == []
-				# even though
-				E().diff(ETag3).delta.should == [:foo]
-		             
-				# furthermore
-				######################################
-				E().diff.should == [[], [:foo]] 
-				 
-				# being that
-				E().diff.should eq( E().diff(E().precedent) )
-				E().progenitor.should equal(E().spec)
+
+		      # because
+		      E().diff.delta.should be_empty
+		      E().diff.join.should be_empty
+
+
+		      # a tag to compare
+		      ETag3 = E()
+
+
+		      # if some E() definitions **
+		      E do
+		      	def foo 									
+		      	end
+		      end
+
+
+		      # E is changed so...
+		      E().diff(ETag3).should_not be_empty
+
+
+		      # because (like above)
+		      ETag3.should_not == E() 
+
+		      # and
+
+
+		    #diff.delta  --( The difference in methods )
+
+		      E().diff(ETag3).delta.should == [:foo]
+
+
+		    #diff.loaded? --( Is there both a join and a delta? )
+
+		      E().diff(ETag3).should_not be_loaded
+
+		      # because
+
+
+		    #diff.join  --( The methods common to both )
+
+		      E().diff(ETag3).join.should == []
+
+
+		      # even though
+		      E().diff(ETag3).delta.should == [:foo]
+
+
+		      # furthermore
+		      E().diff.should == [[], [:foo]] 
+
+
+		      # being that
+		      E().diff.should eq( E().diff(E().precedent) )
+		      # and
+		      E().progenitor.should equal(E().spec)
 				
 			end
 			
 			it 'continues to work with expansion' do
 			
-				# a tag to compare
-				##################################
+				# a tag as precedent
 				ETag4 = E()
 
 
-				# if E() definitions **
+				# if more E() definitions **
 				E do
 					def foo 									
 					end
@@ -695,7 +721,6 @@ describe "the introspection api in further detail" do
 
 
 				# then
-				##################################
 				E().diff(ETag4).join.should == []
 				E().diff(ETag4).delta.should == [:foo, :bar]
 				E().diff.join.should == []
@@ -709,45 +734,46 @@ describe "the introspection api in further detail" do
 			
 			it 'creates traits for inclusion' do
 				
-				# a tag to compare
-				##################################
-				ETag5 = E()
+	  		# a tag as precedent
+	  		ETag5 = E()
 
 
-				# if E() definitions **
-				E do
-					def foo
-						:foo
-					end
-					def bar
-						:bar
-					end
-				end
+	  		# if E() definitions **
+	  		E do
+	  			def foo
+	  				:foo
+	  			end
+	  			def bar
+	  				:bar
+	  			end
+	  		end
 
 
-				# then 
-				E().diff.join.should be_empty
-				E().diff.should_not be_empty
-				
+	  		# then 
+	  		E().diff.should_not be_empty
+
+	  		# being that
+	  		E().diff.join.should be_empty
+	  		E().diff.delta.should_not be_empty
+	  		# as for
+	  		E().diff.delta.injector.instance_methods.should == [:foo, :bar]
+	  		# and
+	  		E().diff.delta.injector.should_not eq(E().diff.join.injector)
+
+	  		# being that
+	  		E().diff.join.injector.instance_methods.should be_empty
+	  		E().diff.delta.injector.instance_methods.should_not be_empty
+
+	  		# allows the following
+	  		class Incomplete
+	  			inject E().diff.delta.injector
+	  		end
+	  		# and
+	  		Incomplete.new.foo.should eq(:foo)
+
 				# being that
-				E().diff.delta.should_not be_empty
 				E().diff.delta.injector.should be_instance_of(Injector)
 				E().diff.delta.injector.should be_instance_of(Trait)
-				E().diff.delta.injector.instance_methods.should == [:foo, :bar]
-				
-				# and
-				E().diff.delta.injector.should_not eq(E().diff.join.injector)
-				
-				# being that
-				E().diff.join.injector.instance_methods.should be_empty
-				E().diff.delta.injector.instance_methods.should_not be_empty
-				
-				# allows the following
-				class Incomplete
-					inject E().diff.delta.injector
-				end
-				# and
-				Incomplete.new.foo.should eq(:foo)
 				
 			end
 			
