@@ -83,7 +83,7 @@ It also works like so:
 
 
 #### #with obj, &blk 
-There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time. The other important thing about #with is that it allows you to directly place definitions on and returns the same object you passed into it, or the result of the last evaluation in the #with block on the alternative.
+There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time. See below for some examples.  Used in this fashion it can abstract some of the tediousness of an explicit self in some calls. The other thing about #with is that it allows you to directly place definitions on the object you pass in using its most natural form based on whether it's an instance of Object or Module.  Then it returns the same object you passed into it after the block has done processing it.  You can also pass multiple objects: #with a, b, c for example and the same block applies to all returning a, b, c afterwards.
 
 Here is some sample usage code:
 
@@ -1492,21 +1492,25 @@ __2) The Super Pattern.-__ No.  This is not a superlative kind of pattern.  Simp
 
 __3) The Solutions Pattern.-__  For a specific example of what can be accomplished using this workflow please refer to the rspec directory under the transformers spec.  Here is the basic flow:
 
-    jack :Solution
+    jack :Solution do
+      def meth
+        1
+      end
+    end
 
     Solution( :tag ) do
     	def solution
-    		1
+    		meth + 1
     	end
     end
     Solution( :tag ) do
     	def solution
-    		2
+    		meth + 2
     	end
     end
     Solution( :tag ) do
     	def solution
-    		3
+    		meth + 3
     	end
     end
 
@@ -1596,8 +1600,87 @@ This helper verifies a certain re-class exists within the current namespace.  It
       end
     end
 
+__5. The Web Widget Pattern.__
+This example uses Jackbox Ruby Traits to render web controls.  There are a couple of different variations possible which we show in the rspec files.  Here we'll use the one based on JITI.  Here is the code:
 
-For more information and additional examples see the rspec examples on this project.  There you'll find a long list of over __250__ rspec examples and code showcasing features of Jackbox Injectors along with some additional descriptions.
+    # some data
+
+    def database_content                # could be any model
+    	%{car truck airplane boat}
+    end 
+
+    # rendering helper controls
+
+    class MyWidget
+    	def initialize(content)
+    		@content = content
+    	end       
+
+    	def render
+    		"<div id='MyWidget'>#{@content}</div>"
+    	end
+    end
+
+
+    MainFace = trait :WidgetFace do     # our trait
+	
+    	attr_accessor :font, :width, :height       
+
+    	def dim(width, heigth)
+    		@width, @heigth = width, heigth
+    	end
+	
+    	def render
+    		%{
+    			<style>
+    			#MyWidget{
+    				font: 14px, #{@font};
+    				width:#{@width};
+    				height: #{@heigth}
+    			}
+    			</style>
+    			#{super()}
+    		}
+    	end
+    end
+
+    # somewhere in a view
+
+    browser = 'Safari'                  # the user selected media
+    @content = database_content
+
+
+    my_widget = case browser
+    when match(/Safari|Firefox|IE/)
+
+    	MyWidget.new(@content).enrich(WidgetFace() do
+		
+    		def render															# override invoking JIT inheritance
+    			dim '600px', '200px'									# normal inherited method call
+    			@font = 'helvetica'
+
+    			super()
+    		end
+    	end)
+
+    else
+
+    	MyWidget.new(@content).enrich(WidgetFace() do
+		
+    		def render															# override invoking JIT inheritance
+    			dim '200px', '600px'                  # normal inherited method call
+    			@font ='arial'
+
+    			super()
+    		end
+    	end)
+
+    end
+
+    WidgetFace(:implode)
+		 
+
+For more information and additional examples see the rspec examples on this project.  There you'll find a long list of over __250__ rspec examples and code showcasing features of Jackbox Trait Injectors along with some additional descriptions.
 
 ---
 ## Additional Tools
@@ -1690,5 +1773,5 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-In the above copyright notice, the letters LHA are the english acronym 
+In the above copyright notice, the letters LHA are the English acronym 
 for Luis Enrique Alvarez (Barea) who is the author and owner of the copyright.

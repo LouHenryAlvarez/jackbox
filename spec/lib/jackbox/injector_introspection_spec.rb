@@ -239,7 +239,7 @@ describe "the introspection api in further detail" do
 
 			end
 
-			the ':all trait list for classes lists CLASS instance traits first and then OBJECT instance traits' do
+			the ':all option lists CLASS instance traits first and then OBJECT instance traits' do
 
 				trait :two
 				trait :one
@@ -252,14 +252,36 @@ describe "the introspection api in further detail" do
 				Array.traits(:all).sym_list.should == [:one, :two]
 				
 				Array.new.traits.sym_list.should == [:two] 	# :one is member of Array.singleton_class 
-																												# and does not become part of Array.instances
+																										# and does not become part of Array.instances
+			end
+			
+			it 'also works on injector instances' do
+				
+				trait :a, :b
+				
+				a do
+					def foo
+						:foo
+					end
+				end
+				o = Object.new.extend(a)
+				o.foo.should == :foo
+				
+				b do
+					def faa
+						:faa
+					end
+				end
+				a.extend b
+				a.faa.should == :faa
+				
 			end
 
 		end
 	end
 
 
-	describe :history do
+	describe :history, '#versions' do
 
 		
 		jack :Histample
@@ -333,6 +355,42 @@ describe "the introspection api in further detail" do
 			
 		end
 		
+		describe '#versions under JITY' do
+			before do
+				trait :One
+				
+				suppress_warnings do
+					OneTag = One do
+						def foo
+							'foo'
+						end
+					end
+				end
+				
+				One do
+					def foo
+						super
+					end
+				end
+				
+			end
+			
+			after do
+				suppress_warnings do
+					OneTag = nil
+				end
+				
+				One(:implode)
+			end
+			
+				
+			it 'should only have one version' do
+				
+				One().versions.size.should == 1 # OneTag
+				
+			end
+		end
+		
 		describe :precedent do
 
 			it 'points to the previous trait in the history' do
@@ -398,42 +456,41 @@ describe "the introspection api in further detail" do
 			expect(Progample().history).to be_empty
 			expect(Progample().progenitor).to equal(Progample().spec)
 
-			# apply the trait
+
+			# apply the traits
 			
 			extend Progample(), Progample()       
 			
-			expect(Progample().history.size).to eq(2)
-			
-			
-			# both generated form spec
+
+			# both are procreated form spec
 			
 			expect(Progample().history.first.progenitor).to equal(Progample().spec)
 			expect(Progample().history.last.progenitor).to equal(Progample().spec)
+			expect(Progample().history.size).to eq(2)
 
 
 			# create a tag
 			
-			suppress_warnings do # used because of rspec
+			suppress_warnings do # used because of constant
 				ProgenitorsTag = Progample()
 			end
 
-			expect(Progample().history.size).to eq(3)
+
+			# Progenitors Tag has spec as progenitor
 			
-			expect(Progample().history.first.progenitor).to equal(Progample().spec)
 			expect(Progample().history.last).to equal(ProgenitorsTag)
 			expect(Progample().history.last.progenitor).to equal(Progample().spec)
 			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)
+			expect(Progample().history.size).to eq(3)
 
 
 			# apply the tag
-			
 			extend ProgenitorsTag
 
-			expect(Progample().history.size).to eq(4)
 			expect(Progample().history.last).to equal(traits.first)
-			 
 			expect(Progample().history.last.progenitor).to equal(ProgenitorsTag) 
 			expect(Progample().history.first.progenitor).to equal(Progample().spec)
+			expect(Progample().history.size).to eq(4)
 
 		end
 		
@@ -453,7 +510,6 @@ describe "the introspection api in further detail" do
 
 
 			# soft tag
-			# debugger
 			Progample(:tag) { 'some code'}       			
 
 			expect(Progample().history.size).to eq(2)
@@ -592,6 +648,19 @@ describe "the introspection api in further detail" do
 
 			end
 			
+			it 'has case equality showing its presence in an instance' do
+				
+				o = Object.new.extend E()
+				
+				E().should === o
+				
+				case E()
+				when o
+					should be_true
+				end
+				
+			end
+			
 		end
 		
 		describe :diff do
@@ -632,7 +701,7 @@ describe "the introspection api in further detail" do
 				
 			end
 				
-			it 'differs once a definition is present' do
+			it 'differs once injector specalization is present' do
 				
 		    # difference
 		    ##################################
@@ -732,7 +801,7 @@ describe "the introspection api in further detail" do
 				
 			end
 			
-			it 'creates traits for inclusion' do
+			it 'exposes join and delta sub-traits for inclusion/extension' do
 				
 	  		# a tag as precedent
 	  		ETag5 = E()
@@ -777,8 +846,22 @@ describe "the introspection api in further detail" do
 				
 			end
 			
+			it 'accepts a negative index' do
+				
+				extend E(), E(), E()
+				
+				E() do
+					def foo
+					end
+				end
+				
+				E().diff( -1 ).should == [[],[:foo]]
+				E().diff( -3 ).should == [[],[:foo]]
+				E().diff( -4 ).should == [[:foo], []] # self
+				
+			end
+			
 		end
-	
 	end
 
 end

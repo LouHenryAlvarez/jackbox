@@ -256,19 +256,17 @@ end
 
 describe "tag scoping and naming" do
 	
-	it 'passes' do
+	it 'passes on top level' do
 		
 		jack :M0
 		
 		TopLevelTag = M0()
-		
 		extend TopLevelTag
-		
 		singleton_class.ancestors.to_s.should match(/TopLevelTag/)
 		
 	end
 	
-	it 'also passes' do
+	it 'passes for nested tags' do
 		
 		module M1
 			jack :j1
@@ -286,7 +284,7 @@ describe "tag scoping and naming" do
 		
 	end
 	
-	it 'also passes' do
+	it 'also passes with deeper nesting' do
 		
 		module M3
 			module M4

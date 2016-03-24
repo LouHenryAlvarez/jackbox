@@ -1,5 +1,11 @@
 
-Copyright © 2014, 2015 LHA (Lou Henry Alvarez). All rights reserved.
+Copyright © 2014, 2015, 2016, LHA (Lou Henry Alvarez). All rights reserved.
+
+This means you cannot reproduce the whole or any part of the source code or 
+documentation at any time, or under any circumstances, without the express 
+permission of the author.  Use of the binary encoded form of the software is 
+free of charge for a limited time, while the binary license and keys expire, 
+and is subject to the above Copyright notice and afore terms for reproduction.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF

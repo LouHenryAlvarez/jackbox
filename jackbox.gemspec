@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 	spec.authors       = ["Lou Henry Alvarez (LHA)"]
 	spec.email         = ["luisealvarezb@yahoo.com"]
 	spec.description   = %q{Main gem for Ruby Code Injectors: Closures as Modules}
-	spec.summary       = %q{Jackbox is a set of programming tools which enhance the Ruby language and provide some additional software constructs. Main library for Modular Closures, ReClasses, and Ruby Code Injectors. }
+	spec.summary       = %q{Jackbox is a set of programming tools which enhance the Ruby language and provide some additional software constructs. Main library for Ruby Modular Closures, Traits, Code Injectors, class constructors, and other Ruby programmer morphins.}
 	spec.homepage      = "http://jackbox.us"
 	spec.license       = %Q{Copyright © 2014, 2015 LHA. All rights reserved. See LICENSE.txt}
 

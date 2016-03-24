@@ -666,7 +666,7 @@ describe 'multiple trait composition and decomposition' do
 		flyer.gear.should == 'wheels'
 		
 	end
-
+	
 	it 'co-exists with method_missing on classes/modules' do
 
 		# writing method_missing in conjunction with trait use
@@ -789,6 +789,201 @@ describe 'multiple trait composition and decomposition' do
 		
 	end
 	
+	describe 'trait order resolution' do
+		
+		it 'allows the following' do
+			
+			trait :a, :b, :c
+			
+			x = a b,c
+			y = a c,b
+			
+			x.should == a
+			y.should == a
+			x.ancestors.map(&:name).should == [:a, :b, :c]
+			y.ancestors.map(&:name).should == [:a, :c, :b]
+			x.traits.by_name.should == [:b, :c]
+			y.traits.by_name.should == [:c, :b]
+			a.ancestors.map(&:name).should == [:a]
+			b.ancestors.map(&:name).should == [:b]
+			c.ancestors.map(&:name).should == [:c]
+			
+		end
+		
+		it "also allows the following" do
+			
+			trait :a, :b, :c
+			
+			x = a b c
+			y = a c b
+			
+			x.should == a
+			y.should == a
+			x.ancestors.map(&:name).should == [:a, :b, :c]
+			y.ancestors.map(&:name).should == [:a, :c, :b]
+			x.traits.by_name.should == [:b]
+			y.traits.by_name.should == [:c]
+			x.traits.first.traits.by_name.should == [:c]
+			y.traits.first.traits.by_name.should == [:b]
+			a.ancestors.map(&:name).should == [:a]
+			b.ancestors.map(&:name).should == [:b]
+			c.ancestors.map(&:name).should == [:c]
+			
+		end
+	end
+
+	describe "composition with other tagged traits" do
+		before do
+			trait :a, :b, :c
+		
+			suppress_warnings do
+				A1 = a do
+					def m
+						1
+					end
+				end
+			
+				B1 = b do
+					def n
+						2
+					end
+				end
+			
+				CC = c do
+					def o
+						3
+					end
+				end
+				
+				# debugger
+				A2 = a b c do
+					def m
+						super * 6
+					end
+				end
+			
+				B2 = b a c do
+					def m
+						super - 1
+					end
+					def n
+						super + 2
+					end
+				end
+			end
+			
+		end
+		
+		after do
+			suppress_warnings do
+				A1, A2, B1, B2, CC = nil, nil, nil, nil, nil
+			end
+			with a, b, c do
+				send :implode
+			end
+		end
+		
+		it "allows composition and inheritance" do
+			
+			p = Object.new.extend A2
+			q = Object.new.extend B2
+			
+			p.m.should == 6
+			p.n.should == 2
+			p.o.should == 3
+			
+			q.m.should == 5
+			q.n.should == 4
+			q.o.should == 3
+			
+		end
+		
+		it 'encompasses ancestors as follows' do
+			
+			A1.ancestors.map(&:name).should == [:a]
+			B1.ancestors.map(&:name).should == [:b]
+			A2.traits(:all).by_name.should == [:a, :b, :c]
+			B2.traits(:all).by_name.should == [:b, :a, :c]
+			A2.ancestors.map(&:name).should == [:a, :b, :c]
+			B2.ancestors.map(&:name).should == [:b, :a, :c]
+			
+		end
+	end
+	
+	describe "composition with tags" do
+		before do
+			trait :a, :b, :c
+		
+			suppress_warnings do
+				A1 = a do
+					def m
+						1
+					end
+				end
+			
+				B1 = b do
+					def n
+						2
+					end
+				end
+			
+				CC = c do
+					def o
+						3
+					end
+				end
+			
+				A2 = a B1, CC do
+					def m
+						super * 6
+					end
+				end
+			
+				B2 = b A1, CC do
+					def m
+						super - 1
+					end
+					def n
+						super + 2
+					end
+				end
+			end
+			
+		end
+		
+		after do
+			suppress_warnings do
+				A1, A2, B1, B2, CC = nil, nil, nil, nil, nil, nil
+			end
+		end
+		
+		it "allows composition and inheritance" do
+			
+			p = Object.new.extend A2
+			q = Object.new.extend B2
+			
+			p.m.should == 6
+			p.n.should == 2
+			p.o.should == 3
+			
+			q.m.should == 0
+			q.n.should == 4
+			q.o.should == 3
+			
+		end
+		
+		it 'encompasses ancestors as follows' do
+			
+			A1.ancestors.map(&:name).should == [:a]
+			B1.ancestors.map(&:name).should == [:b]
+			A2.traits(:all).by_name.should == [:a, :b, :c]
+			B2.traits(:all).by_name.should == [:b, :a, :c]
+			A2.ancestors.map(&:name).should == [:a, :b, :c]
+			B2.ancestors.map(&:name).should == [:b, :a, :c]
+			
+		end
+	end
+	
 	describe 'standard inclusion/extension aspects' do
 		
 		it 'works with included/extended callbacks' do
@@ -846,7 +1041,7 @@ describe 'multiple trait composition and decomposition' do
 
 		end
 
-		it 'does not interfere for module inclusion and extension' do
+		it 'does not interfere with regular module inclusion and extension' do
 
 			expect{
 
@@ -895,7 +1090,7 @@ describe 'multiple trait composition and decomposition' do
 
 		end
 
-		it 'does the same for Injector self inclusion' do
+		it 'does the same for trait self inclusion' do
 		
 			expect{
 		
@@ -928,41 +1123,4 @@ describe 'multiple trait composition and decomposition' do
 		end
 
 	end
-
 end		
-
-########################################################################################
-# If you want to run these examples: you must have a debugger for your version of Ruby
-#              ** You must uncomment the DX line in spec_helper **
-# #####################################################################################
-
-# require 'jackbox/examples/dx'
-# describe DX, 'the debugger extras makes use of another capability of traits to just completely
-# collapse leaving the method calls inplace but ejecting the actual funtion out of them' do
-# 	
-# 	describe 'ability to break into debugger' do
-# 		# after(:all) { load "../../lib/tools/dx.rb"}
-# 		it 'has a method to break into debugger mode' do
-# 			DX.should_receive :debug
-# 			DX.debug
-# 		end
-# 		it 'can break into the debugger on exception' do
-# 			DX.should_receive :debug
-# 			DX.seize TypeError
-# 			expect{String.new 3}.to raise_error
-# 		end
-# 		the 'call to #collapse leaves the methods inplace but silent.  There are no
-# 		NoMethodError exceptions raised the programm proceeds but the DX function has been removed.  
-# 		See the #rebuild method' do
-# 			DX.logger :collapse
-# 			DX.splatter :collapse
-# 		
-# 			DX.debug  # nothing happens
-# 			DX.seize Exception # nothing happens
-# 			DX.assert_loaded.should == nil
-# 			DX.log("boo").should == nil
-# 			DX.syslog("baa").should == nil
-# 		end
-# 	end
-# end
-

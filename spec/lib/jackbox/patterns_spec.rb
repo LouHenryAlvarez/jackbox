@@ -197,76 +197,79 @@ describe 'some use cases', :traits do
 
 		a 'different way of doing it using: JIT inheritance' do
 		             
-			# some data
+	    # some data
 
-			def database_content
-				%{car truck airplane boat}
-			end 
+	    def database_content                # could be any model
+	    	%{car truck airplane boat}
+	    end 
 
-			# rendering helper controls
+	    # rendering helper controls
 
-			class MyWidgetClass
-				def initialize(content)
-					@content = content
-				end       
+	    class MyWidget
+	    	def initialize(content)
+	    		@content = content
+	    	end       
 
-				def render
-					"<div id='MyWidget'>#{@content}</div>"
-				end
-			end
+	    	def render
+	    		"<div id='MyWidget'>#{@content}</div>"
+	    	end
+	    end
 
-			
-			MainDecorator = trait :WidgetDecorator do
-				
-				attr_accessor :font, :width, :height       
 
-				def dim(width, heigth)
-					@width, @heigth = width, heigth
-				end
-				
-				def render
-					%{
-						<style>
-						#MyWidget{
-							font: 14px, #{@font};
-							width:#{@width};
-							height: #{@heigth}
-						}
-						</style>
-						#{super()}
-					}
-				end
-			end
+	    MainFace = trait :WidgetFace do     # our trait
 
-			# somewhere in a view
+	    	attr_accessor :font, :width, :height       
 
-			browser = 'Safari'
-			@content = database_content
+	    	def dim(width, heigth)
+	    		@width, @heigth = width, heigth
+	    	end
 
-			my_widget = case browser
-			when match(/Safari|Firefox|IE/)
-				# debugger
-				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
-					
-					def render															# override invoking JIT inheritance
-						dim '600px', '200px'									# normal inherited method call
-						@font = 'helvetica'
+	    	def render
+	    		%{
+	    			<style>
+	    			#MyWidget{
+	    				font: 14px, #{@font};
+	    				width:#{@width};
+	    				height: #{@heigth}
+	    			}
+	    			</style>
+	    			#{super()}
+	    		}
+	    	end
+	    end
 
-						super()
-					end
-				end)
+	    # somewhere in a view
 
-			else
-				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
-					
-					def render															# override invoking JIT inheritance
-						dim '200px', '600px'                  # normal inherited method call
-						@font ='arial'
+	    browser = 'Safari'                  # the user selected media
+	    @content = database_content
 
-						super()
-					end
-				end)
-			end
+
+	    my_widget = case browser
+	    when match(/Safari|Firefox|IE/)
+
+	    	MyWidget.new(@content).enrich(WidgetFace() do
+
+	    		def render															# override invoking JIT inheritance
+	    			dim '600px', '200px'									# normal inherited method call
+	    			@font = 'helvetica'
+
+	    			super()
+	    		end
+	    	end)
+
+	    else
+
+	    	MyWidget.new(@content).enrich(WidgetFace() do
+
+	    		def render															# override invoking JIT inheritance
+	    			dim '200px', '600px'                  # normal inherited method call
+	    			@font ='arial'
+
+	    			super()
+	    		end
+	    	end)
+
+	    end
 
 			# expect(WidgetDecorator().ancestors).to eq([WidgetDecorator(), MainDecorator])
 
@@ -291,7 +294,7 @@ describe 'some use cases', :traits do
 			my_widget = case browser
 			when match(/Safari|Firefox|IE/)
 				# debugger
-				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+				MyWidget.new(@content).enrich(WidgetFace() do
 					
 					def render
 						dim '600px', '200px'
@@ -301,7 +304,7 @@ describe 'some use cases', :traits do
 					end
 				end)
 			else
-				MyWidgetClass.new(@content).enrich(WidgetDecorator() do
+				MyWidget.new(@content).enrich(WidgetFace() do
 					def render
 						dim '200px', '600px'
 						@font ='arial'
@@ -325,7 +328,7 @@ describe 'some use cases', :traits do
 					}.split.join
 			)
 			
-			WidgetDecorator(:implode)
+			WidgetFace(:implode)
 			 
 		end
 		
@@ -545,14 +548,16 @@ describe 'some use cases', :traits do
 
 		describe "jiti as decorators with internal base" do
 			before do
-				JD1 = trait :jd do
-					def m1
-						1
+				suppress_warnings do
+					JD1 = trait :jd do
+						def m1
+							1
+						end
 					end
-				end
-				JD2 = jd do
-					def m1
-						super + 2
+					JD2 = jd do
+						def m1
+							super + 2
+						end
 					end
 				end
 			end
@@ -590,19 +595,21 @@ describe 'some use cases', :traits do
 		
 		describe "jiti as decorators on external base" do
 			before do
-				JD1 = trait :jd do
-					def m1
-						super + 1
+				suppress_warnings do
+					JD1 = trait :jd do
+						def m1
+							super + 1
+						end
 					end
-				end
-				JD2 = jd do
-					def m1
-						super + 2
+					JD2 = jd do
+						def m1
+							super + 2
+						end
 					end
-				end
-				class JDClass
-					def m1
-						1
+					class JDClass
+						def m1
+							1
+						end
 					end
 				end
 			end

@@ -88,14 +88,13 @@ describe Jackbox, 'jackbox library', :library do
 		it 'raises an error when decorating singleton classes without returning them properly' do
 
 			expect {
-				
 				class File 											# MUST USE #singleton_class or #metaclass
 					class << self
 						decorate :chown do |*args| end
 					end
 				end
 				
-			}.to raise_error(UserError)
+			}.to raise_error(NameError)
 
 			expect {
 				
@@ -450,7 +449,7 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
-		it 'allows the following' do
+		it 'runs the same codo on all objects' do
 			
 			a = Object.new
 			with a do
@@ -469,9 +468,34 @@ describe Jackbox, 'jackbox library', :library do
 			
 		end
 		
+		it 'is not operated as a single array object' do
+			
+			expect{
+				x  = with 'a', 'b', 'c' do
+					inject { |e, f| e + f }
+				end
+				x.should == 'abc'
+			}.to raise_error(NoMethodError)
+			
+		end
+		
+		it 'does operate on modules/injectors' do
+			
+			trait :a
+			
+			with a do
+				def foo
+					:foo
+				end
+			end
+			
+			Object.new.extend(a).foo.should == :foo
+			
+		end
+		
 		it 'raises an error if used with no block' do
 			
-			expect{with Object.new}.to raise_error(LocalJumpError)
+			expect{with Object.new}.to raise_error(ArgumentError)
 			
 		end
 		
@@ -631,6 +655,7 @@ describe Jackbox, 'jackbox library', :library do
 		end
 		
 		the 'singleton class has a reference to its root class' do
+			# debugger
 			SingletonProber.singleton_class.root().should == SingletonProber
 		end
 	end

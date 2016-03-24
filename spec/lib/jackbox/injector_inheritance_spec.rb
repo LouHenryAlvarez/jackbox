@@ -189,7 +189,13 @@ describe "Injector Inheritance" do
 
 
 	it "allows a just-in-time inheritance policy" do
-	
+		
+		########################## important ############################
+		# For more information on JIT Inheritance (jiti), please see:   #
+		# the accompanying spec file jiti_rules_spec.rb in the specs    #
+		# directory.																										#
+		#################################################################
+
 		trait :Functionality
 		
 		# 
@@ -264,15 +270,6 @@ describe "Injector Inheritance" do
 		Functionality(:implode)
 		
 	end
-	
-	
-	########################## important ############################
-	# For more information on JIT Inheritance (jiti), please see:   #
-	# the accompanying spec file jiti_rules_spec.rb in the specs    #
-	# directory.																										#
-	#################################################################
-	
-
 end
 
 describe "the behavior of traits under class inheritance" do

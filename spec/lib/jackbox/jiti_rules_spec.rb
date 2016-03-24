@@ -1,16 +1,17 @@
 require "spec_helper"
 
-describe 'jit inheriatnce' do
+# RubyProf.start
+
+describe 'jit inheriatnce with tagging' do
 
 	before do
 		
+		# 
+		# Trait
+		# 
+		trait :Functionality
+
 		suppress_warnings do
-
-			# 
-			# Trait
-			# 
-			trait :Functionality
-
 			# 
 			# Works like class inheritance
 			# 
@@ -30,6 +31,7 @@ describe 'jit inheriatnce' do
 				end 								# -- normal trait inheritance
 			end
 
+			# debugger
 			Tag2 = Functionality do
 				def m1														# The :m1 override invokes JIT inheritance
 					super + 1												# -- Tag1 is added as ancestor
@@ -43,7 +45,8 @@ describe 'jit inheriatnce' do
 			class AA6
 				inject Tag2
 			end
-
+			
+			# debugger
 			Tag3 = 	Functionality() do
 				def m1
 					super * 2 											# second override to #m1 
@@ -67,6 +70,9 @@ describe 'jit inheriatnce' do
 			Tag1 = nil
 			Tag2 = nil
 			Tag3 = nil
+			Tag4 = nil
+			Tag5 = nil
+			Tag6 = nil
 
 		end
 
@@ -74,7 +80,7 @@ describe 'jit inheriatnce' do
 
 	end
 
-	it 'works under boejct extension' do
+	it 'works under object extension' do
 
 		o = Object.new.extend Tag3
 		o.m1.should == 4
@@ -139,13 +145,15 @@ describe 'jit inheriatnce' do
 
 	it 'allows rebasing individual methods' do 
 
-		# 
-		# Another prolongation: back to basics
-		# 
-		Tag4 = Functionality() do
-			def m1														# another override but no call to #super
-				:m1															# -- just simple override
-			end 															# -- could be tagged if needed
+		suppress_warnings do
+			# 
+			# Another prolongation: back to basics
+			# 
+			Tag4 = Functionality() do
+				def m1														# another override but no call to #super
+					:m1															# -- just simple override
+				end 															# -- could be tagged if needed
+			end
 		end
 
 		# test it
@@ -235,31 +243,34 @@ describe 'jit inheriatnce' do
 			end
 		end
 
-		Tag5 = Functionality(Mod1) do
+		suppress_warnings do
+			Tag4 = Functionality(Mod1) do
 
-			include Mod1											# alternatively
+				include Mod1											# alternatively
 
-			def m1
-				super * 2
-			end
-			def m3
-				:m3															# m3 is rebased
+				def m1
+					super * 2
+				end
+				def m3
+					:m3															# m3 is rebased
+				end
+				
 			end
 		end
-
+		
 		# test it 
 
 		# jit inherited
-		Object.new.extend(Tag5).m1.should == 8 # from Tag3
-
-		# version inherited
-		Object.new.extend(Tag5).m2.should == :m2 # from Tag1
-
-		# rebased
-		Object.new.extend(Tag5).m3.should == :m3 # from Tag5
-
-		# ancestor injection
-		Object.new.extend(Tag5).m4.should == :m4 # from Mod1
+		Object.new.extend(Tag4).m1.should == 8 # from Tag3
+                         
+		# version inherited  
+		Object.new.extend(Tag4).m2.should == :m2 # from Tag1
+                         
+		# rebased            
+		Object.new.extend(Tag4).m3.should == :m3 # from Tag5
+                         
+		# ancestor injection 
+		Object.new.extend(Tag4).m4.should == :m4 # from Mod1
 
 	end
 
@@ -302,34 +313,36 @@ describe 'jit inheriatnce' do
 		# Masks Ancestor intrussion
 		# 
 
-		Tag6 = Functionality do
-			def m1														# Injector has internal base
-				1
+		suppress_warnings do
+			Tag4 = Functionality do
+				def m1														# Injector has internal base method
+					1
+				end
+			end
+
+			module Mod1
+				def m1
+					'one'
+				end
+			end
+
+			Tag5 = Functionality(Mod1) do 						# Mod1 attempts to intrude on base
+
+				include Mod1
+
+				def m1
+					super * 2
+				end
 			end
 		end
-
-		module Mod1
-			def m1
-				'one'
-			end
-		end
-
-		Tag7 = Functionality(Mod1) do 						# Mod1 attempts to intrude on base
-
-			include Mod1
-
-			def m1
-				super * 2
-			end
-		end
-
+		
 		# test it
 
-		o = Object.new.extend(Tag7)			
+		o = Object.new.extend(Tag5)			
 		# jit inherited
 		o.m1.should == 2										# no such luck!!
 
-		p = Object.new.extend(Functionality())
+		p = Object.new.extend(Functionality(Mod1))
 		# jit inherited
 		p.m1.should == 2										# no such luck!!
 
@@ -341,29 +354,32 @@ describe 'jit inheriatnce' do
 
 	it 'allows overriding methods further down the tree' do
 
-		Tag8 = Functionality do
-		  def m1
-		    1
-		  end
-		  def m2 							# original definition
-		    2
-		  end
+		suppress_warnings do
+			Tag4 = Functionality do
+			  def m1
+			    1
+			  end
+			  def m2 							# original definition
+			    2
+			  end
+			end
+			Tag5 = Functionality do
+			  def m1
+			    'm1'
+			  end 								# skipped #m2
+			end
+			Tag6 = Functionality do
+			  def m1
+			    super * 2
+			  end
+			  def m2
+			    super * 2					# override # m2 two levels down
+			  end
+			end
 		end
-		Tag9 = Functionality do
-		  def m1
-		    'm1'
-		  end 								# skipped #m2
-		end
-		Tag10 = Functionality do
-		  def m1
-		    super * 2
-		  end
-		  def m2
-		    super * 2					# override # m2 two levels down
-		  end
-		end
+		
 		class AA10
-		  inject Tag10
+		  inject Tag6
 		end
 
 		# test it
@@ -375,39 +391,41 @@ describe 'jit inheriatnce' do
 
 	it 'allows rebasing (start fresh) methods at any level' do
 
-		Tag11 = Functionality do
-			def m1
-				1																# rebase Tag3
-			end
-		end
-
-		class AA11
-			inject Functionality() do
+		suppress_warnings do
+			Tag4 = Functionality do
 				def m1
-					super + 1											# override
+					1																# rebase Tag3
+				end
+			end
+
+			class AA11
+				inject Functionality() do
+					def m1
+						super + 1											# override
+					end
+				end
+			end
+
+			# test it
+
+			AA11.new.m1.should == 2
+
+
+			Tag5 = Functionality do
+				def m1
+					5																# rebase m1 again
+				end
+			end
+
+			class BB11
+				inject Functionality() do
+					def m1
+						super * 2											# new override
+					end
 				end
 			end
 		end
-
-		# test it
-
-		AA11.new.m1.should == 2
-
-
-		Tag12 = Functionality do
-			def m1
-				5																# rebase m1 again
-			end
-		end
-
-		class BB11
-			inject Functionality() do
-				def m1
-					super * 2											# new override
-				end
-			end
-		end
-
+		
 		# test it
 
 		BB11.new.m1.should == 10
@@ -415,39 +433,41 @@ describe 'jit inheriatnce' do
 
 	end
 
-	it 'slloed Injector Directives likr sll traits' do
+	it 'works with Trait Directives' do
 
-		Tag13 = Functionality do
-			def m1
-				1
-			end
-		end
-
-		class AA12
-			inject Functionality() do
+		suppress_warnings do
+			Tag4 = Functionality do
 				def m1
-					super + 1
+					1
+				end
+			end
+
+			class AA12
+				inject Functionality() do
+					def m1
+						super + 1
+					end
+				end
+			end
+
+			AA12.new.m1.should == 2
+
+
+			Tag5 = Functionality do
+				def m1
+					5									# rebase m1
+				end
+			end
+
+			class BB12
+				inject Functionality() do
+					def m1
+						super * 2				# new override
+					end
 				end
 			end
 		end
-
-		AA12.new.m1.should == 2
-
-
-		Tag14 = Functionality do
-			def m1
-				5									# rebase m1
-			end
-		end
-
-		class BB12
-			inject Functionality() do
-				def m1
-					super * 2				# new override
-				end
-			end
-		end
-
+		
 		BB12.new.m1.should == 10
 
 		# test directives
@@ -475,33 +495,34 @@ describe 'jiti external basing' do
 		# 
 		trait :Functionality
 
+
+		module Base1												# EXTERNAL BASEs!!
+			def m1
+				2
+			end
+		end
+
+		module Base2
+			def m1
+				3
+			end
+		end
+
 		suppress_warnings do
-
-			module Base1												# EXTERNAL BASEs!!
-				def m1
-					2
-				end
-			end
-
-			module Base2
-				def m1
-					3
-				end
-			end
-
 			# 
 			# Similar to Above
 			# 
 			Tag1 = Functionality(Base1) do
 
-				# include Base1										# alternatively
+				# include Base1										# NO INTERNAL BASE!! for #m1
 
 				def m2
 					:m2
 				end
 			end
 
-			Tag2 = Functionality do
+			# debugger
+			Tag2 = Functionality(Base2) do
 				def m1														# The :m1 override invokes JIT inheritance
 					super + 1												# -- Tag1 is added as ancestor
 				end 															# -- allows the use of super
@@ -511,7 +532,8 @@ describe 'jiti external basing' do
 				end
 			end
 
-			Tag3 = 	Functionality() do
+			# debugger
+			Tag3 = 	Functionality(Base1) do
 				def m1
 					super * 2 											# second override to #m1 
 				end                   						# -- Tag2 added as ancestor
@@ -530,50 +552,66 @@ describe 'jiti external basing' do
 			Tag1 = nil
 			Tag2 = nil
 			Tag3 = nil
+			Tag4 = nil
+			Tag5 = nil
+			Tag6 = nil
 
 		end
 
 		Functionality(:implode)
 
 	end
+	
+	it 'works for Tag1' do
+
+		o = Object.new.extend(Tag1)
+		o.m1.should == 2
+		
+	end
+	
+	it 'works for Tag2' do
+		
+		o = Object.new.extend(Tag2)
+		o.m1.should == 4
+		
+	end
 
 	it 'works with initial external basing' do
 
 		o = Object.new.extend(Tag3)
+		# debugger
 		o.m1.should == 6										# from Base1 thru Tag3
 
 	end
 
 	it 'also keeps the main trait in sync with the last tag' do
 
-		o = Object.new.extend(Tag3)
-		o.m1.should == 6
-
-		p = Object.new.extend(Functionality())
+		p = Object.new.extend(Functionality(Base1))
 		p.m1.should == 6
+
+	end
+
+	it 'allows external base substitution --keeps the Trait Injector shell/jacket' do
+
+		q = Object.new.extend(Functionality(Base2))	# on top or Tag3 thru Tag2....
+		q.m1.should == 8
 
 	end
 
 	it 'follows the other normal rules' do
 
-		Tag15 = Functionality do
-			def m1
-				super() * 2											# on top of Tag3
-			end
-			def m2
-				:m2
+		suppress_warnings do
+			Tag4 = Functionality(Base1) do
+				def m1
+					super() * 2											# on top of Tag3
+				end
+				def m2
+					:m2
+				end
 			end
 		end
-
-		p = Object.new.extend(Tag15)
+		p = Object.new.extend(Tag4)
 		p.m1.should == 12
-
-	end
-
-	it 'allows external base substitution --keeps the Trait Injector shell/casing' do
-
-		q = Object.new.extend(Functionality(Base2))	# on top or Tag3 thru Tag2....
-		q.m1.should == 8
 
 	end
 
@@ -585,79 +623,113 @@ describe 'jiti external basing' do
 			end
 		end
 
-		Tag16 = Functionality(Base2) do
-			def m1
-				super / 2
-			end
-			def m2
-				super
+		suppress_warnings do
+			Tag4 = Functionality(Base2) do
+				
+				# inject Base2
+				def m1
+					super / 2
+				end
+				def m2
+					super
+				end
 			end
 		end
-
-		p = Object.new.extend(Tag16)
+		# p = Object.new.extend(Tag4, Base2)
+		p = Object.new.extend(Tag4)
 
 		p.m1.should == 4										# external rebase and thru Tag16, Tag3 and Tag2
 		p.m2.should == :m2
 		p.m4.should == 'new'								# new function
+		
+		module Base3
+			def m1
+				5
+			end
+		end
+		
+		suppress_warnings do
+			Tag5 = Functionality(Base3) do
+				
+				# inject Base3
+				def m1
+					super + 1
+				end
+			end
+		end
+		# q = Object.new.extend(Tag5, Base3)
+		q = Object.new.extend(Tag5)
+		
+		# debugger
+		q.m1.should == 7
 
 	end
 
 	it 'enforces internal basing once applied --blocks further external intrusion (like above)' do
 
-		Tag17 = Functionality(Base2) do
-			def m2 
-				6																# rebase #m2
+		suppress_warnings do
+			Tag4 = Functionality() do
+				# ...															# on top of Tag3
+				def m2 
+					6																# rebase #m2
+				end
 			end
-		end
+			o = Object.new.extend(Functionality(Base2))
+			
+			o.m1.should == 8										
+			o.m2.should == 6										
 
-		o = Object.new.extend(Functionality())
-		o.m1.should == 8										# Base2 thru Tag3 casing
-		o.m2.should == 6										# new #m2
-
-		Functionality() do
-			def m1
-				super + 1												# on top of Tag17
-			end
-		end
-		
-		p = Object.new.extend Functionality()
-		p.m1.should == 9
-
-		module Base3
-			def m1
-				0																# new base
-			end
-			def m3														
-				:m3															# muted by internal basing
-			end
-		end
-
-		p = Object.new.extend(Functionality(Base3))
-		p.m1.should == 3
-		p.m2.should == 6
-		p.m3.should == 'em3em3'
-
-		q = Object.new.extend(
 			Functionality() do
 				def m1
-					2															# internal rebase
+					super + 1												# thru Tag4 on top of Tag3
 				end
-			end)
-		q.m1.should == 2
-		q.m2.should == 6
-		
-		Tag18 = Functionality()
-		
-		module Base4
-			def m1
-				'em1'														# muted by internal rebasing
 			end
+			p = Object.new.extend Functionality(Base2)
+
+			p.m1.should == 9
+			p.m2.should == 6
+
+
+			module Base3 												# EXTERNAL NEW BASE!!
+				def m1
+					0																# rebase #m1
+				end
+				def m3														
+					:m3															# muted by internal basing
+				end
+			end
+			p = Object.new.extend(Functionality(Base3))
+
+			p.m1.should == 3
+			p.m2.should == 6
+			p.m3.should == 'em3em3'
+
+
+			q = Object.new.extend(							# INTERNAL NEW BASE!!
+				Functionality() do
+					def m1
+						2															# internal rebase blocks outside one
+					end
+				end)
+				
+			q.m1.should == 2
+			q.m2.should == 6
+
+			module Base4												# EXTERNAL NEW BASE 
+				def m1
+					'em1'														# muted by internal rebasing
+				end
+			end
+			r = Object.new.extend(Functionality(Base4))
+
+			r.m1.should == 2
+			r.m2.should == 6
 		end
 		
-		r = Object.new.extend(Functionality(Base4))
-		r.m1.should == 2
-		r.m2.should == 6
-
 	end
 	
 end
+# profile = RubyProf.stop
+# RubyProf::FlatPrinter.new(profile).print(STDOUT)
+# RubyProf::GraphHtmlPrinter.new(profile).print(open('profile.html', 'w+'))
+# RubyProf::CallStackPrinter.new(profile).print(open('profile.html', 'w+'))
