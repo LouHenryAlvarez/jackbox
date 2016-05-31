@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
 	spec.add_runtime_dependency 'thor', '>= 0.18.1', '~> 0.18'
 
 	# spec.add_development_dependency 'rspec-core', '>= 3.4', '~>3.4.0'
-	spec.add_development_dependency 'rspec', '<= 3.4', '~>3.3.0'
+	# spec.add_development_dependency 'rspec', '<= 3.4', '~>3.3.0'
 	
 end

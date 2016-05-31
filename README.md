@@ -18,24 +18,24 @@ Copyright © 2014, 2015 LHA. All rights reserved.
 ---
 <h2 style="font-family:Impact">Modular Closures©, Ruby Traits©, Code Injectors, Class Constructors, and other Ruby programmer morphins</h2>
 
-The defining thought behind Jackbox is a simple one: If Ruby is like Play-Doh, with Jackbox we want to turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The library functionality at this time takes this idea and materializes it in the concepts of traits/injectors, class constructors, the application of versioning to runtimes, and a just-in-time inheritance model that together with the helper functions that bring them together, provide some new and interesting capabilities.  
+The defining thought behind Jackbox is a simple one: If Ruby is like Play-Doh, with Jackbox we aim to turn it into <a href="https://en.wikipedia.org/wiki/Plasticine">Plasticine</a>.  The library functionality at this time takes this idea and materializes it in the concepts of trait injectors, class constructors, the application of versioning to objects, and a model of mix-in inheritance which includes a just-in-time inheritance form that together with the helper functions that bring them together, provide some new and interesting capabilities.  
 
-To make it easier to grasp, **Ruby Traits** and code injectors can perhaps be thought of as a form of **Modular Closures** which is closures which can also serve as modules.  These modular closures most of all propose some additional properties to the idea of a mix-in.  For instance, they make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling **some new code patterns** of our own.  They instrument control over code presence or the presence of trait/injector code in targets with mechanisms involving trait/injector canceling or ejection and also trait directives to for example remain as silent traits and to force the reactivation of traits.  They give your code the ability to capture the surrounding context and mix it into an indiscriminate target. They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. 
+To make it easier to grasp, **Ruby Traits©** and code injectors can perhaps be thought of as a form of **Modular Closures©** which is to say, closures which can also serve as modules.  These modular closures most of all propose some additional properties to the idea of a mix-in.  For instance, they make it possible to solve several general problems in some areas of OOP, overcoming traditional Ruby shortcomings with the GOF Decorator and Strategy Patterns, and enabling **some new code patterns** of our own.  They instrument control over code presence or the presence of trait injector code in targets with mechanisms involving trait injector canceling or ejection and directives to for example remain as silent traits, and to later force the reactivation of traits.  They give your code the ability to capture the surrounding context and mix it into an indiscriminate target. They extend Ruby's mix-in and method resolution over and beyond what is possible with regular modules. 
 
-**Class constructors** on the other hand present an alternative way to refine a class.  They provide similar benefits to refinements with a different underpinning. Together with Jackbox code traits and helper functions, class constructors can be refined multiple times.  Capabilities can be added and removed in blocks.  Moreover, these constructors acquire introspecting abilities.  A class constructor can be tested for existence, can tell you what traits it uses, and finally can be overridden with a more relevant one. Constructors also work with Ruby 1.9 and related technologies.
+Following on this we introduce the concept of Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Trait/Injector Versioning below. Runtimes can morph their capabilities as they learn about themselves, and they can do so in blocks as granular or as coarse as needed.  These blocks can be updated, ejected, silenced, or re-injected with more function. This versioning also provides a form of inheritance.  We have called this versioned inheritance and it allows newer versions to inherit from previous ones, be tagged and labeled, and this way be capable of reuse.  All this is further enhanced by the ability of Jackbox to resolve methods through the use of the VMC (Virtual Method Cache). See below.
 
-Following on this we introduce the concept of Trait/Injector Versioning.  This is a feature which allows you to redefine parts of your program in local isolation and without it affecting others.  See Trait/Injector Versioning below. Runtimes can morph their capabilities as they learn about themselves, and they can do so in blocks as granular or as coarse as needed.  These blocks can be updated, ejected, silenced, or re-injected with more function. This versioning also provides a form of inheritance.  We have called this versioned inheritance and it allows newer versions to inherit from previous ones, be tagged and labeled, and this way be capable of reuse.  All this is further enhanced by the ability of Jackbox to resolve methods through the use of the VMC (Virtual Method Cache). See below.
+**Class constructors** on the other hand present an alternative way to refine a class.  They provide similar benefits to refinements with a different underpinning. Together with Jackbox trait injectors and helper functions, class constructors can be refined multiple times.  Capabilities can be added and removed in blocks.  Moreover, these constructors acquire introspecting abilities.  A class constructor can be tested for existence, can tell you what traits it uses, and finally can be overridden with a more relevant one. Constructors also work with all Ruby versions including with Ruby 1.9 and related technologies.
 
 Finally, we also present the concept of **Just-In-Time Inheritance©**.  This is a feature which allows the production of an ancestor hierarchy similar to what you find in Ruby classes just as it is needed by your code.  With it you can override previous members of a tag and expect to have access to its super members as part of the call, just like you would with classes.  But, this inheritance is all going on in the mix-in --the Modular Closure.  Families of traits can be built with the use of this and the previous versioned inheritance, and unlike class inheritance be readily applicable to any target.
 
-We have chosen to keep the code obfuscated **for now** because we are a small company with fewer resources and we need to protect our germinating intellectual property.  But, as our business model evolves we will be considering open sourcing it.  We take great pride in providing significant value at minimal cost.  Our guiding principle through out it all has been keeping new constructs to a minimum.  We took an outer minimalistic approach requiring a lot more behind the scenes.  Simplicity takes work.  We hope that all this work is to your liking.
+We have chosen to keep the code obfuscated **for now** because we are a small company and we need to protect our germinating intellectual property.  We take great pride in providing significant value at minimal cost.  Our guiding principle through out it all has been keeping new constructs to a minimum.  There are enough libraries out there which enhance the base Ruby language in many interesting ways but which also bring with them added complexity and a big learning curve.  We on the other hand took an outer minimalistic approach requiring a lot more behind the scenes.  Simplicity takes work.  We hope that all this work is to your liking.
 
-Advantages Of Trait Based Programming
+Advantages Of Trait Injector Based Programming
 ------------------------------------
+* Trait Injectors avoid the perils of monkey patching.  You can just create a new version of the trait and leave the old one alone.
 * Traits are inherited from their ancestors and can be mixed in with any target.
-* With Traits you avoid the perils of monkey patching.  You can just create a new version of the trait and leave the old one alone.
-* Traits can be silenced and reactivated.
 * With Traits runtime versioning is possible and traits can be upgraded with new versions of the trait.
+* Traits can be injected, extended, cancelled, silenced, reinstated, tagged, versioned, and updated.
 * Traits enable new and different coding patterns.
 
 ---
@@ -83,7 +83,7 @@ It also works like so:
 
 
 #### #with obj, &blk 
-There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time. See below for some examples.  Used in this fashion it can abstract some of the tediousness of an explicit self in some calls. The other thing about #with is that it allows you to directly place definitions on the object you pass in using its most natural form based on whether it's an instance of Object or Module.  Then it returns the same object you passed into it after the block has done processing it.  You can also pass multiple objects: #with a, b, c for example and the same block applies to all returning a, b, c afterwards.
+There is also a new version of the #with construct.  The important thing to remember about #with is it has a primary context which is the object passed to it, and a secondary context which is the object you are making the call from.  This allows you to work **with** both contexts at the same time and works as a shortcut between contexts. Used in this fashion it can abstract some of the tediousness of an explicit self in some calls. The other thing about #with is that it allows you to directly place definitions on the object you pass in using its most natural form based on whether it's an instance of Object or Module.  Then it returns the same object you passed into it after the block has done processing it.  You can also pass multiple objects: #with a, b, c for example and the same block applies to all returning a, b, c afterwards.  There are some other nuances to #with later on.
 
 Here is some sample usage code:
 
@@ -144,18 +144,7 @@ Use it with **#decorate** on singleton classes like this:
 
     
 #### #lets sym=nil, &blk 
-We could say, this is simple syntax sugar.  It adds readability to some constructs, and it allows the creation of local or global procs using a more friendly syntax. But #lets, also opens the door to a new coding pattern using class constructors.  See below.  The important thing about #lets is that it always defines some lambda/proc/method.  It's use differs from that of #define_method only in spirit, aside its use with respect to class constructors, #lets is mostly for one liners.  Here are some examples:
-
-To define local functions/lambdas. Define symbols in local scope:
-
-    def main
-      lets bar =->(arg){ arg * arg }              # read as: lets set bar to lambda/proc 
-
-      # later on ...
-
-      var = bar[3]                                # bar is only available within #main
-      #...
-    end															
+We could say, this is simple syntax sugar.  It adds readability to some constructs, and it allows the creation of local or global procs using a more friendly syntax. But #lets, also opens the door to a new coding pattern using class constructors.  See below.  The important thing about #lets is that it always defines some lambda/proc/method.  It's use apparently differs from that of #define_method only in spirit, but its use with respect to class constructors shows another side to #lets.  Aside from this however, #lets is mostly for one liners.  Here are some examples:
 
 As a shortcut for define_method. Use it for short functional definitions:
 
@@ -168,31 +157,44 @@ Can be used to define a special values or pseudo-immutable strings:
     lets(:foo){ 3+Math::Pi }                      # read as: lets set :foo to value
     lets(:faa){ 'some important string' }
     
+To define local functions/lambdas. Define symbols in local scope:
 
-Traits/Injectors
+    def main
+      lets bar =->(arg){ arg * arg }              # read as: lets set bar to lambda/proc 
+
+      # later on ...
+
+      var = bar[3]                                # bar is only available within #main
+      #...
+    end															
+
+Also see Class Constructors below.
+
+
+Trait Injectors
 ----------
-Traits are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that have properties of both a closure and a module.  They can also be thought of as an **extended closure** if you will or as a special kind of mix-in if you want.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Traits, as well as elaborate on some of the other properties of traits. But, it is essential to understand there are some syntactical differences to Traits/Injectors with respect to regular modules.  We will show them first, with some examples: 
+Trait Injectors are the main tool in Jackbox at the time of this writing. These again are a form of mix-in that have properties of both a closure and a module.  They can also be thought of as an **extended closure** if you will or as a special kind of mix-in if you like.  In the sections below we will discuss some of the methods available to you with Jackbox in connection with Trait Injectors, as well as elaborate on some of the other properties of traits. But, it is essential to understand there are some syntactical differences to Trait Injectors with respect to regular modules.  We will show them first, with some examples: 
 
-**TRAITS/INJECTORS ARE DECLARED IN THE FOLLOWING WAYS:**
+**TRAIT INJECTORS ARE DECLARED IN THE FOLLOWING WAYS:**
 
 
-    trait :name
+    injector :name
 
     #  or...
 
-    Name = trait :name
+    Name = injector :name
 
     # or even ...
 
-    injector :Name                                    # capitalized method, using alias #trait 
+    trait :Name                                    # capitalized method, using alias #trait 
 
 
-Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on trait versioning, their behavior under inheritance, and also trait directives. 
+Their use and semantics are somewhat defined by the following snippet.  But, to fully understand their implications to your code, you have to understand the sections on injector versioning, their behavior under inheritance, and also trait directives. 
 
     # somewhere in your code
-    include Traits
+    include Injectors
 
-    trait :my_trait                             # define the trait 
+    injector :my_trait                          # define the injector 
     
     my_trait do                     
       def bar                  
@@ -201,7 +203,7 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
     end
 
     # later on...
-    widget.extend my_trait                      # apply the trait
+    widget.extend my_trait                      # apply the injector
     
     widget.bar
     # => bar
@@ -210,16 +212,16 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
     
     Mine = my_trait
     class Target
-      inject Mine                               # apply the trait
+      inject Mine                               # apply the injector
     end
     
     Target.new.bar
     # => bar
     
 
-**TRAITS/INJECTORS HAVE PROLONGATIONS:**
+**TRAIT INJECTORS HAVE PROLONGATIONS:**
 
-    trait :my_trait
+    injector :my_trait
 
     my_trait do                                # first prolongation
 
@@ -237,22 +239,22 @@ Their use and semantics are somewhat defined by the following snippet.  But, to 
 
     end
     
-These prolongations become versions once applied or tagged.  See Tagging/Naming below.  In lieu of this they remain in the Virtual Method Cache (see below) in an un-versioned state available to any client.  
+Prolongations become versions once applied or tagged.  See Tagging/Naming below.  But, in lieu of this, they remain in the Virtual Method Cache (see below) in an un-versioned state and are available to any client.  
 
 #### #trait/#injector :sym
-This is a global function.  It defines an object of type Trait/Injector with the name of :symbol.  Use it when you want to generate an Trait/Injector object for later use.  The symbol can then be used as a handle to the trait whenever you need to prolong the trait by adding methods to it, or to apply it to a target generating a version.  Additionally, this symbol plays a role in defining the trait's scope.  Traits/Injectors with capitalized names like :Function, :Style, etc have a global scope.  That is, they are available throughout the program, regardless of where they are defined.  Here is the code:
+This is a global function.  It defines an object of type Injector with the name of :symbol.  Use it when you want to generate a Trait Injector object for later use.  The symbol can then be used as a handle to the trait whenever you need to prolong the trait by adding methods to it, or to apply it to a target generating a version.  Additionally, this symbol plays a role in defining the trait's scope.  Injectors with capitalized names like :Function, :Style, etc have a global scope.  That is, they are available throughout the program, regardless of where they are defined.  Here is the code:
 
     class A
-      trait :Function                         # defined
+      injector :Function                      # defined
     end
 
     class B
       include Function()                      # applied
     end
 
-    # This is perfectly valid with traits  
+    # This is perfectly valid with trait injectors
 
-On the other hand Traits/Injectors with a lower case name are only available __from__ the scope in which they were defined, like the following example shows:
+On the other hand Traits Injectors with a lower case name are only available __from__ the scope in which they were defined, like the following example shows:
 
     class A
       trait :form
@@ -267,13 +269,13 @@ On the other hand Traits/Injectors with a lower case name are only available __f
     end
 
 
-For all this to happen Jackbox also introduces some additional Ruby constructs, namely the keywords #inject and #enrich.  These can be thought as simply new corollaries to #include and #extend. In fact they can be used interchangeably.  If you're working with traits you may want to use them instead, depending on context, to make clear your intent.  Also #inject is public on classes (not on other traits) while #include is not.
+For all this to happen Jackbox also introduces some additional constructs, namely the keywords #inject and #enrich.  These can be thought as simply new corollaries to #include and #extend. In fact they can be used interchangeably.  If you're working with traits you may want to use them instead, depending on context, to make clear your intent.  Also #inject is public on classes (not on other traits) while #include is not.
 
 #### #include/inject *t
-This method is analogous to ruby's #include but its use is reserved for Trait Injectors.  The scope of this method is the same as the scope of #include, and its intended use like that of #include is for class definitions. Use it to "include" a trait into a receiving class.  Also takes multiple traits.
+This method is analogous to ruby's #include but its use is reserved for Trait Injectors.  The scope of this method is the same as the scope of #include, and its intended use like that of #include is for class definitions. Use it to "include" a trait into a receiving class.  Also takes multiple traits.  The order of precedence is like that of ruby's #include from left to right.
 
 #### #extend/enrich *t
-This method in turn is analogous to ruby's #extend. The scope of this method is also the same as that of #extend, and its intended use if for object definition.  Use it to "extend" the receiver of a trait.  Also takes multiple traits.
+This method in turn is analogous to ruby's #extend. The scope of this method is also the same as that of #extend, and its intended use is for object definition.  Use it to "extend" the receiver of a trait.  Also takes multiple traits with the same order of precedence.
 
 **IMPORTANT NOTE: Trait Injector lookup follows the method and not the constant lookup algorithm.**
 
@@ -281,15 +283,15 @@ If you need to follow constant lookup, here is the code for that:
 
     Name = trait :sym ....                     # this also creates a hard tag (see below)
 
-### Trait/Injector Versioning
+### Trait Injector Versioning
 
-One of the most valuable properties of Jackbox is Trait Injector Versioning.  Versioning is the term used to identify a feature in the code that produces an artifact which contains a certain set of methods and associated outputs, and which represents a snapshot of that trait up until the point it's applied to an object.  From, that point on the object contains only that version of trait methods, and any subsequent overrides to those methods on the trait are only members of the "prolongation" of that trait and do not become part of previous targets unless some form of trait re-injection occurs. Newer versions of a trait only become part of newer targets or newer trait injections into existing targets.  With Jackbox Trait/Injector Versioning, two different versions of the same code object can be running simultaneously. 
+One of the most valuable properties of Jackbox is Trait Injector Versioning.  Versioning is the term used to identify a feature in the code that produces an artifact which contains a certain set of methods and associated outputs, and which represents a snapshot of that trait up until the point it's applied to an object.  From, that point on the object contains only that version of injector methods, and any subsequent overrides to those methods on the trait injector are only members of the "prolongation" of that trait and do not become part of previous targets unless some form of trait re-injection occurs. Newer versions of a trait only become part of newer targets or newer trait injections into existing targets.  With Jackbox Injector Versioning, two different versions of the same code object can be running simultaneously. 
 
 We'll use some examples to illustrate the point.  This is how versioning occurs:
 
-    # trait declaration
+    # trait injector declaration
     #___________________
-    trait :my_trait do 															
+    injector :my_trait do 															
       def bar
         :a_bar                                  # version bar.1
       end
@@ -298,10 +300,15 @@ We'll use some examples to illustrate the point.  This is how versioning occurs:
       end
     end
 
+    ###############################################
+    # First object has a preferred version        #
+    ###############################################
+    
     object1.extend my_trait                     # apply the trait --first snapshot
     object1.bar.should == :a_bar                # pass the test
 
-    # trait prolongation
+
+    # trait injector prolongation
     #__________________
     my_trait do 																			
       def bar
@@ -310,8 +317,13 @@ We'll use some examples to illustrate the point.  This is how versioning occurs:
       # ...
     end
     
+    ###############################################
+    # Second object has now its preferred version #
+    ###############################################
+
     object2.extend my_trait                     # apply the trait --second snapshot
     object2.bar.should == :some_larger_bar      # pass the test
+
 
     ###############################################
     # First object has kept its preferred version #
@@ -332,13 +344,11 @@ When trait re-injection occurs, and only then does the new version of the #bar m
 
     object1.bar.should == :some_larger_bar      # bar.2 now available
 
-Re-injection on classes is a little bit trickier, because class injection is more pervasive.  To re-inject a class with a trait we must use the Strategy Pattern (see below) or use private #update's.  See the sections below as well as the rspec files for more on this.   
+Re-injection on classes is a little bit trickier, because class injection is more pervasive.  To re-inject a class with a new trait we must use the Strategy Pattern (see below or the rspec files) or we have to use private #update's.  Here is an example of Injector Versioning as it pertains to classes:
 
-Here is an example of Injector Versioning as it pertains to classes:
-
-    # trait declaration:
+    # trait injector declaration:
     #___________________
-    trait :Versions do
+    injector :Versions do
       def meth arg                                # version meth.1
         arg ** arg
       end
@@ -348,7 +358,8 @@ Here is an example of Injector Versioning as it pertains to classes:
       inject Versions()                           # apply --snapshot
     end
 
-    # trait extension:                              
+
+    # trait injector prolongation:                              
     #_________________
     Versions do
       def meth arg1, arg2                         # version meth.2 ... redefines meth.1
@@ -384,7 +395,7 @@ To update the class, we then do the following:
 
 ### Tagging/Naming
 
-The use of Tags is central to the concept of Versioning.  Tagging happens in the following ways:
+The use of Tags is central to the concept of Versioning.  In a similar fashion to a version control system tags play a role in formalizing a set of changes, but unlike its more mundane sibling these changes represent actual object function and methods.  Once a prolongation is tagged the it is always available in the same state and can be depended upon by any object needing that version of the functionality.  More importantly once a tag is defined it should not be changed, and Jackbox goes to some lengths to prevent you from doing this.  Of course this is Ruby out very own intent is to move from Play-doh to Plasticine.  Tagging happens in the following ways:
 
     Version1 = trait :function do
       def meth arg
@@ -401,13 +412,13 @@ The use of Tags is central to the concept of Versioning.  Tagging happens in the
       end
     end
 
-Version1 and Version2 are two different hard tags of the same Trait Injector.  They introduce a more formal approach to trait versioning and also pave the way for the inheritance models described in the introduction.  Aside from hard tags, there are also soft tags (see below).  
+Version1 and Version2 are two different hard tags of the same Trait Injector.  They introduce a more formal approach to trait versioning and also pave the way for the two different inheritance models described in the introduction.  Aside from hard tags, there are also soft tags (see below).  
 
 ### Local Binding
 
-Before we move on, we also want to give some further treatment to trait local-binding.  That is, the binding of a traits' methods is local to the prolongation/version in which they are located before the versioning occurs.  Here, is the code:
+Before we move on, we also want to give some further treatment to injector local-binding.  That is, the binding of a traits' methods is local to the prolongation/version in which they are located before the versioning occurs.  Here, is what we mean by that:
 
-**Note: In the following examples we use the notion of version naming/tagging.  Once a version is tagged it shouldn't be modified.  These tags comprise entities along the hierarchical structure of a trait.**
+**Note: In the following examples we use the notion of version naming/tagging.  Once a version is tagged it shouldn't be modified.  These tags comprise entities along the hierarchical structure of a trait explained further below.**
                                                           
 
     # trait declaration
@@ -419,6 +430,7 @@ Before we move on, we also want to give some further treatment to trait local-bi
       end
     end
     o = Object.new.extend Version1                # apply --snapshot (like above)
+    
     
 
     # trait prolongation
@@ -434,6 +446,7 @@ Before we move on, we also want to give some further treatment to trait local-bi
       end
     end
     p = Object.new.extend Version2                # apply --snapshot (like above)
+    
                                                
     ####################################################
     # #compound.1 bound to the right version #basic.2  #
@@ -446,13 +459,15 @@ Before we move on, we also want to give some further treatment to trait local-bi
     o.compound.should == 11                       # compound.1 --bound locally to basic.2
     
     
+Versioning together with local-binding allow the metamorphosis of traits to fit the particular purpose at hand, keeping those local modifications isolated from the rest of your program, and allowing your code to naturally evolve with your program.  They cancel the need to monkey patch anything.  If you need a local version of some code just open up a prolongation create the new version, inject it in to your targets, and leave the older versions and clients untouched.
+
 ### Virtual Method Cache (VMC)
 
-When you are working with a trait injector in irb/pry it is often easier to just add methods to the trait without actually having to re-apply the trait to the the target to see the result.  This is just what the Virtual Method Cache is for **among other things.**  The VMC allows working with traits like you would with regular modules.  It also enhances the normal method resolution of modules into that of modules in the chain but not directly applied to the target.  Here is what the code looks like:
+When you are working with a trait injector in irb/pry it is often easier to just add methods to the trait without actually having to re-apply the trait to the the target to see the result.  This is just what the Virtual Method Cache is for **among other things.**  The VMC allows working with traits like you would with regular modules.  It also enhances the normal method resolution of modules into that of modules in the chain but who are not directly applied to the target.  Here is what the VMC looks like:
 
     # definition
     #_______________
-    trait :SomeTrait
+    injector :SomeTrait
     
     # application
     #_______________
@@ -463,14 +478,14 @@ When you are working with a trait injector in irb/pry it is often easier to just
     obj = MyClass.new
     
     SomeMethods do
-      def spm1                                    # #spm1 is only defined in the virtual cache
-        :result                                   # It is not actually part of the class yet!!
+      def spm1                                    # #spm1 is only defined in the Virtual Method Cache
+        :result                                   # It is not actually part of the MyClass yet!!
       end                                         # until this version/prolongation is applied
     end
     
     expect(obj.spm1).to eq(:result)               # yet my obj can use it --no problem
     
-The key idea here is that the virtual method cache is the same for all versions of the Injector and all its applications.  This is what allows working with traits as if they were regular modules.  If we redefine VMC methods they are also redefined for all versions.  To actually lock the method versions into place you must apply the Injector with the methods defined in it that you want the version to have.  To then change that application of the trait you then re-inject the target.  But the VMC, provides a scratch pad of methods for you to work with.  The VMC also provides extended method resolution to the trait.  To understand what we mean by this, take a look at following code:
+The key idea here is that the Virtual Method Cache is the same for all versions of the Injector and all its applications.  This is what allows working with traits as if they were regular modules.  If we redefine VMC methods they are also redefined for all versions.  To actually lock the method versions into place you must apply the Injector with the methods defined in it that you want the version to have.  To then change that application of the trait you then re-inject the target.  But the VMC, provides a scratch pad of methods for you to work with.  The VMC also provides extended method resolution to the injector.  To understand what we mean by this, take a look at following code:
 
     class Client
       include trait :J1
@@ -494,16 +509,16 @@ The key idea here is that the virtual method cache is the same for all versions 
     Client.new.n2m1
     Client.new.n3m1
     
-Think of how this would be different with regular modules.  For this to happen using regular Ruby modules K1 and L1 should have to be defined and included prior to their inclusion into our client.  And no it is not just a matter of moving the include to the beginning of each container.
+Think of how this would be different with regular modules.  For this to happen using regular Ruby modules, K1 and L1 should have to be defined and included prior to their inclusion into our client.  And no it is not just a matter of moving the include to the beginning of each container.
 
 #### #define\_method sym, &blk
-There is one more interesting property to method definition with Trait Injectors however. The use of #define\_method to define/re-define methods in any prolongation affects the entire trait and all its versions.  This also preserves a fundamental tenet of traits: take some local context, enclose it, and use the trait to introduce it to some indiscriminate target, and additionally has some other uses as we'll see with in our description of patterns and trait composition.  
+There is one more interesting property to method definition with Trait Injectors however. The use of #define\_method to define/re-define methods in any prolongation affects the entire trait and all its versions except for any hard tagged as these are exactly that hard.  This also preserves a fundamental tenet of traits: take some local context, enclose it, and use the trait to introduce it to some indiscriminate target, and additionally has some other uses as we'll see with in our description of Jackbox patterns and trait composition.  
 
 Here is an example of the difference with #define\_method:
 
     # define trait
     #_________________________
-    trait :some_trait do
+    injector :some_trait do
     	def meth
     	  :meth
     	end
@@ -549,13 +564,12 @@ Here is an example of the difference with #define\_method:
                                                   
     Client.new.foo_bar.should == 'fooooo and barrrrr'                          
                                                   
+This also allows the introduction of what we have termed a new coding pattern based on the late binding of decorators (see below). 
 
-Versioning together with local-binding allow the metamorphosis of traits to fit the particular purpose at hand, keeping those local modifications isolated from the rest of your program, and allowing your code to naturally evolve with your program.  They cancel the need to monkey patch anything.  If you need a local version of some code just open up a prolongation create the new version, inject it in to your targets, and leave the older versions and clients untouched.
-
-### Trait/Injector introspection
+### Trait Injector introspection
 Trait Injectors have the ability to speak about themselves.  Moreover traits can speak about their members just like any module or class, and can also inject their receivers with introspecting capabilities.  Every injected/enriched object or module/class can enumerate its traits, and traits can enumerate their members, and so forth.  
     
-    trait :Function do
+    injector :Function do
       def far
       end
       def close
@@ -589,10 +603,10 @@ Trait Injectors have the ability to speak about themselves.  Moreover traits can
 
     # later on...
 
-    Child.eject *Child.traits       
+    Child.cancel *Child.traits       
 
-#### #traits *sym
-Called with no arguments returns a list of traits.  A call with a list of trait symbols however returns an array of actual Trait Injector objects matching the names supplied in a LIFO fashion. The method also extends into a sub-mini API.  An example use goes like this:
+#### #traits/#injectors *sym
+Called with no arguments returns a list of traits.  A call with a list of trait symbols however returns an array of actual Trait Injector objects matching the names supplied in a LIFO fashion. The method also extends into a micro API.  An example use goes like this:
 
     #traits   --(in this target)
     
@@ -648,7 +662,7 @@ Called with no arguments returns a list of traits.  A call with a list of trait 
       # aliased to last_by_sym
     
 #### #history alias #versions
-This method returns a trace of all the hosted Trait Injectors which is ordered based on the order in which they are created.  It also includes the pseudo-hosted hard tags and soft tags which can also be specifically accessed through the #tags method below.  It is primarily a view of all existing versions of a trait. Here is the code:
+This method returns a trace of all the applied trait injector versions ordered based on the order in which they are created.  It also includes the version hard tags and soft tags which can also be specifically accessed through the #tags method below.  It is primarily a view of all existing versions of a trait. Here is the code:
 
     # create our trait and
     # host it a couple of times
@@ -680,7 +694,7 @@ This method returns a trace of all the hosted Trait Injectors which is ordered b
     expect(HistorySample().history.last).to equal(HistorySample())
     
 #### #tags
-This method traces the tags only.  The method also extends into a sub-mini API returning hard and soft tags independently. Here is the code:
+This method traces tags only.  It also extends into a micro API returning hard and soft tags independently. Here is the code:
 
     # at this point from the above...
     
@@ -700,7 +714,7 @@ This method traces the tags only.  The method also extends into a sub-mini API r
       HistorySample().tags.hard
       => [(|HistorySample|:#234435),(|HistorySample|:#876679)]
 
-The reason for hard tags is related to inheritance while that of soft tags is connected to composition.  For more on this take a look at the Solutions Pattern below for an application of soft tags and at JITI for hard tags and its connection to inheritance.  See also the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a> and the rspec files for the project.
+Hard tags are an aid to inheritance while soft tags help with composition.  For more on this take a look at the Solutions Pattern below for an application of soft tags and at JITI (Just-In-Time Inheritance) for and example of hard tags and its connection to inheritance.  See also the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a> and the rspec files for the project.
 
 #### #precedent and #progenitor (alias #pre, #pro)
 The #pre method gets the previous element in the history. Here is the code:
@@ -713,505 +727,39 @@ The #pre method gets the previous element in the history. Here is the code:
                          
     # expect the following
     expect(HistorySample().history.last.precedent).to equal(HistorySample().history.first)
-    
-The #pro method gets the version from which a particular trait was generated. This may not necessarily be the precedent.  Take a look at the following code.
-
-    # create the trait
-    trait :Progample
-    
-    # expect the following
-    expect(Progample().history).to be_empty
-    expect(Progample().precedent).to equal(Progample().spec)
-    expect(Progample().progenitor).to equal(Progample().spec)
-   
-    # create some history
-    extend Progample(), Progample()       
-
-    # expect the following
-    expect(Progample().history.size).to eq(2)
-    expect(Progample().history.first.progenitor).to equal(Progample().spec)
-    expect(Progample().history.last.pro).to equal(Progample().spec)
-    expect(Progample().history.last.pre).to equal(Progample().history.first)
-    expect(Progample().history.first).to_not equal(Progample().spec)
-    
-Furthermore:
-
-    Tag = Progample()
-    expect(Tag.pro).to equal(Progample().spec)
-    
-    class A
-      inject Tag
-    end
-
-    expect(A.traits.first.pro).to equal(Tag)
-    
+        
 For more on this see the rspec files.     
 
-### Trait/Injector Equality and Difference 
-
-Injectors can be compared.  This allows further introspection capabilities which can be used to determine if a certain piece of code possesses a certain block of capabilities, test if those are equal to some other component's capabilities, or determine what the difference is.  This is similar to what you would find with simple modules, but capabilities are compared on a method basis.  It only follows that if traits can be applied and withdrawn from any target we should be able to test for their similarities to other traits.  Injector difference on the complement, finds the actual delta between traits and returns and array with those differences.  
-
-Here is how equality is defined:
-
-    # equality
-    ######################################
-
-		E().should == E()
-		E().should == E().spec
-		E().should == E().pre
-		
-		# if
-		ETag1 = E()											# with no definitions
-		# then
-		E().should == ETag1							# same thing
-		
-		# if
-		extend E()											# with no definitions
-		# then
-		injectors.first.should == E()		# same
-		
-		# but
-		E().should == E() 							# always
-		E().should == E().spec 					
-		E(:tag).should == E()	
-		
-
-
-Inequality is based on a trait's methods.  Once you add method definitions to a trait, that trait tests as inequality to it precedent or progenitor provided this is not the original trait.  The original trait is the #pre and #pro to all others. It always tests as equal to its handle, but versions past or since do not.  A different trait with the same methods is also not equal to the trait.
-
-Here is how inequality is defined:
-
-    # inequality
-    ######################################
-
-		E().should_not == F()
-
-    # if some E () definitions **
-    E() do
-    	def foo                   
-    	end
-    end     
-
-    # then (from above)
-    ETag1.should_not == E()         
-
-    # furthermore
-    traits.first.should_not == E()
-
-    # and
-    E().should_not == E().pre
-
-		# but
-    E().should == E()								# always
-		E().should == E().spec
-
-Difference is deeper than simple inequality.  It returns the actual delta between what you have and what you pass in to the call as an array of two elements.  The first element is the methods common to both operands, the second is the delta from the first to the second.  The method also extends into a sub-mini API.  Furthermore, the elements of the array which are arrays themselves also return a partial trait from their payload which can be used in further trait injection.  Here is how difference is defined:
-
-#### #trait.diff ver=nil
-
-    # difference
-    ##################################
-
-    #diff(ver=nil)  --( The argument ver=nil defaults to the previous version )
-    
-      E().diff.class.should be(Array)
-
-
-    #diff.empty?  --( Is the delta empty? The join could still exist (see below). )
-    
-      E().diff.should be_empty
-      
-
-      # because
-      E().diff.delta.should be_empty
-      E().diff.join.should be_empty
-      
-      
-      # a tag to compare
-      ETag3 = E()
-
-
-      # if some E() definitions **
-      E do
-      	def foo 									
-      	end
-      end
-
-
-      # E is changed so...
-      E().diff(ETag3).should_not be_empty
-
-
-      # because (like above)
-      ETag3.should_not == E() 
-    
-      # and
-
-    
-    #diff.delta  --( The difference in methods )
-
-      E().diff(ETag3).delta.should == [:foo]
-
-
-    #diff.loaded? --( Is there both a join and a delta? )
-    
-      E().diff(ETag3).should_not be_loaded
-
-      # because
-
-      
-    #diff.join  --( The methods common to both )
-    
-      E().diff(ETag3).join.should == []
-      
-
-      # even though
-      E().diff(ETag3).delta.should == [:foo]
-         
-
-      # furthermore
-      E().diff.should == [[], [:foo]] 
- 
-
-      # being that
-      E().diff.should eq( E().diff(E().precedent) )
-      # and
-      E().progenitor.should equal(E().spec)
-
-
-    #diff.join.injector
-    #diff.delta.injector
-    
-  		# a tag as precedent
-  		ETag5 = E()
-
-
-  		# if E() definitions **
-  		E do
-  			def foo
-  				:foo
-  			end
-  			def bar
-  				:bar
-  			end
-  		end
-
-
-  		# then 
-  		E().diff.should_not be_empty
-
-  		# being that
-  		E().diff.join.should be_empty
-  		E().diff.delta.should_not be_empty
-  		# as for
-  		E().diff.delta.injector.instance_methods.should == [:foo, :bar]
-  		# and
-  		E().diff.delta.injector.should_not eq(E().diff.join.injector)
-
-  		# being that
-  		E().diff.join.injector.instance_methods.should be_empty
-  		E().diff.delta.injector.instance_methods.should_not be_empty
-
-  		# allows the following
-  		class Incomplete
-  			inject E().diff.delta.injector
-  		end
-  		# and
-  		Incomplete.new.foo.should eq(:foo)
-
-  		# being that
-  		E().diff.delta.injector.should be_instance_of(Injector)
-  		E().diff.delta.injector.should be_instance_of(Trait)
-		
-    
-
-The version argument can have the following forms: negative index (-1, etc), or another version.  By default, it uses the previous version.  NOTE: the previous version of an un-altered trait is equal to the trait.
-    
-Again, for more on this see the rspec files.
-
-### Trait/Injector composition
-The composition of multiple traits into an object can be specified as follows:
-
-    include Injectors
-    
-    # declare traits
-    trait :FuelSystem                          # capitalized methods
-    trait :Engines
-    trait :Capsule
-    trait :Landing
-
-    # compose the object
-    class SpaceShip
-    
-    	inject FuelSystem(), Engines(), Capsule(), Langing()    # capitalized method use
-
-    	def launch
-    		gas_tank fuel_lines burners ignition :go              # call through the VMC
-    		self
-    	end
-    end
-    
-    Spaceship.traits.by_name == [:FuelSystem, :Engines, :Capsule, :Landing]
-
-    # define functionality
-    FuelSystem do
-    	def gas_tank arg
-    		:gas
-    	end
-    	def fuel_lines arg
-    		:fuel
-    	end
-    	def burners arg
-    		:metal
-    	end
-    end
-
-    # ...
-    
-    # create object
-    flyer = SpaceShip.new.launch
-
-
-    # in-flight definitions, ha ha ha
-    var = 'wheels'
-    
-    Landing do
-    	define_method :gear do                      # a closure of surrounding context
-    		var
-    	end
-    end
-    
-One thing to note is the difference between defining function through the VMC, which allows working with traits already applied to targets and predefining function of a trait before application and versioning.  The first allows a flow similar to that of regular modules and the later makes use of the true nature of traits and allows customizing traits to their targets.l
-
-### Inheritance
-Inheritance with traits comes in two forms.  The first form comes from the normal versioning of a trait.  The second comes from JITI which follows a model similar to what you find in regular classes.  With versioning a trait inherits all the function from its progenitor allowing customization of only the parts needed for the application at hand but cannot call upon previous versions of itself.  With JITI this later dimension of access to its ancestry is possible but we must be aware of colluding ancestry when creating decorators.  Jackbox itself warns you of this however.
-
-But before this, the behavior of Trait Injectors under normal class inheritance is also of interest.  Trait injectors act upon a class and its children.  Introspection on traits under class inheritance is achieved with the use of the :all directive on the #trait/#injectors method.  This behavior is partially specified by what follows:
-
-    trait :j
-
-    class C
-    end
-
-    C.inject j {                                  #foo pre-defined at time of injection
-      def foo
-        'foo'
-      end
-    }
-    C.traits.by_name.should == [:j]
-    C.new.traits.by_name.should == [:j]
-
-    C.new.foo.should == 'foo'
-
-    # D inherits from C
-
-    class D < C                                   # methods are inherited from j 
-    end
-    D.traits.by_name.should == []
-    D.traits(:all).by_name == [:j]
-
-    # New Objects
-    C.new.foo.should == 'foo'											
-    D.new.foo.should == 'foo'
-
-For mote on this as also see the rspec files.
-
-More importantly though is the following example of trait inheritance due to versioning.  As previously stated, the concept of tag/naming also plays an important role with inheritance, as illustrated in the following code:
-
-    trait :player do                       
-    	def sound                               
-    		'Lets make some music'                
-    	end                                     
-    end                                       
-
-    TapePlayer = player do                        # TapePlayer version tag
-    	def play                                    # --inherirts #sound
-    		return 'Tape playing...' + sound()                          
-    	end                                     
-    end                                       
-
-    CDPlayer = player do                          # CDPlayer version tag
-    	def play                                    # --also inherits #sound
-    		return 'CD playing...' + sound()
-    	end
-    end
-
-    class BoomBox
-    	include TapePlayer
-
-    	def on
-    		play
-    	end
-    end
-    
-    class JukeBox < BoomBox
-    	inject CDPlayer
-    end
-
-
-The different versions inherit all of the pre-existing methods from the current trait and freeze that function.  We can either Tag/Name it of simply include/extend into a target but the function is frozen at that time.  Tags cannot be modified or more clearly shouldn't be modified.  Classes retain the frozen version of the trait until the time an update is made.  Of course, there is always #define\_method and the VMC.   For more on all this see, the Rspec examples.
-
-### Just-In-Time Inheritance (JITI)
-
-This flavor of the inheritance model allows our modular closures to have similar properties to the inheritance of classes.  With it you can expect to have access to the trait's super/ancestor members as part of the call, just like you would with classes. In addition to the inheritance resulting from versioning, JITI presents a more complete scenario adding color to the inheritance picture painted by trait injectors.  The key takeaway here is that traits are a form of mix-in that share an enhanced but similar inheritance model with classes. You can version them to gain access to versioned inheritance or you can tag and then override its members to access an ancestor chain comprised of all previous tags.  As always we will use some example code to illustrate:
-
-    # 
-    # Our Trait
-    # 
-    Tag1 = trait :Functionality do
-    	def m1
-    		1
-    	end
-	
-    	def m2
-    		:m2
-    	end
-    end
-
-    # 
-    # Normal versioned inheritance
-    # 
-    Functionality do
-    	def other  					
-    		'other'						# -- same ancestors as before
-    	end 								
-    end
-
-    expect(Functionality().ancestors).to eql( [Functionality()] )
-
-    # test it
-
-    o  = Object.new.extend(Functionality())
-
-    # inherited
-    o.m1.should == 1
-    o.m2.should == :m2
-
-    # current
-    o.other.should == 'other'
-
-
-    #
-    # JITI
-    # 
-    Tag2 = Functionality do
-    	def m1							# The :m1 override invokes JIT Inheritance
-    		super + 1					# -- Tag1 is summoned into ancestor chain
-    	end 								# -- allows the use of super
-	
-    	def m3							
-    		'em3'
-    	end
-    end
-
-    # test it
-
-    p = Object.new.extend(Tag2)
-
-    # JIT inherited
-    p.m1.should == 2
-
-    # regular inheritance
-    p.m2.should == :m2
-    p.m3.should == 'em3'
-    p.other.should == 'other'
-
-    expect(Functionality().ancestors).to eql( [Functionality(), Tag1] )
-    expect(Tag2.ancestors).to eql( [Tag2, Tag1] )
-
-### The Rules of JITI
-
-JITI (Just-In-Time Inheritance) is governed by a set of rules framing its behavior.  Here are these rules and their descriptions:
-
-1. JITI works like class inheritance but as a mix-in.  It holds onto method definitions of earlier version hard tags.  It lets you override or rebase (start fresh) individual methods at any level.  It works under object extension.  It works under class inclusion.  
-2. The trait handle is always in sync with the last hard tag until purposefully changed.  This also means the handle definitions use the last hard tag as a departing base for any further changes.
-3. It allows initial external basing and also external base substitution.  A trait can be based on an external trait or even module serving as a shell or casing for external function as long as any internal definitions don't overwrite the external ones.
-4. But, It forces internal basing once applied.  Definitions internal to the trait always take precedence over external definitions by the same signature.  This blocks external ancestor intrusion enforcing internal trait consistency. 
-5. It keeps the VMC in proper working order.  Like all traits, the VMC is always available as a cache of methods available globally to all versions of the trait.
-6. Directives are allowed.  Also like all traits, JITI traits respond to normal trait injector directives.
-
-For more on this please see the rspec files in the project, or on the gem itself, and also visit our blog at http://jackbox.us
-
-But, this is the basic idea here.  Traits are an extended closure which can be used as a mix-in, prolonged to add function, and shaped,  versioned, tagged, and inherited to fit the purpose at hand. With Traits however you avoid the perils of monkey patching.  You can just create a new version of the trait and leave the old one alone.  Combining work flows of both modules and traits is also possible through the use of the VMC and the special version of #define_method.  Moreover, using traits Jackbox also goes on to solve some traditional shortcomings of Ruby with some GOF(Gang of Four) object patterns.  
-
----
-
-
-### The GOF Decorator Pattern:   
-Traditionally this is only partially solved in Ruby through PORO decorators or the use of modules.  However, there are the problems of loss of class identity for the former and the limitations on the times it can be re-applied to the same object for the latter. With Jackbox this is solved.  A trait used as a decorator does not confuse class identity for the receiver. Decorators are useful in several areas of OOP: presentation layers, string processing, command processors to name a few.  
-
-Here is the code:
-
-    class Coffee
-    	def cost
-    		1.50
-    	end
-    end
-
-    trait :milk do
-    	def cost
-    		super() + 0.30
-    	end
-    end
-    trait :vanilla do
-    	def cost
-    		super() + 0.15
-    	end
-    end
-
-    cup = Coffee.new.enrich(milk).enrich(vanilla)
-      cup.should be_instance_of(Coffee)
-
-    cup.cost.should == 1.95
-
-
-Additionally, these same decorators can then be re-applied MULTIPLE TIMES to the same receiver.  This is something that is normally not possible with the regular Ruby base language.  Here is the code:
-
-    cup = Coffee.new.enrich(milk).enrich(vanilla).enrich(vanilla)
-
-    # or even...
-
-    cup = Coffee.new.enrich milk, vanilla, vanilla
-
-    cup.cost.should == 2.10
-    cup.should be_instance_of(Coffee)
-    cup.traits.should == [:milk, :vanilla, :vanilla]
-
-    # Important Note:
-    # vanilla and coffe can be div tags 
-    # and other markup in html or... 
-
-	
 ### Other Capabilities of Trait Injectors
 
-The functionality of Trait Injectors can be removed from individual targets, whether class or instance targets, in various different ways.  This allows for whole 'classes' of functionality to be removed and made un-available and then available again at whim and under programer control.  First we have trait canceling or ejection.  This is where a trait is completely removed from a target precipitating further calls on the trait to generate an error.  Second there is trait silencing and reactivation.  This on the other hand allows for the temporary quieting of a trait but which may need to be reactivated at a later time.
+The functionality of Trait Injectors can be removed from individual targets, whether class or instance targets, in various different ways.  This allows for whole 'classes' of functionality to be removed or withdrawn and then made available again at whim and under programer control.  The first method of injector withdrawal is trait canceling or ejection.  This is where a trait is completely removed from a target precipitating further calls on the trait to generate an error.  Second there is trait silencing and reactivation.  This on the other hand allows for the temporary quieting of a trait but which may need to be reactivated at a later time.  Trait canceling or ejection can take place at the instance or the class level. 
 
-Trait canceling or ejection can take place at the instance or the class level. Here we have a Trait Injector removed after an #enrich to individual instance:
+Here we have a Trait Injector removed after an #enrich to individual instance:
 	
-  	class Coffee
-  		def cost
-  			1.00
-  		end
-  	end
-  	trait :milk do
-  		def cost
-  			super() + 0.50
-  		end
-  	end
+    class Coffee
+    	def cost
+    		1.00
+    	end
+    end
+    trait :milk do
+    	def cost
+    		super() + 0.50
+    	end
+    end
 
-  	cup = Coffee.new.enrich(milk)
-  	friends_cup = Coffee.new.enrich(milk)
+    cup = Coffee.new.enrich(milk)
+    friends_cup = Coffee.new.enrich(milk)
 
-  	cup.cost.should == 1.50
-  	friends_cup.cost.should == 1.50
+    cup.cost.should == 1.50
+    friends_cup.cost.should == 1.50
 
-  	cup.cancel :milk
-  	
-  	cup.cost.should == 1.00
-  	
-  	# friends cup didn't change price
-  	friends_cup.cost.should == 1.50
-  	
+    cup.cancel :milk
+
+    cup.cost.should == 1.00
+
+    # friends cup didn't change price
+    friends_cup.cost.should == 1.50
+
 Here it is removed after an #inject at the class level:
 
     # create the injection
@@ -1370,6 +918,509 @@ This directive totally destroys the trait including the handle to it.  Use it ca
     	end
     	}.to raise_error(NameError, /extras/)
 
+### Soft Tags
+Just like hard tags above but a name is not needed.  They come about by the :tag directive from above and are intended as markers for versions of algorithms that need to be accessed at a later time on demand.  For more on this see the Solutions Pattern below.
+
+    jack :SomeJack do
+      def foo
+        :foo
+      end
+    end
+    SomeJack :tag                       # Unnamed version
+
+    SomeJack(:tag) do                   # New unnamed version
+      def foo
+        :foooooooo
+      end
+    end
+
+Accessible through trait#tags (an Array).  Also available **trait#tags.hard** and **trait#tags.soft**.  See introspection above.
+
+### Trait Injector Equality and Difference 
+
+Injectors can be compared.  This allows further introspection capabilities which can be used to determine if a certain piece of code possesses a certain block of capabilities, test if those are "equal" to some other component's capabilities in terms of duck types, or determine what the difference is.  This is similar to what you would find with simple modules, but capabilities are compared on a method basis.  It only follows that if traits can be applied and withdrawn from any target we should be able to test for their similarities to other traits.  Injector difference is the complement to all this, and it finds the actual delta between traits and returns those differences.  
+
+Here is how equality is defined:
+
+    # equality
+    ######################################
+
+		E().should == E()
+		E().should == E().spec
+		E().should == E().pre
+		
+		# if
+		ETag1 = E()											# with no definitions
+		# then
+		E().should == ETag1							# same thing
+		
+		# if
+		extend E()											# with no definitions
+		# then
+		injectors.first.should == E()		# same
+		
+		# but
+		E().should == E() 							# always
+		E().should == E().spec 					
+		E(:tag).should == E()	
+		
+
+
+Inequality is based on a trait injector's methods.  Once you add method definitions to a trait, that trait tests as an inequality to its precedent provided this is not the original (#spec) injector.  This original trait is also the #pre and #pro to all others. It always tests as equal to its handle, but versions past or since do not.  A different injector with the same methods is also not equal to the trait.
+
+Here is how inequality is defined:
+
+    # inequality
+    ######################################
+
+		E().should_not == F()
+
+    # if some E () definitions **
+    E() do
+    	def foo                   
+    	end
+    end     
+
+    # then (from above)
+    ETag1.should_not == E()         
+
+    # furthermore
+    traits.first.should_not == E()
+
+    # and
+    E().should_not == E().pre
+
+		# but
+    E().should == E()								# always
+		E().should == E().spec
+
+Difference is deeper than simple inequality.  It returns the actual delta between what you have and what you pass in to the call as an array of two elements.  The first element is comprised of the methods common to both operands, the second is the delta from the first to the second.  This method also exposes a micro API.  Furthermore, the elements of the array which are special arrays themselves also return a partial trait with their actual injector payload which can be used in further trait injection.  Here is how difference is defined:
+
+#### #trait.diff ver=nil
+
+    # difference
+    ##################################
+
+    #diff(ver=nil)  --( The argument ver=nil defaults to the previous version )
+    
+      E().diff.class.should be(Array)
+
+
+    #diff.empty?  --( Is the delta empty? The join could still exist (see below). )
+    
+      E().diff.should be_empty
+      
+
+      # because
+      E().diff.delta.should be_empty
+      E().diff.join.should be_empty
+      
+      
+      # a tag to compare
+      ETag3 = E()
+
+
+      # if some E() definitions **
+      E do
+      	def foo 									
+      	end
+      end
+
+
+      # E is changed so...
+      E().diff(ETag3).should_not be_empty
+
+
+      # because (like above)
+      ETag3.should_not == E() 
+    
+      # and
+
+    
+    #diff.delta  --( The difference in methods )
+
+      E().diff(ETag3).delta.should == [:foo]
+
+
+    #diff.loaded? --( Is there both a join and a delta? )
+    
+      E().diff(ETag3).should_not be_loaded
+
+      # because
+
+      
+    #diff.join  --( The methods common to both )
+    
+      E().diff(ETag3).join.should == []
+      
+
+      # even though
+      E().diff(ETag3).delta.should == [:foo]
+         
+
+      # furthermore
+      E().diff.should == [[], [:foo]] 
+ 
+
+      # being that
+      E().diff.should eq( E().diff(E().precedent) )
+      # and
+      E().progenitor.should equal(E().spec)
+
+
+    #diff.join.injector
+    #diff.delta.injector
+    
+      # a tag as precedent
+      ETag5 = E()
+
+
+      # if E() definitions **
+      E do
+      	def foo
+      		:foo
+      	end
+      	def bar
+      		:bar
+      	end
+      end
+
+
+      # then 
+      E().diff.should_not be_empty
+
+      # being that
+      E().diff.join.should be_empty
+      E().diff.delta.should_not be_empty
+      # as for
+      E().diff.delta.injector.instance_methods.should == [:foo, :bar]
+      # and
+      E().diff.delta.injector.should_not eq(E().diff.join.injector)
+
+      # being that
+      E().diff.join.injector.instance_methods.should be_empty
+      E().diff.delta.injector.instance_methods.should_not be_empty
+
+      # allows the following
+      class Incomplete
+      	inject E().diff.delta.injector
+      end
+      # and
+      Incomplete.new.foo.should eq(:foo)
+
+      # being that
+      E().diff.delta.injector.should be_instance_of(Injector)
+      E().diff.delta.injector.should be_instance_of(Trait)
+		
+    
+
+The version argument can be negative index (-1, etc), or another version.  By default, it uses the previous version.  NOTE: the previous version of an un-altered trait is equal to the trait.  Again, for more on this see the rspec files.
+
+### Trait Injector composition
+The composition of multiple traits into an object can be specified as follows:
+
+    include Injectors
+    
+    # declare traits
+    trait :FuelSystem                          # capitalized methods
+    trait :Engines
+    trait :Capsule
+    trait :Landing
+
+    # compose the object
+    class SpaceShip
+    
+    	inject FuelSystem(), Engines(), Capsule(), Langing()    # capitalized method use
+
+    	def launch
+    		gas_tank fuel_lines burners ignition :go              # call through the VMC
+    		self
+    	end
+    end
+    
+    Spaceship.traits.by_name == [:FuelSystem, :Engines, :Capsule, :Landing]
+
+    # define functionality
+    FuelSystem do
+    	def gas_tank arg
+    		:gas
+    	end
+    	def fuel_lines arg
+    		:fuel
+    	end
+    	def burners arg
+    		:metal
+    	end
+    end
+
+    # ...
+    
+    # create object
+    flyer = SpaceShip.new.launch
+
+
+    # in-flight definitions, ha ha ha
+    var = 'wheels'
+    
+    Landing do
+    	define_method :gear do                      # a closure of surrounding context
+    		var
+    	end
+    end
+    
+For full examples see the rspec code.  One thing to note is the difference between defining function through the VMC, which allows working with traits already applied to targets and predefining function of a trait before application and versioning.  The first allows a flow similar to that of regular modules and the later makes use of the true nature of trait injectors and allows customizing trait injectors to their targets.
+
+### Unbound Dependency (Soft Ancestors)
+
+Another important feature of trait injectors is a property of injectors to combine with other traits in multiple ways (with different function or precedence) without actually permanently binding to any of their ancestors or their function.  This on-the-fly soft binding allows for multiple combinations of form and function from the same basic components.  This is another area where Jackbox mix-ins go beyond what is possible with regular modules. In the following example we combine the same injectors in this (soft) way to derive different function.
+
+    #####
+    # injector declarations
+
+    injector :drive do
+      def drive_result
+        payload * 2
+      end
+    end
+
+    trait :strings do
+      def payload
+        '+++++'
+      end
+    end
+
+    trait :numbers do
+      def payload
+        10
+      end
+    end
+
+    #####
+    # soft ancestry declarations
+
+    Result1 = drive strings
+    Result2 = drive numbers
+
+
+    class Driven
+      include Result1
+    end
+
+    Driven.new.drive_result.should == '++++++++++'
+
+
+    class Driven
+      update Result2
+    end
+
+    Driven.new.drive_result.should == 20
+
+
+    #################################
+    # remain unbound to ancestry
+    #################################
+
+    drive.ancestors.should == [drive]
+
+    #################################
+    # ----------amazing-------------
+    #################################
+
+Granted this is a somewhat contrived example but you get the idea.  Think again how is this different than what is available from modules.  With modules once one module is included in another that relationship is permanent.  With Jackbox trait injectors and soft ancestors the same components can be reused in multiple bindings tying their function locally only but remaining globally decoupled.
+
+### Inheritance
+Inheritance with trait injectors comes in two flavors.  The first form comes from the normal versioning of a trait.  The second comes from JITI which follows a model similar to what you find in regular classes.  With versioning a trait injector inherits all the function from its progenitor allowing customization of only the parts needed for the specific application at hand but cannot call upon previous versions of itself.  With JITI this later dimension of access to its own ancestry is possible.
+
+But before we get into all this, the behavior of Trait Injectors under normal class inheritance is also of interest.  Trait injectors act upon a class and its children.  Introspection on traits under class inheritance is possible and is achieved with the :all directive on the #traits/#injectors method.  The behavior of trait injectors under normal class inheritance is partially specified by what follows:
+
+    injector :j
+
+    class C
+    end
+
+    C.inject j {                                  #foo pre-defined at time of injection
+      def foo
+        'foo'
+      end
+    }
+    C.traits.by_name.should == [:j]
+    C.new.traits.by_name.should == [:j]
+
+    C.new.foo.should == 'foo'
+
+    # D inherits from C
+
+    class D < C                                   # methods are inherited from j 
+    end
+    D.traits.by_name.should == []
+    D.traits(:all).by_name == [:j]
+
+    # New Objects
+    C.new.foo.should == 'foo'											
+    D.new.foo.should == 'foo'
+
+For more on this also see the rspec files. 
+
+More importantly though is the inheritance native to injectors.  The following example touches on the first form of native trait injector inheritance, the inheritance due to versioning.  Here we have an example of how inheritance due to versioning can be harnessed to promote the re-use of common elements.  Like previously stated, the concept of tagging/naming also plays an important role with inheritance as illustrated in the following code:
+
+    trait :player do                       
+    	def sound                               
+    		'Lets make some music'                
+    	end                                     
+    end                                       
+
+    TapePlayer = player do                        # TapePlayer version tag
+    	def play                                    # --inherirts #sound
+    		return 'Tape playing...' + sound()                          
+    	end                                     
+    end                                       
+
+    CDPlayer = player do                          # CDPlayer version tag
+    	def play                                    # --also inherits #sound
+    		return 'CD playing...' + sound()
+    	end
+    end
+
+    class BoomBox
+    	include TapePlayer
+
+    	def on
+    		play
+    	end
+    end
+    
+    class JukeBox < BoomBox                       
+    	inject CDPlayer                             # Mixed class and injector inheritance models
+    end
+
+
+The different versions inherit all of the pre-existing methods from the previous one and "freeze" that function.  We can either Tag/Name them for later use or simply include/extend then into a new target, but the function is fixed at that time.  Tags cannot be modified or more clearly shouldn't be modified.  Classes retain the fixed version of the trait until the time an update is made.  But, trait injectors then also inherit new methods through the VMC (see above).  For more on all this see, the Rspec examples.
+
+### Just-In-Time Inheritance (JITI)
+
+This flavor of the inheritance model on the other hand allows our modular closures to have similar properties to the inheritance of classes.  With it you can expect to have access to the trait's super/ancestor members as part of the call, just like you would with class inheritance. In addition to the inheritance resulting from versioning, JITI presents a more complete scenario adding color to the inheritance picture painted by trait injectors with one caveat, we must be aware of colluding ancestry when creating decorators based on JITI.  This very narrow case is explained in the specs and Jackbox itself warns you of this however.  The key takeaway here is: trait injectors are a form of mix-in that share a similar inheritance model with classes, but all happening in the mix-in however. You can version them to gain access to versioned inheritance or you can tag and then override its members to access an ancestor chain comprised of all previous tags.  As always we will use some example code to illustrate:
+
+    # 
+    # Our Trait Injector
+    # 
+    Tag1 = injector :Functionality do
+    	def m1
+    		1
+    	end
+	
+    	def m2
+    		:m2
+    	end
+    end
+
+    # 
+    # Normal versioned inheritance
+    # 
+    Functionality do
+    	def other  					
+    		'other'						# -- same ancestors as before
+    	end 								
+    end
+    expect(Functionality().ancestors).to eql( [Functionality()] )
+
+    #####
+    # test function
+
+    o  = Object.new.extend(Functionality())
+
+    o.m1.should == 1
+    o.m2.should == :m2
+    o.other.should == 'other'
+
+
+    #
+    # JITI
+    # 
+    Tag2 = Functionality do
+    	def m1							# The :m1 override invokes JIT Inheritance
+    		super + 2					# -- Tag1 is summoned into ancestor chain
+    	end 								# -- allows the use of super
+	
+    	def m3							
+    		'em3'
+    	end
+    end
+
+    #####
+    # test it
+
+    p = Object.new.extend(Tag2)
+
+    # JIT inherited
+    p.m1.should == 3
+
+    # regular inheritance
+    p.m2.should == :m2
+    p.m3.should == 'em3'
+    p.other.should == 'other'
+
+    expect(Functionality().ancestors).to eql( [Functionality(), Tag1] )
+    expect(Tag2.ancestors).to eql( [Tag2, Tag1] )
+
+### The Rules of JITI
+
+JITI (Just-In-Time Inheritance) is governed by a set of rules framing its behavior.  Here are these rules and their descriptions:
+
+1. JITI works like class inheritance but at the mix-in.  It holds onto method definitions of earlier version hard tags.  It lets you override or rebase (start fresh) individual methods at any level.  It works for object extension.  It works for class inclusion.  
+2. The trait injector handle (its access method) is always in sync with the last hard tag.  This also means the injector definitions use the last hard tag as a departing base for any further changes.
+3. It allows initial external basing and also external base substitution.  A trait injector can be based on an external trait or even module serving as a shell or casing for external function as long as any internal definitions don't overwrite the external ones.
+4. It forces internal basing once instated.  Definitions internal to the trait injector always take precedence over external definitions by the same signature.  This blocks external ancestor intrusion enforcing internal injector consistency. 
+5. It works with the VMC.  Like all trait injectors, the VMC is always available, acting as a cache of methods available globally to all versions of the injector and which fills in those version methods from the main injector onto its descendants, supplementing this inheritance models as well.
+6. It works with directives.  Like all trait injectors, JITI trait injectors respond to normal injector directives.  Here they work to cancel and reinstate entire trait hierarchies.
+
+For more on all of this please see the rspec files in the GitHub project, or visit our blog at http://jackbox.us.  But, this is the basic idea here.  Trait injectors are an extended modular closure which can be used as a mix-in and prolonged to add function, shaped, versioned, tagged, and overridden to fit the purpose at hand. With trait injectors however you avoid the perils of monkey patching.  You can just create a new version of the injector and leave the old one alone.  They allow you to combine work flows from both modules and traits through the use of the VMC.  They provide inheritance in enhanced forms and a compositional model that loosely couples member traits.  Finally, they work under code directives.  Moreover, using trait injectors Jackbox also goes on to solve some traditional shortcomings of Ruby with some of the GOF(Gang of Four) object oriented patterns.  
+
+---
+
+
+### The GOF Decorator Pattern:   
+Traditionally this is only partially solved in Ruby through PORO decorators or the use of modules.  However, there are the problems of loss of class identity for the former and the limitations on the times it can be re-applied to the same object for the latter. Here are a couple of articles on the matter: <a href="https://robots.thoughtbot.com/evaluating-alternative-decorator-implementations-in">Evaluating Alternative Decorator Implementations</a> and <a href="http://nithinbekal.com/posts/ruby-decorators/">Decorator Pattern in Ruby</a> With Jackbox however all of this is solved.  A trait injector used as a decorator does not confuse class identity for the receiver. Decorators are useful in several areas of OOP: presentation layers, string processing, command processors to name a few.  Here is the code:
+
+    class Coffee
+    	def cost
+    		1.50
+    	end
+    end
+
+    trait :milk do
+    	def cost
+    		super() + 0.30
+    	end
+    end
+    trait :vanilla do
+    	def cost
+    		super() + 0.15
+    	end
+    end
+
+    cup = Coffee.new.enrich(milk).enrich(vanilla)
+      cup.should be_instance_of(Coffee)
+
+    cup.cost.should == 1.95
+
+
+Additionally, these same decorators can then be re-applied MULTIPLE TIMES to the same receiver.  This is something that is normally not possible with the regular Ruby base language.  Here is the code:
+
+    cup = Coffee.new.enrich(milk).enrich(vanilla).enrich(vanilla)
+
+    # or even...
+
+    cup = Coffee.new.enrich milk, vanilla, vanilla
+
+    cup.cost.should == 2.10
+    cup.should be_instance_of(Coffee)
+    cup.traits.should == [:milk, :vanilla, :vanilla]
+
+    # Important Note:
+    # vanilla and coffe can be div tags 
+    # and other markup in html or... 
+
+	
 ### The GOF Strategy Pattern:
 Another pattern that Jackbox helps with is the GOF Strategy Pattern.  This is a pattern which changes the guts of an object as opposed to just changing its outer shell. Traditional examples of this pattern in Ruby use PORO component injection within constructors, and then a form of delegation.  With Jackbox Trait Injectors all this is eliminated.  
 
@@ -1426,25 +1477,6 @@ But, with #cancel/#eject it is possible to have an even more general alternate i
     cup.brew
     cup.strategy.should == 'sweedish'
 
-### Soft Tags
-Just like hard tags above but a name is not needed:
-
-    jack :SomeJack do
-      def foo
-        :foo
-      end
-    end
-    SomeJack :tag                       # Unnamed version
-
-    SomeJack(:tag) do                   # New unnamed version
-      def foo
-        :foooooooo
-      end
-    end
-    
-Accessible through trait#tags (an Array).  Also available **trait#tags.hard** and **trait#tags.soft**.  See introspection above.
-
----
 ### Patterns of a Different Flavor
 
 Jackbox Traits also make possible some additional coding patterns.  Although not part of the traditional GOF set these new patterns are only possible thanks to languages like Ruby that although not as flexible as Lisp, permit the morphing of normal forms into newer ones. We hope that as Ruby evolves it continues to give programmers more power redefining the language itself. Here are some new patterns: 
@@ -1473,7 +1505,7 @@ __1) Late Decorator.-__ Another flow that also benefits from #define\_method in 
 
     w.cost.should == 15
 
-The actual decorating trait function is late bound and defined only after some other data is available.
+The actual decorating trait function is late bound and defined only after some other process has completed.
 
 __2) The Super Pattern.-__ No.  This is not a superlative kind of pattern.  Simply, the use of #super can be harnessed into a pattern of controlled recursion, like in the following example: 
 
@@ -1590,12 +1622,12 @@ The important thing to remember here is that #String() is a method now. We can r
 
 For more on this see, the rspec files and the Jackbox blog at <a href="http://jackbox.us">http://jackbox.us</a>.  
 
-#### #reclass?(klass)
+#### #constructor?/#reclass?(klass)
 
 This helper verifies a certain re-class exists within the current namespace.  It returns a boolean.  Example:
 
     module One
-      if reclass? String
+      if constructor? String
         String('our string')
       end
     end
@@ -1710,28 +1742,13 @@ With Abstract the code goes like this:
     expect{Velocity.new}.to_not raise_error
     Velocity.new.speed.should == 35
 
-
-With Prefs you can add persistent properties to a class.  These properties persist even through program termination. Here is the example code:
-
-    module Jester
-    	extend Prefs
-	
-    	pref :value => 10
-    end
-    
-    Jester.value.should == 10
-    Jester.value = 3
-    Jester.value.should == 3
-    Jester.reset :value
-    Jester.value.should == 10 
-  
 There is also command line utility called **jackup** that simply allows users to bring projects up to a *"Jackbox level"*.  It inserts the right references and turns the targeted project into a bundler gem if it isn't already one also adding a couple of rake tasks.
 
 ## Availability
 
 Jackbox is current available for Linux, Mac, and Windows versions of Ruby 1.9.3 thru 2.2.1
 
-## Installation
+## Installation and Testing
 
 Add this line to your application's Gemfile:
 
@@ -1747,8 +1764,11 @@ Or install it yourself as:
     
 And then execute the following command inside the project directory:
 
-    $jackup 
+    $ jackup 
     
+To run the test suite inside the gem directory, run the command test-jacks.  This will run the test battery using rspec with Jackbox isolated within the confines of its own gem directory.
+    
+    $ test-jacks
 
 
 ## Support

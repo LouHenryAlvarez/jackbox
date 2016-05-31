@@ -284,22 +284,22 @@ describe "the introspection api in further detail" do
 	describe :history, '#versions' do
 
 		
-		jack :Histample
+		jack :Hsample
 		             
 
 		it 'does not show original jack' do 
-			expect(Histample().history.first).to eq(nil)
+			expect(Hsample().history.first).to eq(nil)
 		end 
 		
 		it "shows additional jacks once hosted, i.e.: after extend/include" do
 			
-			extend(Histample(), Histample())					# host two items
+			extend(Hsample(), Hsample())					# host two items
 			
-			traits.should == Histample().history		# equal at this point
+			traits.should == Hsample().history		# equal at this point
 
-			expect(Histample().history.size).to eq(2)
-			expect(Histample().history.last).to eql(traits.last)
-			expect(Histample().history.first).to eq(traits.first)
+			expect(Hsample().history.size).to eq(2)
+			expect(Hsample().history.last).to eql(traits.last)
+			expect(Hsample().history.first).to eq(traits.first)
 			expect(traits.size).to eq(2)
 			
 			eject *traits
@@ -308,54 +308,54 @@ describe "the introspection api in further detail" do
 		
 		it "allows you to retreive items using an index" do
 			
-			extend Histample(), Histample()
+			extend Hsample(), Hsample()
 			
-			traits.should == Histample().history
+			traits.should == Hsample().history
 
-			expect(Histample().history.slice(0)).to be_instance_of(Injector)
-			expect(Histample().history.slice(1)).to be_instance_of(Injector) 
+			expect(Hsample().history.slice(0)).to be_instance_of(Injector)
+			expect(Hsample().history.slice(1)).to be_instance_of(Injector) 
 			
-			eject Histample(), Histample()
+			eject Hsample(), Hsample()
 			
 		end
 		
 		it 'swallows items once ejected' do
 			
-			extend(Histample(), Histample())
+			extend(Hsample(), Hsample())
 			
-			traits.should == Histample().history
+			traits.should == Hsample().history
 
-			expect(Histample().history.size).to eq(2)
+			expect(Hsample().history.size).to eq(2)
 			expect(traits.size).to eq(2)
 			
 			eject *traits
 			
 			expect(traits).to be_empty  							# target traits
-			expect(Histample().history).to be_empty			# Injector history
+			expect(Hsample().history).to be_empty			# Injector history
 			
 		end
 		
 		it 'swallows un-hosted elements other than original one' do
 			
-			Histample() #un-hosted Histample 
-			Histample() #un-hosted Histample
+			Hsample() #un-hosted Hsample 
+			Hsample() #un-hosted Hsample
 			
-			expect(Histample().history.size).to eq(0)
+			expect(Hsample().history.size).to eq(0)
 			
 		end
 		
 		it 'shows hosted items upon inspection' do
 
-			extend Histample()
+			extend Hsample()
 			
-			expect(Histample().history.inspect).to match(/\[\(\|Histample\|.+\)\]/)
-			expect(Histample().history.size).to eq(1)
+			expect(Hsample().history.inspect).to match(/\[\(\|Hsample\|.+\)\]/)
+			expect(Hsample().history.size).to eq(1)
 			
-			eject Histample()
+			eject Hsample()
 			
 		end
 		
-		describe '#versions under JITY' do
+		describe '#versions/#history under JITY' do
 			before do
 				trait :One
 				
@@ -387,7 +387,7 @@ describe "the introspection api in further detail" do
 			it 'should only have one version' do
 				
 				One().versions.size.should == 1 # OneTag
-				
+				One().versions.should == [OneTag]
 			end
 		end
 		
@@ -395,15 +395,15 @@ describe "the introspection api in further detail" do
 
 			it 'points to the previous trait in the history' do
 
-				extend Histample(), Histample()
+				extend Hsample(), Hsample()
 				
 				# Given that
-				traits.should == Histample().history
+				traits.should == Hsample().history
 				
 				# Then 
-				expect(Histample().history.last.precedent).to equal(Histample().history.first)
-				expect(Histample().history.last.pre).to equal(traits.first)
-				expect(traits.last.precedent).to equal(Histample().history.first)
+				expect(Hsample().history.last.precedent).to equal(Hsample().history.first)
+				expect(Hsample().history.last.pre).to equal(traits.first)
+				expect(traits.last.precedent).to equal(Hsample().history.first)
 				expect(traits.last.pre).to equal(traits.first)
 				
 				eject *traits
@@ -412,12 +412,12 @@ describe "the introspection api in further detail" do
 			
 			it 'has spec as the first precedent' do
 				
-				extend Histample(), Histample()
+				extend Hsample(), Hsample()
 				
-				traits.should == Histample().history
+				traits.should == Hsample().history
 				
-				expect(Histample().history.first.precedent).to equal(Histample().spec)
-				expect(traits.first.precedent).to equal(Histample().spec)
+				expect(Hsample().history.first.precedent).to equal(Hsample().spec)
+				expect(traits.first.precedent).to equal(Hsample().spec)
 				
 				eject *traits
 
@@ -427,13 +427,13 @@ describe "the introspection api in further detail" do
 
 			it 'has the latest version as the precedent to spec' do
 				
-				extend Histample(), Histample()
+				extend Hsample(), Hsample()
 				
-				traits.should == Histample().history
+				traits.should == Hsample().history
 				
-				expect(Histample().history.first.precedent).to equal(Histample().spec)
-				expect(Histample().precedent.pre.pre).to equal(Histample().spec)
-				expect(Histample().spec.pre).to eq(Histample().history.last) 
+				expect(Hsample().history.first.precedent).to equal(Hsample().spec)
+				expect(Hsample().precedent.pre.pre).to equal(Hsample().spec)
+				expect(Hsample().spec.pre).to eq(Hsample().history.last) 
 				
 				eject *traits
 				
@@ -442,147 +442,6 @@ describe "the introspection api in further detail" do
 		end
 	end 
 	
-	describe :progenitor do
-
-		before do
-			trait :Progample
-		end
-		after do
-			Progample(:implode)
-		end
-
-		it 'points to its progenitor: the version of trait generating it' do
-
-			expect(Progample().history).to be_empty
-			expect(Progample().progenitor).to equal(Progample().spec)
-
-
-			# apply the traits
-			
-			extend Progample(), Progample()       
-			
-
-			# both are procreated form spec
-			
-			expect(Progample().history.first.progenitor).to equal(Progample().spec)
-			expect(Progample().history.last.progenitor).to equal(Progample().spec)
-			expect(Progample().history.size).to eq(2)
-
-
-			# create a tag
-			
-			suppress_warnings do # used because of constant
-				ProgenitorsTag = Progample()
-			end
-
-
-			# Progenitors Tag has spec as progenitor
-			
-			expect(Progample().history.last).to equal(ProgenitorsTag)
-			expect(Progample().history.last.progenitor).to equal(Progample().spec)
-			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)
-			expect(Progample().history.size).to eq(3)
-
-
-			# apply the tag
-			extend ProgenitorsTag
-
-			expect(Progample().history.last).to equal(traits.first)
-			expect(Progample().history.last.progenitor).to equal(ProgenitorsTag) 
-			expect(Progample().history.first.progenitor).to equal(Progample().spec)
-			expect(Progample().history.size).to eq(4)
-
-		end
-		
-		it 'points the last progenitor to nil' do
-			
-			expect(Progample().spec.progenitor).to equal(nil)
-
-		end
-
-		it 'works the same with soft tags' do
-
-			suppress_warnings do
-				ProgenitorsTag = Progample()
-			end
-
-			expect(Progample().history.size).to eq(1)
-
-
-			# soft tag
-			Progample(:tag) { 'some code'}       			
-
-			expect(Progample().history.size).to eq(2)
-
-			# progenitors are the same
-			
-			expect(Progample().history.first.progenitor).to eq(Progample().spec)
-			expect(Progample().history.last.progenitor).to eq(Progample().spec)
-			expect(Progample().history.first.progenitor.progenitor).to eq(nil)
-			expect(Progample().history.last.progenitor.progenitor).to eq(nil)
-
-			# tags call
-			
-			expect(Progample().tags.size).to eq(2)
-
-		end
-
-		it 'carries on the metaphor with traits are shared from other objects' do
-      
-			suppress_warnings do
-				ProgenitorsTag = Progample()
-			end
-
-			class ProgenitorTester1
-				 include ProgenitorsTag
-			end
-			
-			class ProgenitorTester2
-				include *ProgenitorTester1.traits   # copying traits from second class
-			end
-			
-			expect(ProgenitorTester2.traits.first.progenitor).to equal(ProgenitorTester1.traits.first)
-			expect(ProgenitorTester1.traits.first.progenitor).to equal(ProgenitorsTag)
-			expect(ProgenitorsTag.progenitor).to equal(Progample().spec)  
-			
-		end
-		
-	end 
-
-	describe :lineage do 
-		
-		before do
-			trait :Lineample
-		end
-		after do
-			Lineample(:implode)
-		end
-		
-		it 'collects all the progenitors of a line of traits' do 
-			
-			LineagesTag = Lineample()
-
-			class LineageTester1
-				 include LineagesTag
-			end
-			
-			class LineageTester2
-				include *LineageTester1.traits
-			end
-			
-			expect(LineageTester2.traits.first.progenitor).to equal(LineageTester1.traits.first)
-			expect(LineageTester1.traits.first.progenitor).to equal(LineagesTag)
-			expect(LineagesTag.progenitor).to equal(Lineample().spec)  
-			
-			expect(Lineample().lineage).to eq([Lineample().spec, Lineample()])
-			expect(LineageTester2.traits.first.lineage).to eq([Lineample().spec, LineagesTag, LineageTester1.traits.first, LineageTester2.traits.first])
-			expect(Lineample().spec.lineage).to eq([Lineample().spec])
-			expect(Lineample().spec.progenitor).to eq(nil)
-			
-		end
-
-	end
-
 	describe 'equality of Injectors' do
 		
 		before do
@@ -625,7 +484,7 @@ describe "the introspection api in further detail" do
 				# inequality
 				##################################
 		    
-				E().should_not == F()
+				E().should_not eql F()
 
 		    # if E () definitions **
 		    E() do

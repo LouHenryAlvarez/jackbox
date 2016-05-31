@@ -789,52 +789,110 @@ describe 'multiple trait composition and decomposition' do
 		
 	end
 	
-	describe 'trait order resolution' do
+	describe 'soft injectors and order resolution' do
+		
+		it 'allows the driving of different function' do
+			
+			#####
+			# injector declarations
+			
+	    injector :drive do
+	      def drive_result
+	        payload * 2
+	      end
+	    end
+
+	    trait :strings do
+	      def payload
+	        '+++++'
+	      end
+	    end
+
+	    trait :numbers do
+	      def payload
+	        10
+	      end
+	    end
+
+			#####
+			# soft ancestry declarations
+			
+	    Result1 = drive strings
+	    Result2 = drive numbers
+
+	    class Driven
+	      include Result1
+	    end
+
+	    Driven.new.drive_result.should == '++++++++++'
+
+	    class Driven
+	      update Result2
+	    end
+
+	    Driven.new.drive_result.should == 20
+	
+	
+			#################################
+			# remain unbound to ancestry
+			#################################
+			
+	    drive.ancestors.should == [drive]
+	
+			#################################
+			# ----------amazing-------------
+			#################################
+	
+		end
 		
 		it 'allows the following' do
 			
-			trait :a, :b, :c
+			injector :a, :b, :c
 			
-			x = a b,c
-			y = a c,b
+			x = a b, c
+			y = a c, b
 			
 			x.should == a
 			y.should == a
-			x.ancestors.map(&:name).should == [:a, :b, :c]
-			y.ancestors.map(&:name).should == [:a, :c, :b]
-			x.traits.by_name.should == [:b, :c]
-			y.traits.by_name.should == [:c, :b]
 			a.ancestors.map(&:name).should == [:a]
 			b.ancestors.map(&:name).should == [:b]
 			c.ancestors.map(&:name).should == [:c]
+			x.ancestors.map(&:name).should == [:a, :b, :c]
+			y.ancestors.map(&:name).should == [:a, :c, :b]
 			
+			x.traits.by_name.should == [:b, :c]
+			y.traits.by_name.should == [:c, :b]
 		end
 		
-		it "also allows the following" do
+		it "also allows the following (same thing --no commas, ancestry is recursive)" do
 			
-			trait :a, :b, :c
+			injector :a, :b, :c
 			
 			x = a b c
 			y = a c b
 			
 			x.should == a
 			y.should == a
+			a.ancestors.map(&:name).should == [:a]
+			b.ancestors.map(&:name).should == [:b]
+			c.ancestors.map(&:name).should == [:c]
 			x.ancestors.map(&:name).should == [:a, :b, :c]
 			y.ancestors.map(&:name).should == [:a, :c, :b]
+			
 			x.traits.by_name.should == [:b]
 			y.traits.by_name.should == [:c]
 			x.traits.first.traits.by_name.should == [:c]
 			y.traits.first.traits.by_name.should == [:b]
-			a.ancestors.map(&:name).should == [:a]
-			b.ancestors.map(&:name).should == [:b]
-			c.ancestors.map(&:name).should == [:c]
+			x.traits(:all).by_name.should == [:b, :c]
+			y.traits(:all).by_name.should == [:c, :b]
 			
 		end
 	end
 
-	describe "composition with other tagged traits" do
+	describe "soft ancestors with other tagged traits" do
 		before do
-			trait :a, :b, :c
+			
+			injector :a, :b, :c
 		
 			suppress_warnings do
 				A1 = a do
@@ -898,21 +956,22 @@ describe 'multiple trait composition and decomposition' do
 			
 		end
 		
-		it 'encompasses ancestors as follows' do
+		it 'has ancestors as follows' do
 			
-			A1.ancestors.map(&:name).should == [:a]
-			B1.ancestors.map(&:name).should == [:b]
+			A1.ancestors.should == [A1]
+			B1.ancestors.should == [B1]
+			A2.ancestors.map(&:name).should == [:a, :a, :b, :c]
+			B2.ancestors.map(&:name).should == [:b, :b, :a, :a, :c]
+			
 			A2.traits(:all).by_name.should == [:a, :b, :c]
-			B2.traits(:all).by_name.should == [:b, :a, :c]
-			A2.ancestors.map(&:name).should == [:a, :b, :c]
-			B2.ancestors.map(&:name).should == [:b, :a, :c]
-			
+			B2.traits(:all).by_name.should == [:b, :a, :a, :c]
 		end
 	end
 	
-	describe "composition with tags" do
+	describe "soft ancestry with tags" do
 		before do
-			trait :a, :b, :c
+			
+			injector :a, :b, :c
 		
 			suppress_warnings do
 				A1 = a do
@@ -972,75 +1031,19 @@ describe 'multiple trait composition and decomposition' do
 			
 		end
 		
-		it 'encompasses ancestors as follows' do
+		it 'has ancestors as follows' do
 			
 			A1.ancestors.map(&:name).should == [:a]
 			B1.ancestors.map(&:name).should == [:b]
 			A2.traits(:all).by_name.should == [:a, :b, :c]
 			B2.traits(:all).by_name.should == [:b, :a, :c]
-			A2.ancestors.map(&:name).should == [:a, :b, :c]
-			B2.ancestors.map(&:name).should == [:b, :a, :c]
+			A2.ancestors.map(&:name).should == [:a, :a, :b, :c]
+			B2.ancestors.map(&:name).should == [:b, :b, :a, :c]
 			
 		end
 	end
 	
 	describe 'standard inclusion/extension aspects' do
-		
-		it 'works with included/extended callbacks' do
-
-			$stdout.should_receive(:puts).with('++++++++--------------++++++++++').twice()
-
-			SS = trait :StarShipFunction do
-
-				def phaser
-					'_+_+_+_+_+_+'
-				end
-
-				def neutron_torpedoes
-					'---ooooOOOO()()()'
-				end
-
-				def self.included host
-					puts '++++++++--------------++++++++++'
-					host.class_eval { 
-						def warp_speed
-						end
-					}
-				end
-
-				def self.extended host
-					puts '++++++++--------------++++++++++'
-					host.instance_eval {  
-						def link_to_ships
-							'8...................8'
-						end
-					}
-
-				end
-			end
-
-			class Airplane
-				inject SS
-			end
-			expect{
-
-				Airplane.new.warp_speed
-				Airplane.new.neutron_torpedoes.should == '---ooooOOOO()()()'
-
-			}.to_not raise_error
-
-
-			class Building
-				extend SS
-			end
-			expect{
-
-				Building.link_to_ships.should == '8...................8'
-
-			}.to_not raise_error
-
-		end
-
 		it 'does not interfere with regular module inclusion and extension' do
 
 			expect{
@@ -1115,12 +1118,320 @@ describe 'multiple trait composition and decomposition' do
 				Includer do
 					def far
 					end
-					inject Includer()													# this includes a new copy of the original
+					inject Includer()													# each function call returns a new trait
 				end                                         
 					
 			}.to_not raise_error()
 		
 		end
+		
+		it 'does allow self.extension' do
+			
+			trait :extensor do
+				extend self
+				
+				def m1
+					:m1
+				end
+			end
+			
+			extensor.m1.should == :m1
+		  
+		end
+		
+		it 'allows extension of other traits' do
+			
+			trait :Extender do
+				def meth
+					:meth
+				end
+			end
+			
+			trait :Extended do
+				extend Extender()
+			end
+			
+			Extended().meth.should == :meth 
+			
+		end
 
+		describe 'included/extended callbacks' do
+		  
+			describe 'included/extended callbacks with host as target' do
+
+				SS = trait :StarShipFunction do
+
+					def phaser
+						'_+_+_+_+_+_+'
+					end
+
+					def neutron_torpedoes
+						'---ooooOOOO()()()'
+					end
+
+					def self.included host
+						puts '++++++++--------------++++++++++'
+						host.class_eval { 
+							def warp_speed
+								'>>>>>>>>>>----------*'
+							end
+						}
+					end
+
+					def self.extended host
+						puts '++++++++--------------++++++++++'
+						host.instance_eval {  
+							def link_to_ships
+								'8...................8'
+							end
+						}
+					end
+					
+				end
+
+				it 'works for inclusion' do
+					
+					$stdout.should_receive(:puts).with('++++++++--------------++++++++++').once()
+
+					class Airplane
+						inject SS
+					end
+					expect{
+
+						Airplane.new.neutron_torpedoes.should == '---ooooOOOO()()()'
+						Airplane.new.warp_speed.should == '>>>>>>>>>>----------*'
+
+					}.to_not raise_error
+					
+				end
+
+				it 'works for extension' do
+					
+					$stdout.should_receive(:puts).with('++++++++--------------++++++++++').once()
+
+					class Building
+						extend SS
+					end
+					expect{
+
+						Building.phaser.should == '_+_+_+_+_+_+'
+						Building.link_to_ships.should == '8...................8'
+
+					}.to_not raise_error
+					
+				end
+
+			end
+			
+			describe 'included/extend callbacks with the trait itself as a target' do
+			
+				describe 'all versions as target' do
+				  
+					before do
+
+						#####
+						# setup our trait injector
+						trait :Callbacks do
+							
+							def self.extended host
+								with spec do
+									suppress_warnings {
+										@@host = host
+									}
+									def my_host
+										suppress_warnings {
+											@@host
+										}
+									end
+								end
+							end
+							# 
+							# Alternatively to avoid setting class variables
+							# we can do the following:
+							# 
+							# def self.extended host
+							# 	
+							# 	puts self.class, '---------'
+							# 	spec.instance_eval {
+							# 		@host = host
+							# 		def my_host
+							# 			spec.instance_eval {
+							# 				@host
+							# 			}
+							# 		end
+							# 	}
+							# 	
+							# end
+							
+							
+							def self.included host
+								with spec do
+									suppress_warnings {
+										@@host = host
+									}
+									def my_host
+										suppress_warnings {
+											@@host
+										}
+									end
+								end
+							end
+							# 
+							# Alternatively to avoid setting class variables
+							# we can do the following:
+							# 
+							# def self.included host
+							# 	
+							# 	spec.instance_eval {
+							# 		@host = host
+							# 		def my_host
+							# 			spec.instance_eval {
+							# 				@host
+							# 			}
+							# 		end
+							# 	}
+							# 	
+							# end
+							
+						end
+						
+					end
+			
+			
+					it 'works for inclusion' do
+						
+						class CallbacksTester1
+							include Callbacks()
+						end
+						Callbacks().my_host.should == CallbacksTester1
+					
+					end
+					
+					it 'also works like so' do
+					  
+						ExtendedCallbacks1 = Callbacks()
+					
+						class CallbacksTester2
+							include ExtendedCallbacks1
+						end
+						ExtendedCallbacks1.my_host.should == CallbacksTester2
+						Callbacks().my_host.should == CallbacksTester2
+					
+					end
+			
+					it 'works for extension' do
+			
+						class CallbacksTester3
+							extend Callbacks()
+						end
+						Callbacks().my_host.should == CallbacksTester3
+						
+					end
+					
+					it 'also works for this case' do
+			
+						ExtendedCallbacks2 = Callbacks()
+			
+						class CallbacksTester4
+							extend ExtendedCallbacks2
+						end
+						ExtendedCallbacks2.my_host.should == CallbacksTester4
+						Callbacks().my_host.should == CallbacksTester4
+			
+					end
+				end
+				
+				describe 'specific tags as a target' do
+					
+					before do
+						
+						trait :BadAss do
+							def self.conduit name= nil
+								@conduit ||= name
+							end
+							
+							def self.included host
+			
+								with pro do
+									@host = host
+									def my_host
+										@host
+									end
+								end
+								name = pro.conduit
+								
+								host.class_eval do
+									define_method :conduit do
+										name
+									end
+								end
+			
+							end
+							
+							def self.extended host
+			
+								with pro do
+									@host = host
+									def my_host
+										@host
+									end
+								end
+								name = pro.conduit
+								
+								host.define_singleton_method :conduit do
+									name
+								end
+								
+							end
+						end
+						
+						BadAss1 = BadAss()
+						BadAss2 = BadAss()
+						
+					end
+					
+				  it 'works for incluseion' do
+				    
+						class CallbacksTester5
+							include BadAss1
+						end
+						
+						class CallbacksTester6
+							include BadAss2
+						end
+						
+						BadAss1.my_host.should == CallbacksTester5
+						BadAss2.my_host.should == CallbacksTester6
+						BadAss1.conduit(:one)
+						BadAss2.conduit(:two)
+						CallbacksTester5.new.conduit == :one
+						CallbacksTester6.new.conduit == :two
+						
+				  end
+				
+					it 'works for extension' do
+					  
+						class CallbacksTester7
+							extend BadAss1
+						end
+						
+						class CallbacksTester8
+							extend BadAss2
+						end
+						
+						BadAss1.my_host.should == CallbacksTester7
+						BadAss2.my_host.should == CallbacksTester8
+						BadAss1.conduit(:one)
+						BadAss2.conduit(:two)
+						CallbacksTester7.conduit == :one
+						CallbacksTester8.conduit == :two
+						
+					end
+					
+				end
+				
+			end
+		end
+		
 	end
 end		

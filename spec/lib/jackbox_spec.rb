@@ -70,7 +70,7 @@ describe Jackbox, 'jackbox library', :library do
 
 		it 'allows ruby_c objects and singleton classes to be decorated as well' do
 
-			Dir.singleton_class.decorate :chdir do |*args|
+			Dir.metaclass.decorate :chdir do |*args|
 				puts 'Changing directory...'
 				super(*args)
 			end
@@ -117,11 +117,13 @@ describe Jackbox, 'jackbox library', :library do
 			end
 			
 			expect {
-			class SomeCrappyClass
-				decorate :boo do
-					:boo
+				
+				class SomeCrappyClass
+					decorate :boo do
+						:boo
+					end
 				end
-			end
+				
 			}.to raise_error(NameError)
 		end
 		
@@ -133,11 +135,11 @@ describe Jackbox, 'jackbox library', :library do
 				end
 			end
 			
-			class B
+			class Bc
 				include Am
 			end
 			
-			B.new.off.should == 'off'
+			Bc.new.off.should == 'off'
 			
 			module Am
 				decorate :off do
@@ -147,7 +149,7 @@ describe Jackbox, 'jackbox library', :library do
 			
 			expect {
 				
-				B.new.off.should == 'offon'			#fails!!
+				Bc.new.off.should == 'offon'			#fails!!
 				
 			}.to raise_error(RSpec::Expectations::ExpectationNotMetError)
 			

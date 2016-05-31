@@ -26,9 +26,9 @@ describe 'jit inheriatnce with tagging' do
 			end
 
 			Functionality do
-				def other  					# No overrides No inheritance
-					'other'						# -- same ancestors as before
-				end 								# -- normal trait inheritance
+				def other  												# No overrides No inheritance
+					'other'													# -- same ancestors as before
+				end 															# -- normal trait inheritance
 			end
 
 			# debugger
@@ -42,10 +42,6 @@ describe 'jit inheriatnce with tagging' do
 				end
 			end
 
-			class AA6
-				inject Tag2
-			end
-			
 			# debugger
 			Tag3 = 	Functionality() do
 				def m1
@@ -56,9 +52,10 @@ describe 'jit inheriatnce with tagging' do
 				end 								
 			end
 
-			class AA7
-				inject Tag3 
-			end
+			A = Class.new
+			B = Class.new
+			C = Class.new
+			D = Class.new
 
 		end
 	end
@@ -67,6 +64,11 @@ describe 'jit inheriatnce with tagging' do
 
 		suppress_warnings do
 
+			A = nil
+			B = nil
+			C = nil
+			D = nil
+			
 			Tag1 = nil
 			Tag2 = nil
 			Tag3 = nil
@@ -77,6 +79,18 @@ describe 'jit inheriatnce with tagging' do
 		end
 
 		Functionality(:implode)
+
+	end
+
+	it 'keeps the main trait in sync with the last tag' do
+
+		o = Object.new.extend Tag3
+		p = Object.new.extend Functionality()
+
+		# test it
+
+		o.m1.should == 4
+		p.m1.should == 4
 
 	end
 
@@ -92,18 +106,18 @@ describe 'jit inheriatnce with tagging' do
 		#
 		# Under Inclusion
 		# 
-		class AA6
+		class A
 			inject Tag2
 		end
-		aa6 = AA6.new
+		a = A.new
 
 		# JIT inherited
-		aa6.m1.should == 2
-		aa6.m3.should == 'em3'
+		a.m1.should == 2
+		a.m3.should == 'em3'
 
 		# Version inherited
-		aa6.m2.should == :m2
-		aa6.other.should == 'other'
+		a.m2.should == :m2
+		a.other.should == 'other'
 
 		Functionality().tags.should == [Tag1, Tag2, Tag3]
 
@@ -114,32 +128,91 @@ describe 'jit inheriatnce with tagging' do
 		#
 		# Different client/Diferent Tag
 		# 
-		class AA7
+		class B
 			inject Tag3 
 		end
-		aa7 = AA7.new
+		b = B.new
 
 		# JIT inherited
-		aa7.m1.should == 4					
-		aa7.m3.should == 'em3em3'
+		b.m1.should == 4					
+		b.m3.should == 'em3em3'
 
 		# regular inheritance
-		aa7.m2.should == :m2
-		aa7.other.should == 'other'
+		b.m2.should == :m2
+		b.other.should == 'other'
 
 		Functionality().tags.should == [Tag1, Tag2, Tag3]
 
 	end
 
-	it 'keeps the main trait in sync with the last tag' do
+	it 'still holds on to earlier tag definitions' do
 
-		o = Object.new.extend Tag3
-		p = Object.new.extend Functionality()
+		class A
+			inject Tag2
+		end
+		class B
+			inject Tag3 
+		end
+		# 
+		# Test previous Tags are unaffected !!
+		# 
+		A.new.m1.should == 2							# includes Tag2
+		A.new.m2.should == :m2
+		A.new.m3.should == 'em3'
 
-		# test it
+		B.new.m1.should == 4							# includes Tag3
+		B.new.m2.should == :m2
+		B.new.m3.should == 'em3em3'
 
-		o.m1.should == 4
-		p.m1.should == 4
+		#
+		# other clients
+		#
+		class C
+			inject Tag2
+		end
+		c = C.new
+
+		c.m1.should == 2
+		c.m2.should == :m2
+		c.m3.should == 'em3'
+
+	end
+
+	it 'keeps the VMC in proper working order' do
+
+		class A
+			inject Tag2
+		end
+		class B
+			inject Tag3 
+		end
+		#
+		# VMC (Virtual Method Cache) method
+		#
+		Functionality() do
+			def m4							
+				:m4
+			end
+		end
+
+		class C
+			inject Tag2
+		end
+		c = C.new
+
+		# jit inherited
+		c.m1.should == 2
+		c.m3.should == 'em3'
+
+		# version inherited
+		c.m2.should == :m2
+		c.other.should == 'other'
+
+		c.m4.should == :m4		# vmc method
+
+		# other clients of the VMC
+		A.new.m4.should == :m4
+		B.new.m4.should == :m4
 
 	end
 
@@ -173,65 +246,6 @@ describe 'jit inheriatnce with tagging' do
 		# Total Tags
 
 		Functionality().tags.should == [Tag1, Tag2, Tag3, Tag4]
-
-	end
-
-	it 'still holds on to earlier tag definitions' do
-
-		# 
-		# Test previous Tags are unaffected !!
-		# 
-		AA6.new.m1.should == 2							# includes Tag2
-		AA6.new.m2.should == :m2
-		AA6.new.m3.should == 'em3'
-
-		AA7.new.m1.should == 4							# includes Tag3
-		AA7.new.m2.should == :m2
-		AA7.new.m3.should == 'em3em3'
-
-		#
-		# other clients
-		#
-		class AA6B
-			inject Tag2
-		end
-		aa6b = AA6B.new
-
-		aa6b.m1.should == 2
-		aa6b.m2.should == :m2
-		aa6b.m3.should == 'em3'
-
-	end
-
-	it 'keeps the VMC in proper working order' do
-
-		#
-		# VMC (Virtual Method Cache) method
-		#
-		Functionality() do
-			def m4							
-				:m4
-			end
-		end
-
-		class AA6B
-			inject Tag2
-		end
-		aa6b = AA6B.new
-
-		# jit inherited
-		aa6b.m1.should == 2
-		aa6b.m3.should == 'em3'
-
-		# version inherited
-		aa6b.m2.should == :m2
-		aa6b.other.should == 'other'
-
-		aa6b.m4.should == :m4		# vmc method
-
-		# other clients of the VMC
-		AA6.new.m4.should == :m4
-		AA7.new.m4.should == :m4
 
 	end
 
@@ -378,14 +392,14 @@ describe 'jit inheriatnce with tagging' do
 			end
 		end
 		
-		class AA10
+		class A
 		  inject Tag6
 		end
 
 		# test it
 
-		AA10.new.m1.should == 'm1m1'
-		AA10.new.m2 == 4
+		A.new.m1.should == 'm1m1'
+		A.new.m2 == 4
 
 	end
 
@@ -398,7 +412,7 @@ describe 'jit inheriatnce with tagging' do
 				end
 			end
 
-			class AA11
+			class A
 				inject Functionality() do
 					def m1
 						super + 1											# override
@@ -408,7 +422,7 @@ describe 'jit inheriatnce with tagging' do
 
 			# test it
 
-			AA11.new.m1.should == 2
+			A.new.m1.should == 2
 
 
 			Tag5 = Functionality do
@@ -417,7 +431,7 @@ describe 'jit inheriatnce with tagging' do
 				end
 			end
 
-			class BB11
+			class B
 				inject Functionality() do
 					def m1
 						super * 2											# new override
@@ -428,7 +442,7 @@ describe 'jit inheriatnce with tagging' do
 		
 		# test it
 
-		BB11.new.m1.should == 10
+		B.new.m1.should == 10
 
 
 	end
@@ -442,7 +456,7 @@ describe 'jit inheriatnce with tagging' do
 				end
 			end
 
-			class AA12
+			class A
 				inject Functionality() do
 					def m1
 						super + 1
@@ -450,7 +464,7 @@ describe 'jit inheriatnce with tagging' do
 				end
 			end
 
-			AA12.new.m1.should == 2
+			A.new.m1.should == 2
 
 
 			Tag5 = Functionality do
@@ -459,7 +473,7 @@ describe 'jit inheriatnce with tagging' do
 				end
 			end
 
-			class BB12
+			class B
 				inject Functionality() do
 					def m1
 						super * 2				# new override
@@ -468,26 +482,42 @@ describe 'jit inheriatnce with tagging' do
 			end
 		end
 		
-		BB12.new.m1.should == 10
+		B.new.m1.should == 10
 
 		# test directives
 
 		Functionality(:silence)
 
-		AA12.new.m1.should == nil										# both bases affected
-		BB12.new.m1.should == nil
+		A.new.m1.should == nil										# both bases affected
+		B.new.m1.should == nil
 
 		Functionality(:active)
 
-		AA12.new.m1.should == 2											# both bases restored
-		BB12.new.m1.should == 10
+		A.new.m1.should == 2											# both bases restored
+		B.new.m1.should == 10
 
 	end
 
 end
 
-describe 'jiti external basing' do
+describe 'jiti soft external basing' do
 
+	####################################################################
+	# Soft external basing should be the preferred way of doing things #
+	# . The alternative hard internal basins (see below) is not as     #
+	# flexible and inrtoduces fixed ancestor ordering --once the       #
+	# the ancestors are layout the keep their precedence unlsess you   #
+	# stick only to injectors.																				 #
+	# . Soft ancestors don't suffer from this like: 									 #
+	# 																																 #
+	# 	trait :a, :b, :c 																							 #
+	# 																																 #
+	# 	x = a b c																											 #
+	# 	y = a c b																											 #
+	# 																																 @
+	# For more on this see the compostion spec												 #
+	# ##################################################################
+	
 	before do
 		
 		#
@@ -726,6 +756,168 @@ describe 'jiti external basing' do
 			r.m2.should == 6
 		end
 		
+	end
+	
+end
+
+describe 'jiti hard external basing' do
+
+	####################################################################
+	# Soft external basing should be the preferred way of doing things #
+	# . The alternative hard internal basing (see below) is not as     #
+	# flexible and inrtoduces fixed ancestor ordering --once the       #
+	# the ancestors are layout the keep their precedence unlsess you   #
+	# stick only to injectors.																				 #
+	# . Soft ancestors don't suffer from this like: 									 #
+	# 																																 #
+	# 	trait :a, :b, :c 																							 #
+	# 																																 #
+	# 	x = a b c																											 #
+	# 	y = a c b																											 #
+	# 																																 @
+	# For more on this see the compostion spec												 #
+	# ##################################################################
+	
+	before do
+		
+		#
+		# Injector
+		# 
+		trait :Functionality
+
+
+		module Base1												# EXTERNAL BASEs!!
+			def m1
+				2
+			end
+		end
+
+		module Base2
+			def m1
+				3
+			end
+		end
+
+		suppress_warnings do
+			# 
+			# Similar to Above
+			# 
+			Tag1 = Functionality() do
+
+				include Base1										# SAME AS AN INTERNAL BASE PRACTICALLY!!
+
+				def m2
+					:m2
+				end
+			end
+
+			Tag2 = Functionality() do
+				
+				include Base2
+				
+				def m1														# The :m1 override invokes JIT inheritance
+					super + 1												# -- Tag1 is added as ancestor
+				end 															# -- allows the use of super
+
+				def m3							
+					'em3'
+				end
+			end
+
+			Tag3 = 	Functionality() do
+				
+				include Base1											# THIS DOESN'T WORK!!!
+																					# Base1 was already an ancestor before Base2
+				def m1
+					super * 2 											# second override to #m1 
+				end                   						# -- Tag2 added as ancestor
+				def m3
+					super * 2												# first override to #m3
+				end 								
+			end
+
+		end
+	end
+
+	after do
+
+		suppress_warnings do
+
+			Tag1 = nil
+			Tag2 = nil
+			Tag3 = nil
+			Tag4 = nil
+			Tag5 = nil
+			Tag6 = nil
+
+		end
+
+		Functionality(:implode)
+
+	end
+	
+	it 'works for Tag1' do
+		
+		# SAME AS ABOVE
+		
+		o = Object.new.extend(Tag1)
+		o.m1.should == 2
+		
+	end
+	
+	it 'works for Tag2' do
+		
+		# SAME AS ABOVE
+		
+		o = Object.new.extend(Tag2)
+		o.m1.should == 4
+		
+	end
+
+	it 'works with initial external basing' do
+		
+		# DIFFERENT THAN ABOVE
+		
+		o = Object.new.extend(Tag3)
+		o.m1.should == 8              
+
+	end
+
+	it 'also keeps the main trait in sync with the last tag' do
+
+		# SAME AS ABOVE
+		
+		p = Object.new.extend(Functionality(Base1))	# THIS DOESN'T WORK EITHER!!!
+		p.m1.should == 8
+
+	end
+
+	it 'allows external base substitution --keeps the Trait Injector shell/jacket' do
+
+		# SAME AS ABOVE
+		
+		q = Object.new.extend(Functionality())	# Base2 comming from internal spec!!!!
+		q.m1.should == 8
+
+	end
+
+	it 'follows the other normal rules' do
+
+		# DIFFERENT THAN ABOVE
+		
+		suppress_warnings do
+			Tag4 = Functionality(Base1) do 				# THIS DOESN'T WORK EITHER!!!
+				def m1
+					super() * 2											
+				end
+				def m2
+					:m2
+				end
+			end
+		end
+		p = Object.new.extend(Tag4)
+		p.m1.should == 16
+
 	end
 	
 end

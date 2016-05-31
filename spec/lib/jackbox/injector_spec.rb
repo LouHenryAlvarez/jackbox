@@ -198,13 +198,13 @@ describe Injectors, :injectors do
 				
 				# define more stuff on the injector
 				stuff do
-					define_method :far do |miles|
+					def this_far miles
 						'My stuff is: ' + miles.to_s + ' miles away' 
 					end
 				end
 				
 				# program stiil works
-				some_thing.far(100).should == ('My stuff is: 100 miles away')
+				some_thing.this_far(100).should == ('My stuff is: 100 miles away')
 				
 			end
 			

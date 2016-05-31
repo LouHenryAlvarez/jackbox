@@ -11,11 +11,7 @@ require_relative "jackup_cmd_shared"
   heavily relying on the rubygems infrastructure, especially after 1.9
 	
 =end
-decorate :system do |*args|
-	pid = spawn(*args)
-	Process.wait(pid, 0)
-end
-
+if OS.mac?
 describe 'jackup command', :command do
 
   # Helpers' module
@@ -42,8 +38,7 @@ describe 'jackup command', :command do
   		context 'if jackup --no-gem --no-bundle command is issued', :empty_dir do
   			# command issued
       before(:all) { 
-	p "----------------------#{Dir.pwd}------------------------------------------"
-	system 'jackup --no-gem --no-bundle' }
+				system 'jackup --no-gem --no-bundle' }
   			####
   			assure 'a simple structure'
   			it_behaves_like 'a tooled project'
@@ -290,3 +285,5 @@ describe 'jackup command', :command do
 	end
 
 end #jackup command
+end #if
+

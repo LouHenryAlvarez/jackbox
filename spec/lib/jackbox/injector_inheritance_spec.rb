@@ -137,7 +137,7 @@ describe "Injector Inheritance" do
 
 	end
 
-	a "more complex example: effectively working Ruby's multiple inheritance" do
+	a "more complex example:" do
 
 		jack :player do                       
 			def sound                               
@@ -188,88 +188,138 @@ describe "Injector Inheritance" do
 	end
 
 
-	it "allows a just-in-time inheritance policy" do
-		
-		########################## important ############################
-		# For more information on JIT Inheritance (jiti), please see:   #
-		# the accompanying spec file jiti_rules_spec.rb in the specs    #
-		# directory.																										#
-		#################################################################
+	describe 'jiti' do
 
-		trait :Functionality
-		
-		# 
-		# Our Modular Closure
-		# 
-		Tag1 = Functionality do
-			def m1
-				1
+		it "follows a just-in-time inheritance policy" do
+
+			########################## important ############################
+			# For more information on JIT Inheritance (jiti), please see:   #
+			# the accompanying spec file jiti_rules_spec.rb in the specs    #
+			# directory.																										#
+			#################################################################
+
+			injector :Functionality
+
+			# 
+			# Our Modular Closure
+			# 
+			Tag1 = Functionality do
+				def m1
+					1
+				end
+
+				def m2
+					:m2
+				end
+			end
+
+			expect(Tag1.ancestors).to eql( [Tag1] )
+			expect(Functionality().ancestors).to eql( [Functionality()] )
+
+
+			# 
+			# Normal Injector inheritance
+			# 
+			Functionality do
+				def other  					# No overrides No inheritance
+					'other'						# -- same ancestors as before
+				end 								# -- normal trait inheritance
+			end
+
+			# test it
+
+			expect(Tag1.ancestors).to eql( [Tag1] )
+			expect(Functionality().ancestors).to eql( [Functionality()] )
+
+			o  = Object.new.extend(Functionality())
+
+			# inherited
+			o.m1.should == 1
+			o.m2.should == :m2
+
+			# current
+			o.other.should == 'other'
+
+
+			#
+			# JIT inheritance
+			# 
+			Tag2 = Functionality do
+				def m1														# The :m1 override invokes JIT inheritance
+					super + 1												# -- Tag1 is added as ancestor
+				end 															# -- allows the use of super
+
+				def m3							
+					'em3'
+				end
+			end
+
+
+			#####
+			# test it
+
+			p = Object.new.extend(Tag2)
+
+			# JIT inherited
+			p.m1.should == 2										# using inherited function
+
+			# regular inheritance
+			p.m2.should == :m2
+			p.m3.should == 'em3'
+			p.other.should == 'other'
+
+	    expect(Functionality().ancestors).to eql( [Functionality(), Tag1] )
+	    expect(Tag2.ancestors).to eql( [Tag2, Tag1] )
+
+			Functionality(:implode)
+
+		end
+
+	  but '#define_method skips all hard tags' do
+
+	    injector :J1
+	
+			J1Tag1 = J1 do
+				def m1
+					1
+				end
 			end
 			
-			def m2
-				:m2
+			J1Tag2 = J1 do
+				def m1
+					super * 3
+				end
 			end
-		end
-		
-		expect(Tag1.ancestors).to eql( [Tag1] )
-		expect(Functionality().ancestors).to eql( [Functionality()] )
-
-
-		# 
-		# Normal Injector inheritance
-		# 
-		Functionality do
-			def other  					# No overrides No inheritance
-				'other'						# -- same ancestors as before
-			end 								# -- normal trait inheritance
-		end
-		
-		# test it
-
-		expect(Tag1.ancestors).to eql( [Tag1] )
-		expect(Functionality().ancestors).to eql( [Functionality()] )
-		
-		o  = Object.new.extend(Functionality())
-		
-		# inherited
-		o.m1.should == 1
-		o.m2.should == :m2
-		
-		# current
-		o.other.should == 'other'
-		
-		
-		#
-		# JIT inheritance
-		# 
-		Tag2 = Functionality do
-			def m1														# The :m1 override invokes JIT inheritance
-				super + 1												# -- Tag1 is added as ancestor
-			end 															# -- allows the use of super
 			
-			def m3							
-				'em3'
+			o = Object.new.enrich(J1Tag2)
+			o.m1.should == 3
+			
+			J1Tag3 = J1 do
+				define_method :m1 do
+					super() + 4
+				end
 			end
-		end
-		
-		# test it
-		
-		expect(Tag2.ancestors).to eq([Tag2])
-		expect(Functionality().ancestors).to eq([Functionality()])
-		
-		p = Object.new.extend(Tag2)
-		
-		# JIT inherited
-		p.m1.should == 2										# using inherited function
-		
-		# regular inheritance
-		p.m2.should == :m2
-		p.m3.should == 'em3'
-		p.other.should == 'other'
+			
+			expect { o.m1.should == 5 }.to raise_error(RSpec::Expectations::ExpectationNotMetError)
+			assert( o.m1 == 3 )
+			
+			
+			p = Object.new.extend J1Tag3
+			p.m1.should == 7
 
-		Functionality(:implode)
-		
+			J1 do
+				define_method :m1 do
+					super() + 4
+				end
+			end
+			
+			expect{ p.m1.should == 9 }.to raise_error(RSpec::Expectations::ExpectationNotMetError)
+			assert( o.m1 == 3 )
+			assert( p.m1 == 7 )
+			
+	  end
 	end
+	
 end
 
 describe "the behavior of traits under class inheritance" do

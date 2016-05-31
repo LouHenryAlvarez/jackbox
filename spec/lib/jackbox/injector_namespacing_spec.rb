@@ -256,12 +256,25 @@ end
 
 describe "tag scoping and naming" do
 	
+	before do
+		suppress_warnings do
+			A = Class.new
+			B = Class.new
+		end
+	end
+	after do
+		suppress_warnings do
+			A = nil
+			B = nil
+		end
+	end
 	it 'passes on top level' do
 		
 		jack :M0
 		
 		TopLevelTag = M0()
 		extend TopLevelTag
+		
 		singleton_class.ancestors.to_s.should match(/TopLevelTag/)
 		
 	end
@@ -276,11 +289,11 @@ describe "tag scoping and naming" do
 			Atag = M1.j1
 		end
 		
-		class A4 
+		class A
 			include M2::Atag
 		end
 		
-		A4.ancestors.to_s.should match(/Atag/)
+		A.ancestors.to_s.should match(/Atag/)
 		
 	end
 	
@@ -292,12 +305,11 @@ describe "tag scoping and naming" do
 			end
 		end
 		
-		class B4
+		class B
 			include M3::M4::AnotherTag
 		end
 		
-		A4.ancestors.to_s.should match(/Atag/) 
-		B4.ancestors.to_s.should match(/AnotherTag/)
+		B.ancestors.to_s.should match(/AnotherTag/)
 		
 	end
 	

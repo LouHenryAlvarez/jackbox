@@ -19,12 +19,6 @@ class Dir
 	# 
 	with singleton_class do
 
-		#:doc:
-		decorate :entries do |name='.', opts=nil| 
-			super name, opts														# use of super
-		end                           
-		
-		#:doc:
 		decorate :new do |name, &code|
 			FileUtils.mkpath name unless exists?(name)
 			return Dir.open(name, &code) if code
@@ -48,7 +42,7 @@ class Dir
 
 		# true if receiver is completely clear of all entries (including .files)
     def clear? 
-      Dir.entries('.') == ['.', '..']
+      (Dir.entries('.') - ['.', '..']) == []
     end
 
 		# true when receiver is empty of normal files and dirs
@@ -73,6 +67,7 @@ class Dir
 		lets :la do |pattern='*'|
 			Dir.glob patherize[pattern], File::FNM_DOTMATCH
 		end
+		
   end
 	
 end

@@ -230,32 +230,55 @@ describe 'Injector versioning:', :traits do
 		
 		end
 
-		there 'is a different way todo global updates on Injectors: use define_method' do
+		there 'is a different way todo global updates on Injectors (except for Tags): use define_method' do
 
-			SomeJack = jack :some_jack do
+			SomeJack = jack :Some_jack do
 				def foo_bar
 					'a foo and a bar'
 				end
 			end
 
-			class Client
-				inject SomeJack
+			class ClientA
+				inject SomeJack						# tag
+			end
+			class ClientB
+				inject Some_jack()				# regular versions
+			end
+			class ClientC
+				inject Some_jack()
 			end
 
-			Client.new.foo_bar.should == 'a foo and a bar'			# expected
+			ClientA.new.foo_bar.should == 'a foo and a bar'			# expected
+			ClientB.new.foo_bar.should == 'a foo and a bar'			# expected
+			ClientC.new.foo_bar.should == 'a foo and a bar'			# expected
 
-			some_jack do
+			Some_jack() do
 				define_method :foo_bar do
-					'fooooo and barrrrr'
+					'fooooo and barrrrr'		# use #define_method
 				end
 			end
 
-			Client.new.foo_bar.should == 'fooooo and barrrrr'		# different
+			ClientA.new.foo_bar.should == 'a foo and a bar'			# Tags are untouched 
+			ClientB.new.foo_bar.should == 'fooooo and barrrrr'		# changed
+			ClientC.new.foo_bar.should == 'fooooo and barrrrr'		# changed
 
 		end
 	end
 
-	describe "utility of trait versioning: " do
+	describe "utility of injector versioning: " do
+		
+		before do
+			suppress_warnings do
+				A = Class.new
+				B = Class.new
+			end
+		end
+		after do
+			suppress_warnings do
+				A = nil
+				B = nil
+			end
+		end
 		
 		it 'allows to easily override methods without affecting other parts of your program' do
 			
@@ -265,10 +288,10 @@ describe 'Injector versioning:', :traits do
 				end
 			end
 			
-			class AA4
+			class A
 				inject J1
 			end
-			AA4.new.meth(3).should == 3
+			A.new.meth(3).should == 3
 			
 			J2 = j do
 				def meth(arg)
@@ -276,12 +299,12 @@ describe 'Injector versioning:', :traits do
 				end
 			end
 			
-			class BBB
+			class B
 				inject J2
 			end
-			BBB.new.meth(3).should == 9
+			B.new.meth(3).should == 9
 			
-			AA4.new.meth(3).should == 3
+			A.new.meth(3).should == 3
 			
 		end
 		

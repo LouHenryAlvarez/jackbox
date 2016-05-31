@@ -561,41 +561,60 @@ describe 'some use cases', :traits do
 					end
 				end
 			end
+			
 			it 'works like normal decorators' do
 
-				o = Object.new
-				o.enrich JD2, JD1
-				o.m1.should == 3
-				
-				p = Object.new
-				p.enrich JD1, JD2
-				p.m1.should == 1
+				suppress_warnings do
+					o = Object.new
+					o.enrich JD2, JD1
+					o.m1.should == 3
+				end
 				
 			end
 			
-			it 'raise errors on decorator collusions' do
-				
+			it 'issues warnings on decorator collusions' do
+
+				expect { 							# same as above without #suppress_warnings
+					
+					o = Object.new
+					o.enrich JD2, JD1
+					o.m1.should == 3
+
+				}.to output(a_string_starting_with('warning')).to_stderr
 				expect{
 					
 					r = Object.new
 					r.enrich JD1, JD1
 					r.m1.should == 1
 				
-				}.to raise_error(ArgumentError)
+				}.to output(a_string_starting_with('warning')).to_stderr
+				expect{
+					
+					p = Object.new
+					p.enrich JD1, JD2
+					p.m1.should == 1
+
+				}.to output(a_string_starting_with('warning')).to_stderr
 				expect{
 					
 					q = Object.new
 					q.enrich JD2, JD2
 					q.m1.should == 5
 				
-				}.to raise_error(ArgumentError)
+				}.to output(a_string_starting_with('warning')).to_stderr
 				
 			end
 		end
 		
-		describe "jiti as decorators on external base" do
+		describe "jiti as decorators with external base" do
 			before do
 				suppress_warnings do
+					
+					class JDClass
+						def m1
+							1
+						end
+					end
 					JD1 = trait :jd do
 						def m1
 							super + 1
@@ -606,42 +625,53 @@ describe 'some use cases', :traits do
 							super + 2
 						end
 					end
-					class JDClass
-						def m1
-							1
-						end
-					end
+					
 				end
 			end
 			
-			it 'can work like normal decorators' do
+			it 'works like normal decorators' do
 
-				o = JDClass.new
-				o.enrich JD2, JD1
-				o.m1.should == 5
+				suppress_warnings do
+					o = JDClass.new
+					o.enrich(JD1).m1.should == 2
+					o.enrich(JD2)
+					o.m1.should == 5
+				end
 				
-				p = JDClass.new
-				p.enrich JD1, JD2
-				p.m1.should == 5
-
+				
 			end
 			
-			it 'raises errors on decorator collusions' do
+			it 'should issue warnings for colluding ancestors' do
 				
-				expect{
+				expect {
+					
+					o = JDClass.new
+					o.enrich(JD1).m1.should == 2
+					o.enrich(JD2)
+					o.m1.should == 5
+					
+				}.to output(a_string_starting_with('warning')).to_stderr
+				expect {
 					
 					r = JDClass.new
-					r.enrich JD1, JD1
-					r.m1.should == 3
+					r.enrich(JD1).m1.should == 2
+					r.enrich(JD1).m1.should == 3
 				
-				}.to raise_error(ArgumentError)
+				}.to output(a_string_starting_with('warning')).to_stderr
+				expect{
+					
+					p = JDClass.new
+					p.enrich JD1, JD2
+					p.m1.should == 5
+
+				}.to output(a_string_starting_with('warning')).to_stderr
 				expect{
 					
 					q = JDClass.new
 					q.enrich JD2, JD2
 					q.m1.should == 6
 
-				}.to raise_error(ArgumentError)
+				}.to output(a_string_starting_with('warning')).to_stderr
 				
 			end
 		end

@@ -51,31 +51,37 @@ describe Dir do
 			FileUtils.rm_rf '.'
 		end
 
-		specify 'if files are present' do
+		example 'if NO files are present' do
+			Dir.should be_empty
+			Dir.should be_clear
+		end
+
+		example 'if just a single regular files are present' do
 			FileUtils.touch rfile
 			Dir.should_not be_empty
 			Dir.should_not be_clear
 		end
 
-		specify 'if NO files are present' do
-			Dir.should be_empty
-			Dir.should be_clear
-		end
+		example 'empty but not clear/clear is also empty' do
 
-		specify 'empty but not clear/clear is also empty' do
 			# add a couple of files
 			FileUtils.touch('.tester') 
 			FileUtils.touch('mester')
-			#test for empty
-			Dir.should_not be_empty
-			Dir.should_not be_clear
+
+			# delete regular files
 			File.delete('mester')
+
+			# should be empty but not clear
 			Dir.should be_empty
-			# test for clear of . files
 			Dir.should_not be_clear
+			
+			# delete .dotfiles
 			File.delete('.tester')
+			
+			# should be empty and clear
 			Dir.should be_empty
 			Dir.should be_clear
+
 		end
 	end
 	
@@ -83,30 +89,59 @@ describe Dir do
 		before do
 			FileUtils.rm_rf '.'
 		end
-		it 'should have a somedir directory' do
+
+		it 'actually creates a somedir directory' do
+
+			# assert conditions before
+			Dir.should be_empty
+			Dir.should be_clear
+			
 			# add directory
 			somedir = Dir.new 'somedir'
-			# test dir conditions
-			somedir.should be_instance_of(Dir)
+
+			# assert dir conditions
 			Dir.should_not be_empty
-			Dir.ls.grep(/somedir/).should_not be_empty
 			File.should be_directory('somedir')
+			# assert variable
+			somedir.should be_instance_of(Dir)
+
 		end
 	end	
 	
-	describe 'Dir.entries' do
+	describe 'Dir.entries, ls, la' do
 		before do
 			FileUtils.rm_rf '.'
 		end
+
 		it 'returns a list of members in dir' do
+
 			# add a couple of files
 			FileUtils.touch('.tester') 
 			FileUtils.touch('mester')
 			# add a directory
 			somedir = Dir.new 'somedir'
-			# test for conditions
-			Dir.entries.should == ['.', '..', '.tester', 'mester', 'somedir']
+			
+			# assert entries returns everything/same as #la
+			# Note: done in this funny way because ordering may be PLATFORM dependent
+			(['.', '..', '.tester', 'mester', 'somedir'] - Dir.entries('.')).should == []
+			(Dir.entries('.') - Dir.la).should == []
+			
 		end
+		
+		it 'has ls return only non dotfiles' do
+			
+			# add a couple of files
+			FileUtils.touch('.tester') 
+			FileUtils.touch('mester')
+			# add a directory
+			somedir = Dir.new 'somedir'
+			
+			# assert entries returns everything/same as #la
+			# Note: done in this funny way because ordering may be PLATFORM dependent
+			(['mester', 'somedir'] - Dir.ls).should == []
+			
+		end
+		
 	end
 	
 end

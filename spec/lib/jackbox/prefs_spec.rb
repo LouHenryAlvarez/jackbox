@@ -9,6 +9,17 @@ include Injectors
 
 describe 'what Prefs does' do
 
+	# def launch program
+	# 	case
+	# 	when OS.windows?
+	# 		return system "ruby.exe", program if File.exists?(program)
+	# 		system "ruby.exe", '-e', program
+	# 	else
+	# 		return system "/usr/bin/env ruby", program if File.exists?(program)
+	# 		system "/usr/bin/env ruby", '-e', program
+	# 	end
+	# end
+
 	it 'creates module level attribute methods' do
 		module Tester
 			extend Prefs
@@ -51,45 +62,45 @@ describe 'what Prefs does' do
 		Jester.value.should == 10 
 	end
 
-	it 'persists across processes' do
-		# we run a process and make settings
-		launch %{
-			require 'jackbox'
-
-			class Application
-				include Prefs
-
-				pref :data_path => "#{ENV['HOME']}/tmp/jackbox"
-
-				def foo
-				end
-			end
-			
-			#...
-			
-			Application.data_path = "#{ENV['HOME']}/tmp/foo"
-		}
-		Process.waitall
-		
-		# After the previous invocation
-		class Application
-			include Prefs
-			
-			pref :data_path => "#{ENV['HOME']}/tmp/jackbox"
-			
-			def foo
-			end
-		end
-		
-		# ...
-		
-		Application.data_path.should == "#{ENV['HOME']}/tmp/foo"
-
-		# ...
-
-		Application.reset
-		Application.data_path.should == "#{ENV['HOME']}/tmp/jackbox"
-	end
+	# it 'persists across processes' do
+	# 	# we run a process and make settings
+	# 	launch %{
+	# 		require 'jackbox'
+	# 
+	# 		class Application
+	# 			include Prefs
+	# 
+	# 			pref :data_path => "#{ENV['HOME']}/tmp/jackbox"
+	# 
+	# 			def foo
+	# 			end
+	# 		end
+	# 		
+	# 		#...
+	# 		
+	# 		Application.data_path = "#{ENV['HOME']}/tmp/foo"
+	# 	}
+	# 	Process.waitall
+	# 	
+	# 	# After the previous invocation
+	# 	class Application
+	# 		include Prefs
+	# 		
+	# 		pref :data_path => "#{ENV['HOME']}/tmp/jackbox"
+	# 		
+	# 		def foo
+	# 		end
+	# 	end
+	# 	
+	# 	# ...
+	# 	
+	# 	Application.data_path.should == "#{ENV['HOME']}/tmp/foo"
+	# 
+	# 	# ...
+	# 
+	# 	Application.reset
+	# 	Application.data_path.should == "#{ENV['HOME']}/tmp/jackbox"
+	# end
 
 	it 'should allow definition of prefs outside the module definition' do
 		lambda{

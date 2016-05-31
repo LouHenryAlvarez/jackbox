@@ -14,24 +14,31 @@ include Injectors
 describe "VMC (Virtual Method Cache)" do
 	
 	before do
-		jack :J1
-		jack :K1
-		jack :L1
-		jack :M1
-		jack :N1
+		suppress_warnings do
+			jack :J1
+			jack :K1
+			jack :L1
+			jack :M1
+			jack :N1
+			A = Class.new
+			B = Class.new
+		end
 	end
-	
 	after do
-		J1(:implode)
-		K1(:implode)
-		L1(:implode)
-		M1(:implode)
-		N1(:implode)
+		suppress_warnings do
+			A = nil
+			B = nil
+			J1(:implode)
+			K1(:implode)
+			L1(:implode)
+			M1(:implode)
+			N1(:implode)
+		end
 	end
 	
 	it 'goes 3 deep' do
 		
-		class AA4
+		class A
 		  inject J1()
 		end
 		J1 do
@@ -49,15 +56,15 @@ describe "VMC (Virtual Method Cache)" do
 		  end
 		end
 		# debugger
-		AA4.new.n1m1
-		AA4.new.n2m1
-		AA4.new.n3m1
+		A.new.n1m1
+		A.new.n2m1
+		A.new.n3m1
 		
 	end
 	
 	it 'goes even deeper' do
 		
-		class AA5
+		class A
 		  inject J1()
 		end
 		J1 do
@@ -73,7 +80,7 @@ describe "VMC (Virtual Method Cache)" do
 			def daa
 			end
 		end
-		AA5.new.daa
+		A.new.daa
 		
 	end
 
@@ -306,8 +313,6 @@ describe "VMC (Virtual Method Cache)" do
 		 	trait :J2
 		 	trait :J3
 
-			class AA1
-			end
 			J1 do
 				include J2()
 			end
@@ -321,12 +326,12 @@ describe "VMC (Virtual Method Cache)" do
 					:mJ1
 				end
 			end
-			class AA1
+			class A
 				include J1()
 			end
 
-			AA1.new.mJ2.should == :mJ2
-			AA1.new.mJ1.should == :mJ1
+			A.new.mJ2.should == :mJ2
+			A.new.mJ1.should == :mJ1
 
 		}.not_to raise_error
 		
@@ -347,10 +352,10 @@ describe "VMC (Virtual Method Cache)" do
 			    end
 			  end
 			end
-			class AA2
+			class A
 			  include K1()
 			end
-			AA2.new.mj2.should == :mj2
+			A.new.mj2.should == :mj2
 			K2 do
 			  include K3() do
 			    def mj3						# virtual cache method with another indirect
@@ -358,7 +363,7 @@ describe "VMC (Virtual Method Cache)" do
 			    end
 			  end
 			end
-			AA2.new.mj3.should == :mj3
+			A.new.mj3.should == :mj3
 
 		}.not_to raise_error
 		
@@ -379,10 +384,10 @@ describe "VMC (Virtual Method Cache)" do
 					end
 				end
 			end
-			class AA3
+			class A
 				include M1()
 			end
-			AA3.new.mk2.should == :mk2
+			A.new.mk2.should == :mk2
 			M2 do
 				include M3()
 			end
@@ -391,7 +396,7 @@ describe "VMC (Virtual Method Cache)" do
 					:mk3
 				end
 			end
-			AA3.new.mk3.should == :mk3
+			A.new.mk3.should == :mk3
 
 		}.not_to raise_error
 		

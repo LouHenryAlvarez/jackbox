@@ -7,6 +7,7 @@ require "spec_helper"
 	
 =end
 
+if OS.mac?
 # Tester for an empty dir which has no entries
 RSpec.shared_context 'an empty dir', :empty_dir do
 	before :all do
@@ -172,5 +173,5 @@ RSpec.shared_examples "a tooled project" do
 	end
 
 end
-
+end #if
 

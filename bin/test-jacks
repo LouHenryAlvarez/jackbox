@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+require 'jackbox'
+dir = unless OS.windows?
+	system 'gem install rspec --no-document'
+	File.dirname(`gem which jackbox`)
+else
+	system 'gem.bat install rspec --no-document'
+	File.dirname(`gem.bat which jackbox`)
+end
+Dir.chdir dir
+Dir.chdir '..'
+system 'rspec -t~command'
+
