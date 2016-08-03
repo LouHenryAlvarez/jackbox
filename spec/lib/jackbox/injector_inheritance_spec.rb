@@ -214,7 +214,7 @@ describe "Injector Inheritance" do
 			end
 
 			expect(Tag1.ancestors).to eql( [Tag1] )
-			expect(Functionality().ancestors).to eql( [Functionality()] )
+			expect(Functionality().ancestors).to eq( [Functionality()] )
 
 
 			# 
@@ -229,7 +229,7 @@ describe "Injector Inheritance" do
 			# test it
 
 			expect(Tag1.ancestors).to eql( [Tag1] )
-			expect(Functionality().ancestors).to eql( [Functionality()] )
+			expect(Functionality().ancestors).to eq( [Functionality()] )
 
 			o  = Object.new.extend(Functionality())
 
@@ -268,8 +268,8 @@ describe "Injector Inheritance" do
 			p.m3.should == 'em3'
 			p.other.should == 'other'
 
-	    expect(Functionality().ancestors).to eql( [Functionality(), Tag1] )
-	    expect(Tag2.ancestors).to eql( [Tag2, Tag1] )
+	    expect(Functionality().ancestors).to eq( [Functionality(), Tag1] )
+	    expect(Tag2.ancestors).to eq( [Tag2, Tag1] )
 
 			Functionality(:implode)
 

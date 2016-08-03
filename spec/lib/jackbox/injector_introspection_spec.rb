@@ -7,7 +7,7 @@ describe "the introspection api in further detail" do
 
 	describe :traits do
 		
-		describe "base traits call" do
+		describe "base #traits call" do
     
 		  # . Name.traits == [j,......]
 		  # . Name.traits.by_name == [:name, ......]
@@ -48,7 +48,7 @@ describe "the introspection api in further detail" do
 			  # . Name.traits.by_name == [:name, ......]
 		
 				expect(InjectorContainer.traits.by_name).to all( be_an(Symbol))
-				expect(InjectorContainer.traits.by_name).to eql([:function, :style])
+				expect(InjectorContainer.traits.by_name).to eq([:function, :style])
 				# alias
 				expect(InjectorContainer.traits.sym_list).to all( be_an(Symbol))
 		
@@ -93,7 +93,7 @@ describe "the introspection api in further detail" do
 				ic.enrich InjectorContainer.style
 	
 				# result
-				ic.traits(:style).should eql(InjectorContainer.style.history.last)
+				# ic.traits(:style).should eq(InjectorContainer.style.history.last)
 				ic.traits(:style, :style).should all(be_an(Injector).and have_attributes(:name => :style))
 	
 			end
@@ -121,11 +121,11 @@ describe "the introspection api in further detail" do
 				Hash.inject Example2()
 
 				Hash.new.traits(:all).should all(be_an(Injector))
-				Hash.new.traits(:all).should eql [Example2(), Example1()]  # from Object, and Hash
+				Hash.new.traits(:all).should eq [Example2(), Example1()]  # from Object, and Hash
 
 				# as opposed to simple #traits call
 				
-				Hash.new.traits.should eql [Example2()] # with no :all option
+				Hash.new.traits.should eq [Example2()] # with no :all option
 
 			end
 
@@ -138,11 +138,11 @@ describe "the introspection api in further detail" do
 				end
 
 				AnyClass.traits(:all).should all(be_an(Injector))
-				AnyClass.traits(:all).should eql [Example2(), Example1()]
+				AnyClass.traits(:all).should eq [Example2(), Example1()]
 
 				# as opposed to simple #traits call
 				
-				AnyClass.new.traits.should eql [Example2()]
+				AnyClass.new.traits.should eq [Example2()]
 
 			end
 
@@ -157,11 +157,11 @@ describe "the introspection api in further detail" do
 				end
 
 				AnyModule.traits(:all).should all(be_an(Injector))
-				AnyModule.traits(:all).should eql [Example2(), Example3()]
+				AnyModule.traits(:all).should eq [Example2(), Example3()]
 				
 				# as opposed to simple #traits call
 				
-				AnyModule.traits.should eql [Example2()]
+				AnyModule.traits.should eq [Example2()]
 
 			end
 
@@ -176,11 +176,11 @@ describe "the introspection api in further detail" do
 				end
 
 				Example1().traits(:all).should all(be_an(Injector)) 
-				Example1().traits(:all).should eql [Example2(), Example3()]
+				Example1().traits(:all).should eq [Example2(), Example3()]
 
 				# as opposed to simple #traits call
 				
-				Example1().traits.should eql [Example2()]
+				Example1().traits.should eq [Example2()]
 
 			end
 
@@ -279,7 +279,6 @@ describe "the introspection api in further detail" do
 
 		end
 	end
-
 
 	describe :history, '#versions' do
 
@@ -506,6 +505,128 @@ describe "the introspection api in further detail" do
 				E().should == E().spec
 
 			end
+
+			# it 'returns 0 if trait/code injectors have the same member methods' do
+			# 
+			# 	trait :members_one do
+			# 		def m1
+			# 		end
+			# 		def m2
+			# 		end
+			# 	end
+			# 	
+			# 	trait :members_two do
+			# 		def m1
+			# 		end
+			# 		def m2
+			# 		end
+			# 	end
+			# 	
+			# 	expect(members_one <=> members_two).to eq 0
+			# 	
+			# end
+			# 
+			# it 'returns -1 if trait/code injector on the left has a subset of methods of injector on the riqht and the converse to be false' do
+			# 	
+			# 		trait :left_jack do
+			# 			def m1
+			# 			end
+			# 		end
+			# 		
+			# 		trait :right_jack do
+			# 			def m1
+			# 			end
+			# 			def m2
+			# 			end
+			# 		end
+			# 		
+			# 		# byebug
+			# 		expect(left_jack >= right_jack).to eq true
+			# 		expect(left_jack <= right_jack).to eq false
+			# 		
+			# end
+			# 
+			# it 'returns 1 if trait/code injectors on the left has a superset of the methods of injector on the right and the converse as false' do
+			# 
+			# 	trait :left_jack do
+			# 		def m1
+			# 		end
+			# 		def m2
+			# 		end
+			# 	end
+			# 	
+			# 	trait :right_jack do
+			# 		def m1
+			# 		end
+			# 	end
+			# 	
+			# 	expect(left_jack <= right_jack).to eq true
+			# 	expect(left_jack >= right_jack).to eq false
+			# 
+			# end
+			# 
+			# it 'returns -1 if trait/code injector on the left has a subset of methods of injector on the riqht and the converse to be false' do
+			# 	
+			# 		trait :left_jack do
+			# 			def m1
+			# 			end
+			# 		end
+			# 		
+			# 		trait :right_jack do
+			# 			def m1
+			# 			end
+			# 			def m2
+			# 			end
+			# 		end
+			# 		
+			# 		# byebug
+			# 		expect(left_jack > right_jack).to eq true
+			# 		expect(left_jack < right_jack).to eq false
+			# 		
+			# end
+			# 
+			# it 'returns 1 if trait/code injectors on the left has a superset of the methods of injector on the right and the converse as false' do
+			# 
+			# 	trait :left_jack do
+			# 		def m1
+			# 		end
+			# 		def m2
+			# 		end
+			# 	end
+			# 	
+			# 	trait :right_jack do
+			# 		def m1
+			# 		end
+			# 	end
+			# 	
+			# 	expect(left_jack < right_jack).to eq true
+			# 	expect(left_jack > right_jack).to eq false
+			# 
+			# end
+			# 
+			# 
+			# 
+			# 
+			# it 'returns a diff map in all other circumstances' do
+			# 	
+			# 	trait :left_jack do
+			# 		def m1
+			# 		end
+			# 		def m2
+			# 		end
+			# 	end
+			# 	
+			# 	trait :right_jack do
+			# 		def m3
+			# 		end
+			# 		def m4
+			# 		end
+			# 	end
+			# 	
+			# 	# byebug
+			# 	expect(left_jack <=> right_jack).to be_instance_of Array
+			# 	
+			# end
 			
 			it 'has case equality showing its presence in an instance' do
 				

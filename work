@@ -1,8 +1,0 @@
-#!/bin/zsh
-deva
-mate .
-mate lib/jackbox.rb
-mate lib/jackbox/injectors.rb
-mate lib/jackbox/injectors/prelude.rb
-mate lib/jackbox/injectors/coda.rb
-
